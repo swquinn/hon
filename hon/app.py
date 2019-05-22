@@ -162,9 +162,10 @@ class Hon():
         loaded. When we run ``_configure()`` it will potentially overwrite these
         defaults.
         """
+        self._configure()
+
         self._load_preprocessors()
         self._load_renderers()
-        self._configure()
 
     def _configure(self):
         """Configure the hon application environment.
@@ -174,6 +175,7 @@ class Hon():
             config_dict = _read_yaml_config(config_file)
             print(config_dict)
             self.config.update(config_dict.get('config', {}))
+            print(self.config)
         except:
             self.logger.warning('No .honrc file found, falling back to defaults.')
             pass
@@ -224,11 +226,20 @@ class Hon():
     def build(self):
         self.logger.info('Found {} books to build...'.format(len(self.books)))
 
+        # TODO: Get and create output directory
+
         for book in self.books:
             self.logger.info('Building book: {} ({})'.format(book.name, book.path))
+
+            #: Preprocess
+            for preprocessor in self.preprocessors:
+                if preprocessor.enabled:
+                    self.logger.debug("Running the {} preprocessor.".format(preprocessor.name))
+                    preprocessor.run(book)
+
+            #: Render
             for renderer in self.renderers:
-                # execute build for book with renderer
-                pass
+                renderer.render(book)
 
     def do_teardown_appcontext(self, exc=_sentinel):
         """Called right before the application context is popped.
@@ -307,17 +318,29 @@ class Hon():
 
     def register_preprocessor(self, preprocessor):
         key = 'preprocessor.{}'.format(preprocessor.get_name())
-        self.config[key] = preprocessor.default_config
+        preprocessor_config = dict(preprocessor.default_config)
 
-        obj = preprocessor(app=self)
+        if key in self.config:
+            preprocessor_config.update(self.config[key])
+        
+        self.config[key] = preprocessor_config
+
+        obj = preprocessor(app=self, config=preprocessor_config)
         self.preprocessors.append(obj)
+        return obj
     
     def register_renderer(self, renderer):
         key = 'output.{}'.format(renderer.get_name())
-        self.config[key] = renderer.default_config
+        renderer_config = dict(renderer.default_config)
 
-        obj = renderer()
+        if key in self.config:
+            renderer_config.update(self.config[key])
+        
+        self.config[key] = renderer_config
+
+        obj = renderer(app=self, config=renderer_config)
         self.renderers.append(obj)
+        return obj
 
     @setupmethod
     def teardown_appcontext(self, f):

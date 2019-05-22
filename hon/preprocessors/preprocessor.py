@@ -1,3 +1,6 @@
+#: TODO: There needs to be a better way of configuring preprocessors.
+#:       right now the preprocessor instance is unaware of configuration loaded
+#:       by the app.
 class Preprocessor(object):
     """
     :param app: The instance of the hon application.
@@ -9,8 +12,13 @@ class Preprocessor(object):
         'enabled': True
     }
 
-    def __init__(self, app):
+    def __init__(self, app, config=None):
         self.app = app
+        self.config = config or dict(self.default_config)
+
+    @property
+    def enabled(self):
+        return self.config.get('enabled', True)
 
     @property
     def name(self):
@@ -25,5 +33,5 @@ class Preprocessor(object):
                 cls.__name__))
         return cls._name
 
-    def run(self):
+    def run(self, book):
         raise NotImplementedError('A preprocessor must implement this method.')

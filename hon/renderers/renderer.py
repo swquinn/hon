@@ -1,6 +1,10 @@
 class Renderer(object):
     default_config = {}
 
+    def __init__(self, app, config=None):
+        self.app = app
+        self.config = config or dict(self.default_config)
+        
     @property
     def name(self):
         return self.get_name()
