@@ -1,0 +1,9 @@
+book:
+  title: My Complex Book
+  language: ~
+  build: ~
+  preprocessor:
+    links: ~
+    variables:
+      - my_var: "foo"
+      - book.scoped_var: "bar"

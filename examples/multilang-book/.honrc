@@ -1,0 +1,7 @@
+config:
+    title: 'My Awesome Book'
+    build: ~
+    html: ~
+    preprocessor:
+        links: ~
+        variables: ~
