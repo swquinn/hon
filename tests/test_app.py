@@ -4,6 +4,8 @@ from hon.app import (
     get_default_preprocessors, get_default_renderers, Hon
 )
 from hon.config import _read_yaml_config
+from hon.preprocessors import Preprocessor
+from hon.renderers import Renderer
 
 #: Used for scoping function mocks from other modules to the module that they
 #: are actually being invoked in.
@@ -105,3 +107,137 @@ def test_default_initialized_instance():
     assert 'output.ebook' in actual
 
 
+@pytest.mark.parametrize('preprocessor_config, expected', [
+    (
+        {},
+        { 'foo': 'bar', 'piyo': 'poyo' }
+    ),
+    (
+        { 'foo': 'baz' },
+        { 'foo': 'baz', 'piyo': 'poyo' }
+    )
+])
+def test_register_preprocessor(preprocessor_config, expected):
+    """Tests that preprocessors are registered correctly, and have their
+    configuration correctly assigned, both within the application's
+    configuration and the preprocessor's configuration.
+    """
+
+    #: A test-case preprocessor, for evaluating the logic for registering
+    #: preprocessors.
+    class FooPreprocessor(Preprocessor):
+        _name = 'foo'
+        default_config = {
+            'foo': 'bar',
+            'piyo': 'poyo'
+        }
+
+    config_key = 'preprocessor.{}'.format(FooPreprocessor.get_name())
+
+    app = Hon()
+    app.config[config_key] = preprocessor_config
+
+    preprocessor = app.register_preprocessor(FooPreprocessor)
+    assert preprocessor is not None
+    assert preprocessor.config == expected
+
+    app_config = app.config[config_key]
+    assert app_config is not None
+    assert app_config == expected
+
+
+def test_register_preprocessor_without_configuration():
+    """Tests that a preprocessor is registered, only with the preprocessor's
+    default configuration.
+    """
+
+    #: A test-case preprocessor, for evaluating the logic for registering
+    #: preprocessors.
+    class BarPreprocessor(Preprocessor):
+        _name = 'bar'
+        default_config = {
+            'bar': 'foo',
+            'quux': 'qaaz'
+        }
+
+    config_key = 'preprocessor.{}'.format(BarPreprocessor.get_name())
+
+    app = Hon()
+
+    expected = dict(BarPreprocessor.default_config)
+
+    preprocessor = app.register_preprocessor(BarPreprocessor)
+    assert preprocessor is not None
+    assert preprocessor.config == expected
+
+    app_config = app.config[config_key]
+    assert app_config is not None
+    assert app_config == expected
+
+
+@pytest.mark.parametrize('renderer_config, expected', [
+    (
+        {},
+        { 'foo': 'bar', 'piyo': 'poyo' }
+    ),
+    (
+        { 'foo': 'baz' },
+        { 'foo': 'baz', 'piyo': 'poyo' }
+    )
+])
+def test_register_renderer(renderer_config, expected):
+    """Tests that renderers are registered correctly, and have their
+    configuration correctly assigned, both within the application's
+    configuration and the renderer's configuration.
+    """
+
+    #: A test-case renderer, for evaluating the logic for registering
+    #: renderers.
+    class FooRenderer(Renderer):
+        _name = 'foo'
+        default_config = {
+            'foo': 'bar',
+            'piyo': 'poyo'
+        }
+
+    config_key = 'output.{}'.format(FooRenderer.get_name())
+
+    app = Hon()
+    app.config[config_key] = renderer_config
+
+    renderer = app.register_renderer(FooRenderer)
+    assert renderer is not None
+    assert renderer.config == expected
+
+    app_config = app.config[config_key]
+    assert app_config is not None
+    assert app_config == expected
+
+
+def test_register_renderer_without_configuration():
+    """Tests that a renderer is registered, only with the renderer's
+    default configuration.
+    """
+
+    #: A test-case renderer, for evaluating the logic for registering
+    #: renderers.
+    class BarRenderer(Renderer):
+        _name = 'bar'
+        default_config = {
+            'bar': 'foo',
+            'quux': 'qaaz'
+        }
+
+    config_key = 'output.{}'.format(BarRenderer.get_name())
+
+    app = Hon()
+
+    expected = dict(BarRenderer.default_config)
+
+    renderer = app.register_renderer(BarRenderer)
+    assert renderer is not None
+    assert renderer.config == expected
+
+    app_config = app.config[config_key]
+    assert app_config is not None
+    assert app_config == expected
