@@ -1,0 +1,358 @@
+# -*- coding: utf-8 -*-
+"""
+    hon.app
+    ~~~~~~~
+
+    This module implements the central Hon application.
+"""
+import os
+import configparser
+from collections import namedtuple
+from functools import update_wrapper
+from operator import attrgetter
+
+from .book import Book
+from .config import (_read_yaml_config, BookConfig)
+from .ctx import _AppCtxGlobals, AppContext
+from .helpers import locked_cached_property
+from .logging import create_logger
+
+# a singleton sentinel value for parameter defaults
+_sentinel = object()
+
+#: A collection of valid book configuration files which, if present, identify
+#: a directory as being the root of a book.
+VALID_BOOK_CONFIGURATIONS = ['book.yaml']  # TODO: ['book.json', 'book.toml', 'book.yaml']
+
+
+#:
+BookPath = namedtuple('BookPath', ['name', 'config_file', 'config_filepath', 'filepath'])
+
+
+def get_default_preprocessors():
+    """Return the collection of default preprocessors."""
+    import hon.preprocessors as p
+    return (
+        p.IndexPreprocessor,
+        p.IncludePreprocessor,
+        p.VariablesPreprocessor,
+    )
+
+
+def get_default_renderers():
+    """Return the collection of default renderers."""
+    import hon.renderers as r
+    return (
+        r.HtmlRenderer,
+        r.PdfRenderer,
+        r.EbookRenderer,
+    )
+
+
+def setupmethod(f):
+    """Wraps a method so that it performs a check in debug mode if the
+    first request was already handled.
+    """
+    def wrapper_func(self, *args, **kwargs):
+        if self.debug and self._got_first_request:
+            raise AssertionError('A setup function was called after the '
+                'first request was handled.  This usually indicates a bug '
+                'in the application where a module was not imported '
+                'and decorators or other functionality was called too late.\n'
+                'To fix this make sure to import all your view modules, '
+                'database models and everything related at a central place '
+                'before the application starts serving requests.')
+        return f(self, *args, **kwargs)
+    return update_wrapper(wrapper_func, f)
+
+
+class Hon():
+    """
+    """
+    #: The class that is used for the :data:`~hon.g` instance.
+    #:
+    #: Example use cases for a custom class:
+    #:
+    #: 1. Store arbitrary attributes on hon.g.
+    #: 2. Add a property for lazy per-request database connectors.
+    #: 3. Return None instead of AttributeError on unexpected attributes.
+    #: 4. Raise exception if an unexpected attr is set, a "controlled" hon.g.
+    app_ctx_globals_class = _AppCtxGlobals
+
+    #: Default configuration parameters for the project.
+    default_config = {
+        'title': None,
+        'description': None,
+        # TODO: should we allow discrete definition of books? arrays aren't
+        #       supported by default from the config parser so this would
+        #       have to have special handling.
+
+        'structure': {
+            'readme': 'README.md',
+            'glossary': 'GLOSSARY.md',
+            'summary': 'SUMMARY.md'
+        },
+
+        'build': {
+            #mdBook -> build-dir: "book",
+            #gitbook?
+            'build-dir': 'book',
+            'create-missing': True,
+            'use-default-preprocessors': True,
+        },
+    }
+
+    @locked_cached_property
+    def logger(self):
+        """The ``'hon'`` logger, a standard Python :class:`~logging.Logger`.
+
+        In debug mode, the logger's :attr:`~logging.Logger.level` will be set
+        to :data:`~logging.DEBUG`.
+
+        If there are no handlers configured, a default handler will be added.
+        See :ref:`logging` for more information.
+        """
+        return create_logger(self)
+
+    def __init__(self, project_path=None, source_path=None, config_file=None, debug=False):
+        #: Hon differentiates between a project path and a source path. The
+        #: project path is the folder that encompasses all things related to
+        #: the Hon project, e.g. the source folder for the book, the .honrc
+        #: configuration file, etc. If the project path is ``None``, Hon will
+        #: make the assumption that whatever directory it is being run from
+        #: is the project path. [SWQ]
+        if not project_path:
+            project_path = os.getcwd()
+
+        self.project_path = project_path
+        self.config_file = config_file
+
+        #: Assign default values to the configuration. The default values do
+        #: not include any of the default configuration for renderers (i.e.
+        #: outputs), preprocessors, etc. These are treated like plugins, even
+        #: if they are part of the core, so their default configuration is
+        #: defined locally and injected into the application configuration when
+        #: they are registered. This means that we need to register all of our
+        #: plugins before we actually configure the application, or create the
+        #: book.
+        self.config = dict(self.default_config)
+
+        self.debug = debug
+
+        #: The books that are registered with the application. By design, Hon
+        #: supports multiple books in a project; typically this is leveraged
+        #: as different localizations for the same edition of a book.
+        self.books = []
+
+        self.preprocessors = []
+        self.renderers = []
+
+        #: A list of functions that are called when the application context
+        #: is destroyed.  Since the application context is also torn down
+        #: if the request ends this is the place to store code that disconnects
+        #: from databases.
+        self.teardown_appcontext_funcs = []
+    
+    def init_app(self):
+        """Initializes the ``hon`` application.
+
+        Before we read the project's configuration and initialize the book(s),
+        we want to load all of the preprocessors, renderers, etc. such that they
+        are available to the application and have their default configuration
+        loaded. When we run ``_configure()`` it will potentially overwrite these
+        defaults.
+        """
+        self._load_preprocessors()
+        self._load_renderers()
+        self._configure()
+
+    def _configure(self):
+        """Configure the hon application environment.
+        """
+        try:
+            config_file = os.path.abspath(os.path.join(self.project_path, '.honrc'))
+            config_dict = _read_yaml_config(config_file)
+            print(config_dict)
+            self.config.update(config_dict.get('config', {}))
+        except:
+            self.logger.warning('No .honrc file found, falling back to defaults.')
+            pass
+        return self.config
+    
+    def _load_preprocessors(self):
+        """Loads the available preprocessors.
+        """
+        preprocessors = get_default_preprocessors()
+
+        for p in preprocessors:
+            self.register_preprocessor(p)
+        self._load_plugin_preprocessors()
+
+    def _load_renderers(self):
+        """Loads the available renderers.
+        """
+        renderers = get_default_renderers()
+
+        for r in renderers:
+            self.register_renderer(r)
+        self._load_plugin_renderers()
+    
+    def _load_plugin_preprocessors(self):
+        pass
+    
+    def _load_plugin_renderers(self):
+        pass
+
+    def app_context(self):
+        """Create an :class:`~hon.ctx.AppContext`.
+        
+        Use as a ``with`` block to push the context, which will make
+        :data:`current_app` point at this application.
+
+        An application context is automatically when running a CLI command. Use
+        this to manually create a context outside of these situations.
+
+        ::
+
+            with app.app_context():
+                app.do_something()
+
+        See :doc:`/appcontext`.
+        """
+        return AppContext(self)
+
+    def build(self):
+        self.logger.info('Found {} books to build...'.format(len(self.books)))
+
+        for book in self.books:
+            self.logger.info('Building book: {} ({})'.format(book.name, book.path))
+            for renderer in self.renderers:
+                # execute build for book with renderer
+                pass
+
+    def do_teardown_appcontext(self, exc=_sentinel):
+        """Called right before the application context is popped.
+
+        When handling a request, the application context is popped after the
+        request context. See :meth:`do_teardown_request`.
+
+        This calls all functions decorated with :meth:`teardown_appcontext`.
+        Then the :data:`appcontext_tearing_down` signal is sent.
+
+        This is called by :meth:`AppContext.pop() <hon.ctx.AppContext.pop>`.
+        """
+        if exc is _sentinel:
+            exc = sys.exc_info()[1]
+        for func in reversed(self.teardown_appcontext_funcs):
+            func(exc)
+        #: TODO: Add signal: appcontext_tearing_down.send(self, exc=exc)
+
+    def find_books(self, directory):
+        """Find one or more books at or under a given directory.
+        
+        Books cannot be embedded within one another, so the first time a book is
+        found at a certain path, any additional book configurations below that path
+        will be ignored.
+
+        :param directory: The directory to begin searching for books in.
+        :return: A set of found books.
+        """
+        book_paths = set()
+
+        located_books = []
+        for path, dirs, filenames in os.walk(directory):
+            #: Iterate over the found book paths, if at any point the current path
+            #: is a subpath of one of the already found books, we ignore it and
+            #: continue processing the rest of the directory tree.
+            if next((p for p in book_paths if p in path), None):
+                self.logger.debug(f'Found embedded book: {path}. Ignoring it.')
+                continue
+
+            for f in filenames:
+                if str(f).lower() in VALID_BOOK_CONFIGURATIONS:
+                    book_paths.add(path)
+
+                    name = os.path.basename(path)
+                    config_filepath = os.path.join(path, f)
+                    book_path = BookPath(
+                        name=name,
+                        config_file=f,
+                        config_filepath=config_filepath,
+                        filepath=path
+                    )
+                    located_books.append(book_path)
+        return sorted(set(located_books), key=attrgetter('filepath'))
+
+    def load_books(self, source_path=None):
+        """Initialize a project's books.
+        """
+        #: If the directory to the book source files was not specified, we make
+        #: the assumption that the book source path is the same as the project
+        #: path, which may be the directory in which the ``hon`` application
+        #: was run from.
+        if not source_path:
+            source_path = self.project_path
+
+        book_paths = self.find_books(source_path)
+
+        for book_path in book_paths:
+            book_config = BookConfig.from_file(book_path.config_filepath)
+            book = Book(name=book_path.name, path=book_path.filepath, config=book_config)
+            book.init_app(self)
+
+            book.load()
+
+            self.books.append(book)
+        return self
+
+    def register_preprocessor(self, preprocessor):
+        key = 'preprocessor.{}'.format(preprocessor.get_name())
+        self.config[key] = preprocessor.default_config
+
+        obj = preprocessor(app=self)
+        self.preprocessors.append(obj)
+    
+    def register_renderer(self, renderer):
+        key = 'output.{}'.format(renderer.get_name())
+        self.config[key] = renderer.default_config
+
+        obj = renderer()
+        self.renderers.append(obj)
+
+    @setupmethod
+    def teardown_appcontext(self, f):
+        """Registers a function to be called when the application context ends.
+        
+        These functions are typically also called when the request context is
+        popped.
+
+        Example::
+
+            ctx = app.app_context()
+            ctx.push()
+            ...
+            ctx.pop()
+
+        When ``ctx.pop()`` is executed in the above example, the teardown
+        functions are called just before the app context moves from the
+        stack of active contexts.  This becomes relevant if you are using
+        such constructs in tests.
+
+        Since a request context typically also manages an application
+        context it would also be called when you pop a request context.
+
+        When a teardown function was called because of an unhandled exception
+        it will be passed an error object. If an :meth:`errorhandler` is
+        registered, it will handle the exception and the teardown will not
+        receive it.
+
+        The return values of teardown functions are ignored.
+        """
+        self.teardown_appcontext_funcs.append(f)
+        return f
+
+
+def create_app(project_path=None, config_file='book.yaml', debug=False):
+    app = Hon(project_path=project_path, config_file=config_file, debug=True)
+    app.init_app()
+    return app
