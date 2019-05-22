@@ -342,6 +342,9 @@ class Hon():
         self.renderers.append(obj)
         return obj
 
+    def serve(self):
+        pass
+
     @setupmethod
     def teardown_appcontext(self, f):
         """Registers a function to be called when the application context ends.
