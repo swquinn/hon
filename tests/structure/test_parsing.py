@@ -44,8 +44,4 @@ def test_find_parsable_file(book_en, structure_filename, should_exist):
 ])
 def test_lookup_structure_file(book_en, structure_type, expected_filename, mock_find_parsable_file):
     lookup_structure_file(book_en, structure_type)
-    mock_find_parsable_file.assert_called_once_with(book_en.app, expected_filename)
-
-
-def test_parse_structure_file():
-    pytest.fail()
+    mock_find_parsable_file.assert_called_once_with(book_en, expected_filename)
