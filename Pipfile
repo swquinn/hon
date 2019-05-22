@@ -1,0 +1,24 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+black = "*"
+coverage = "*"
+pytest = ">=4.0"
+pytest-mock = "*"
+tox = "*"
+
+[packages]
+click = ">=7.0"
+markdown = ">=3.1"
+mistune = ">=0.8.4"
+pyyaml = ">=5.1"
+six = ">=1.12"
+
+[requires]
+python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true
