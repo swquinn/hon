@@ -125,7 +125,7 @@ class Book(object):
 
         print()
         self.app.logger.info('Loading book: {}'.format(self.name))
-        parse_summary(self)
+        self.parse_contents()
 
         # if cfg.create_missing {
         #     create_missing(&src_dir, &summary).chain_err(|| "Unable to create missing chapters")?;
@@ -163,6 +163,11 @@ class Book(object):
         print(self.summary.title)
         print(self.summary.numbered_parts)
         pass
+    
+    def parse_contents(self):
+        # parse_readme(self)
+        parse_summary(self)
+        # parse_glossary(self)
     
     def __repr__(self):
         return ('Book(name={name}, path={path}, authors={authors}, '
