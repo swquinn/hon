@@ -84,5 +84,5 @@ class VariablesPreprocessor(Preprocessor):
         'enabled': True
     }
 
-    def run(self):
+    def run(self, book):
         pass

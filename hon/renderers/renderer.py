@@ -17,3 +17,13 @@ class Renderer(object):
                 'must have a name. E.g. "html", "pdf", etc.').format(
                 cls.__name__))
         return cls._name
+    
+    def finish(self, book):
+        pass
+
+    def init(self, book):
+        pass
+
+    def render(self, book):
+        self.init(book)
+        self.finish(book)
