@@ -2,6 +2,7 @@ import os
 import markdown
 
 from collections.abc import Iterable, Iterator
+from hon.structure import Link
 from hon.summary import parse_summary
 
 
@@ -24,10 +25,8 @@ def _flatten_book_items(items):
     :param items: A collection of book items.
     :type items: []
     """
-    print("Processing: {}".format(items))
     flattened = []
     for item in items:
-        print("Adding: {}".format(item))
         flattened.append(item)
         if hasattr(item, 'children') and item.children:
             flattened.extend(_flatten_book_items(item.children))
@@ -139,31 +138,43 @@ class Book(object):
     # /// `SUMMARY.md` give the chapter locations relative to it.
     # fn load_book_from_disk<P: AsRef<Path>>(summary: &Summary, src_dir: P) -> Result<Book> {
     def load_book_from_disk(self):
-    #     debug!("Loading the book from disk");
-    #     let src_dir = src_dir.as_ref();
+        self.app.logger.debug('Loading book from disk')
+        prefix = tuple(self.summary.prefix_parts)
+        numbered = tuple(self.summary.numbered_parts)
+        suffix = tuple(self.summary.suffix_parts)
 
-    #     let prefix = summary.prefix_chapters.iter();
-    #     let numbered = summary.numbered_chapters.iter();
-    #     let suffix = summary.suffix_chapters.iter();
+        summary_items = prefix + numbered + suffix
 
-    #     let summary_items = prefix.chain(numbered).chain(suffix);
-
-    #     let mut chapters = Vec::new();
-
-    #     for summary_item in summary_items {
-    #         let chapter = load_summary_item(summary_item, src_dir, Vec::new())?;
-    #         chapters.push(chapter);
-    #     }
-
-    #     Ok(Book {
-    #         sections: chapters,
-    #         __non_exhaustive: (),
-    #     })
-    # }
-        print(self.summary.title)
-        print(self.summary.numbered_parts)
-        pass
+        for item in summary_items:
+            if type(item) == Link:
+                chapter = self.load_chapter(item)
+                self.sections.append(chapter)
+            elif type(item) == Separator:
     
+    def load_chapter(self, item, parent=None):
+        part = None
+        chapter_path = os.path.abspath(os.path.join(self.path, item.location))
+        
+        if not os.path.exists(chapter_path):
+            raise FileNotFoundError('File: {} not found.'.format(chapter_path))
+                
+        with open(chapter_path) as f:
+            raw = f.read()
+            part = Part(name=item.name, raw_text=raw, path=chapter_path, number=item.level, parent=parent)
+        
+        if not part:
+            raise TypeError('Part not created')
+
+        sub_parts = []
+        if item.children:
+            for sub_item in item.children:
+                sub_part = self.load_chapter(sub_item, parent=item)
+                sub_parts.append(sub_part)
+        
+        if sub_parts:
+            part.children = sub_parts
+        return part
+
     def parse_contents(self):
         # parse_readme(self)
         parse_summary(self)
@@ -227,180 +238,9 @@ class Part(BookItem):
             name=self.name, path=self.path)
 
 
-
 class Separator(BookItem):
     def __init__(self):
         super(Separator, self).__init__(BookItem.SEPARATOR)
     
     def __repr__(self):
         return 'Separator()'
-
-
-
-
-# use std::collections::VecDeque;
-# use std::fmt::{self, Display, Formatter};
-# use std::fs::{self, File};
-# use std::io::{Read, Write};
-# use std::path::{Path, PathBuf};
-
-# use config::BuildConfig;
-# use errors::*;
-
-# fn create_missing(src_dir: &Path, summary: &Summary) -> Result<()> {
-#     let mut items: Vec<_> = summary
-#         .prefix_chapters
-#         .iter()
-#         .chain(summary.numbered_chapters.iter())
-#         .chain(summary.suffix_chapters.iter())
-#         .collect();
-
-#     while !items.is_empty() {
-#         let next = items.pop().expect("already checked");
-
-#         if let SummaryItem::Link(ref link) = *next {
-#             let filename = src_dir.join(&link.location);
-#             if !filename.exists() {
-#                 if let Some(parent) = filename.parent() {
-#                     if !parent.exists() {
-#                         fs::create_dir_all(parent)?;
-#                     }
-#                 }
-#                 debug!("Creating missing file {}", filename.display());
-
-#                 let mut f = File::create(&filename)?;
-#                 writeln!(f, "# {}", link.name)?;
-#             }
-
-#             items.extend(&link.nested_items);
-#         }
-#     }
-
-#     Ok(())
-# }
-
-# /// Enum representing any type of item which can be added to a book.
-# #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-# pub enum BookItem {
-#     /// A nested chapter.
-#     Chapter(Chapter),
-#     /// A section separator.
-#     Separator,
-# }
-
-# impl From<Chapter> for BookItem {
-#     fn from(other: Chapter) -> BookItem {
-#         BookItem::Chapter(other)
-#     }
-# }
-
-# impl Chapter {
-#     /// Create a new chapter with the provided content.
-#     pub fn new<P: Into<PathBuf>>(
-#         name: &str,
-#         content: String,
-#         path: P,
-#         parent_names: Vec<String>,
-#     ) -> Chapter {
-#         Chapter {
-#             name: name.to_string(),
-#             content,
-#             path: path.into(),
-#             parent_names,
-#             ..Default::default()
-#         }
-#     }
-# }
-
-# fn load_summary_item<P: AsRef<Path>>(
-#     item: &SummaryItem,
-#     src_dir: P,
-#     parent_names: Vec<String>,
-# ) -> Result<BookItem> {
-#     match *item {
-#         SummaryItemSeparator => Ok(BookItem::Separator),
-#         SummaryItem::Link(ref link) => {
-#             load_chapter(link, src_dir, parent_names).map(BookItem::Chapter)
-#         }
-#     }
-# }
-
-# fn load_chapter<P: AsRef<Path>>(
-#     link: &Link,
-#     src_dir: P,
-#     parent_names: Vec<String>,
-# ) -> Result<Chapter> {
-#     debug!("Loading {} ({})", link.name, link.location.display());
-#     let src_dir = src_dir.as_ref();
-
-#     let location = if link.location.is_absolute() {
-#         link.location.clone()
-#     } else {
-#         src_dir.join(&link.location)
-#     };
-
-#     let mut f = File::open(&location)
-#         .chain_err(|| format!("Chapter file not found, {}", link.location.display()))?;
-
-#     let mut content = String::new();
-#     f.read_to_string(&mut content)
-#         .chain_err(|| format!("Unable to read \"{}\" ({})", link.name, location.display()))?;
-
-#     let stripped = location
-#         .strip_prefix(&src_dir)
-#         .expect("Chapters are always inside a book");
-
-#     let mut sub_item_parents = parent_names.clone();
-#     let mut ch = Chapter::new(&link.name, content, stripped, parent_names);
-#     ch.number = link.number.clone();
-
-#     sub_item_parents.push(link.name.clone());
-#     let sub_items = link
-#         .nested_items
-#         .iter()
-#         .map(|i| load_summary_item(i, src_dir, sub_item_parents.clone()))
-#         .collect::<Result<Vec<_>>>()?;
-
-#     ch.sub_items = sub_items;
-
-#     Ok(ch)
-# }
-
-# /// A depth-first iterator over the items in a book.
-# ///
-# /// # Note
-# ///
-# /// This struct shouldn't be created directly, instead prefer the
-# /// [`Book::iter()`] method.
-# ///
-# /// [`Book::iter()`]: struct.Book.html#method.iter
-# pub struct BookItems<'a> {
-#     items: VecDeque<&'a BookItem>,
-# }
-
-# impl<'a> Iterator for BookItems<'a> {
-#     type Item = &'a BookItem;
-
-#     fn next(&mut self) -> Option<Self::Item> {
-#         let item = self.items.pop_front();
-
-#         if let Some(&BookItem::Chapter(ref ch)) = item {
-#             // if we wanted a breadth-first iterator we'd `extend()` here
-#             for sub_item in ch.sub_items.iter().rev() {
-#                 self.items.push_front(sub_item);
-#             }
-#         }
-
-#         item
-#     }
-# }
-
-# impl Display for Chapter {
-#     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-#         if let Some(ref section_number) = self.number {
-#             write!(f, "{} ", section_number)?;
-#         }
-
-#         write!(f, "{}", self.name)
-#     }
-# }

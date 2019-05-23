@@ -1,3 +1,4 @@
+from hon.markdown import Markdown
 from ..renderer import Renderer
 
 class HtmlRenderer(Renderer):
@@ -44,3 +45,22 @@ class HtmlRenderer(Renderer):
     @property
     def livereload_url(self):
         return None
+    
+    def on_finish(self, book):
+        print('in finish')
+
+    def on_generate_pages(self, book):
+        print('evaluating book results')
+        for item in book.items:
+            print(item.text)
+
+    def on_init(self, book):
+        pass
+    
+    def on_render_page(self, page, book):
+        raw_text = str(page.raw_text)
+        md = Markdown()
+        markedup_text = md.convert(raw_text)
+
+        if markedup_text:
+            page.text = markedup_text
