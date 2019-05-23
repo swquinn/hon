@@ -35,6 +35,7 @@ setup(
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
     install_requires=[
         'click>=7.0',
+        'jinja2>=2.10',
         'markdown>=3.1',
         'pyyaml>=5.1',
     ],
