@@ -1,3 +1,6 @@
+# Hon ignores
+_book/
+
 # VSCode
 .history/
 .ignore/
