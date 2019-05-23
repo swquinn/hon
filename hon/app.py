@@ -20,6 +20,10 @@ from .logging import create_logger
 # a singleton sentinel value for parameter defaults
 _sentinel = object()
 
+#: The default output path to use, if one was not passed by the command line
+#: interface, or otherwise specified in the configuration.
+DEFAULT_OUTPUT_PATH = '_book'
+
 #: A collection of valid book configuration files which, if present, identify
 #: a directory as being the root of a book.
 VALID_BOOK_CONFIGURATIONS = ['book.yaml']  # TODO: ['book.json', 'book.toml', 'book.yaml']
@@ -114,17 +118,30 @@ class Hon():
         """
         return create_logger(self)
 
-    def __init__(self, project_path=None, source_path=None, config_file=None, debug=False):
+    @property
+    def output_path(self):
+        output_path = self._output_path
+        if not output_path:
+            self.logger.warn('Output path was unset, falling back to default.')
+            output_path = DEFAULT_OUTPUT_PATH
+        return  os.path.join(self.root, output_path)
+
+    @property
+    def root(self):
+        return self._root
+
+    def __init__(self, root=None, output_path=None, config_file=None, debug=False):
         #: Hon differentiates between a project path and a source path. The
         #: project path is the folder that encompasses all things related to
         #: the Hon project, e.g. the source folder for the book, the .honrc
         #: configuration file, etc. If the project path is ``None``, Hon will
         #: make the assumption that whatever directory it is being run from
         #: is the project path. [SWQ]
-        if not project_path:
-            project_path = os.getcwd()
+        if not root:
+            root = os.getcwd()
 
-        self.project_path = project_path
+        self._root = root
+        self._output_path = output_path or DEFAULT_OUTPUT_PATH
         self.config_file = config_file
 
         #: Assign default values to the configuration. The default values do
@@ -171,7 +188,7 @@ class Hon():
         """Configure the hon application environment.
         """
         try:
-            config_file = os.path.abspath(os.path.join(self.project_path, '.honrc'))
+            config_file = os.path.abspath(os.path.join(self.root, '.honrc'))
             config_dict = _read_yaml_config(config_file)
             print(config_dict)
             self.config.update(config_dict.get('config', {}))
@@ -302,7 +319,7 @@ class Hon():
         #: path, which may be the directory in which the ``hon`` application
         #: was run from.
         if not source_path:
-            source_path = self.project_path
+            source_path = self.root
 
         book_paths = self.find_books(source_path)
 
@@ -378,7 +395,7 @@ class Hon():
         return f
 
 
-def create_app(project_path=None, config_file='book.yaml', debug=False):
-    app = Hon(project_path=project_path, config_file=config_file, debug=True)
+def create_app(root=None, config_file='book.yaml', debug=False):
+    app = Hon(root=root, config_file=config_file, debug=True)
     app.init_app()
     return app
