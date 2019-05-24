@@ -223,6 +223,9 @@ class Part(BookItem):
         #: The page's location on the filesystem
         self.path = path
 
+        filename, _ = os.path.splitext(os.path.basename(self.path))
+        self.filename = filename
+
         #: The entry's raw, unprocessed, text.
         self.raw_text = raw_text
 
