@@ -1,3 +1,6 @@
+import os
+from jinja2 import Environment, PackageLoader, select_autoescape
+
 from hon.markdown import Markdown
 from ..renderer import Renderer
 
@@ -29,35 +32,35 @@ class HtmlRenderer(Renderer):
         #: Additional JS scripts to include at the bottom of the rendered page's
         #: `<body>`.
         'additional_js': [],
-    
-        # Don't render section labels.
-        # 'no_section_label': False,
-    
-        # Search settings. If `None`, the default will be used.
-        # pub search: Option<Search>,
-        # /// Git repository url. If `None`, the git button will not be shown.
-        # pub git_repository_url: Option<String>,
-        # /// FontAwesome icon class to use for the Git repository link.
-        # /// Defaults to `fa-github` if `None`.
-        # pub git_repository_icon: Option<String>,
     }
 
     @property
     def livereload_url(self):
         return None
     
-    def on_finish(self, book):
+    def on_finish(self, book, context):
         print('in finish')
 
-    def on_generate_pages(self, book):
-        print('evaluating book results')
-        for item in book.items:
-            print(item.text)
+    def on_generate_pages(self, book, context):
+        env = Environment(
+            loader=PackageLoader('hon', 'theme/light/templates'),
+            autoescape=select_autoescape(['html', 'xml'])
+        )
 
-    def on_init(self, book):
+        page_template = env.get_template('page.html.jinja')
+        for item in book.items:
+            write_to = os.path.join(context['path'], '{}.html'.format(item.filename))
+            page_template.stream({
+                'page': {
+                    'content': item.text
+                }
+            }).dump(write_to)
+
+    def on_init(self, book, context):
+
         pass
     
-    def on_render_page(self, page, book):
+    def on_render_page(self, page, book, context):
         raw_text = str(page.raw_text)
         md = Markdown()
         markedup_text = md.convert(raw_text)

@@ -27,46 +27,51 @@ class Renderer(object):
                 cls.__name__))
         return cls._name
     
-    def finish(self, book):
+    def finish(self, book, context):
         self.app.logger.debug('Finishing render...')
-        self.on_before_finish(book)
-        self.on_finish(book)
+        self.on_before_finish(book, context)
+        self.on_finish(book, context)
 
-    def generate_assets(self, book):
+    def generate_assets(self, book, context):
         self.app.logger.debug('Generating assets...')
-        self.on_generate_assets(book)
+        self.on_generate_assets(book, context)
     
-    def generate_pages(self, book):
+    def generate_pages(self, book, context):
         self.app.logger.debug('Generating pages...')
         # let mut is_index = true;
         for item in book.items:
             # create a render context? could fold book into that.
-            self.on_render_page(item, book)
-        self.on_generate_pages(book)
+            self.on_render_page(item, book, context)
+        self.on_generate_pages(book, context)
 
     def init(self, book):
         self.app.logger.debug('Initializing renderer...')
+        context = dict()
+
         render_path = os.path.join(self.app.output_path, self.render_path)
         if not os.path.exists(render_path):
             os.makedirs(render_path, exist_ok=True)
-        self.on_init(book)
 
-    def on_before_finish(self, book):
+        context['path'] = render_path
+        self.on_init(book, context)
+        return context
+
+    def on_before_finish(self, book, context):
         pass
 
-    def on_finish(self, book):
+    def on_finish(self, book, context):
         pass
     
-    def on_generate_assets(self, book):
+    def on_generate_assets(self, book, context):
         pass
     
-    def on_generate_pages(self, book):
+    def on_generate_pages(self, book, context):
         pass
 
-    def on_init(self, book):
+    def on_init(self, book, context):
         pass
 
-    def on_render_page(self, page, book):
+    def on_render_page(self, page, book, context):
         pass
 
     def render(self, book):
@@ -75,10 +80,10 @@ class Renderer(object):
 
         start_time = datetime.now()
 
-        self.init(book)
-        self.generate_assets(book)
-        self.generate_pages(book)
-        self.finish(book)
+        context = self.init(book)
+        self.generate_assets(book, context)
+        self.generate_pages(book, context)
+        self.finish(book, context)
 
         elapsed_time = datetime.now() - start_time
         self.app.logger.info('Rendering finished with success in {}s!'.format(elapsed_time))
