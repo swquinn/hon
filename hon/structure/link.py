@@ -42,14 +42,17 @@ class Link():
     """
 
     def __init__(self, name=None, location=None, level=None, children=None):
-        # The name of the chapter.
+        #: The name of the chapter.
         self.name = name
-        # The location of the chapter's source file, taking the book's `src`
-        # directory as the root.
-        self.location = location # location.as_ref().to_path_buf(),
-        # The section level, if this chapter is in the leveled section.
+
+        #: The location of the chapter's source file, taking the book's `src`
+        #: directory as the root.
+        self.location = location
+
+        #: The section level, if this chapter is in the leveled section.
         self.level = level
-        # Any nested items this chapter may contain.
+
+        #: Any nested items this chapter may contain.
         self.children = children or []
     
     def __eq__(self, other):
