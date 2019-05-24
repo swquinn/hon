@@ -6,19 +6,6 @@ from hon.structure import Link
 from hon.summary import parse_summary
 
 
-# pub fn for_each_mut<'a, F, I>(func: &mut F, items: I)
-# where
-#     F: FnMut(&mut BookItem),
-#     I: IntoIterator<Item = &'a mut BookItem>,
-# {
-#     for item in items {
-#         if let &mut BookItem::Chapter(ref mut ch) = item {
-#             for_each_mut(func, &mut ch.sub_items);
-#         }
-#         func(item);
-#     }
-# }
-
 def _flatten_book_items(items):
     """Flattens all book items into a single array.
 
@@ -97,23 +84,6 @@ class Book(object):
     def add_all(self, items):
         self.sections.extend(items)
 
-    #: TODO: Add a function that can iterate over the items in a book and mutate them with a [closure]
-    # for_each_mutate(self, func):
-    #     /// Recursively apply a closure to each item in the book, allowing you to
-    #     /// mutate them.
-    #     ///
-    #     /// # Note
-    #     ///
-    #     /// Unlike the `iter()` method, this requires a closure instead of returning
-    #     /// an iterator. This is because using iterators can possibly allow you
-    #     /// to have iterator invalidation errors.
-    #     pub fn for_each_mut<F>(&mut self, mut func: F)
-    #     where
-    #         F: FnMut(&mut BookItem),
-    #     {
-    #         for_each_mut(&mut func, &mut self.sections);
-    #     }
-
     def init_app(self, app):
         self.app = app
 
@@ -132,12 +102,8 @@ class Book(object):
 
         self.load_book_from_disk()
 
-    # /// Use the provided `Summary` to load a `Book` from disk.
-    # ///
-    # /// You need to pass in the book's source directory because all the links in
-    # /// `SUMMARY.md` give the chapter locations relative to it.
-    # fn load_book_from_disk<P: AsRef<Path>>(summary: &Summary, src_dir: P) -> Result<Book> {
     def load_book_from_disk(self):
+        """Use the book's summary to load the book's pages from disk."""
         self.app.logger.debug('Loading book from disk')
         prefix = tuple(self.summary.prefix_parts)
         numbered = tuple(self.summary.numbered_parts)
@@ -212,8 +178,6 @@ class Part(BookItem):
     :type path: str
     """
 
-    # TODO: Add ``number`` ?? (The chapter's section number, if it has one.)
-    # TODO: Add ``parent_names`` ?? (An ordered list of the names of each chapter above this one, in the hierarchy.)
     def __init__(self, name=None, raw_text=None, path=None, number=None, parent=None, children=None):
         super(Part, self).__init__(BookItem.PART)
 
