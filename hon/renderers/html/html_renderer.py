@@ -41,8 +41,10 @@ class HtmlRenderer(Renderer):
     def on_finish(self, book, context):
         print('in finish')
 
-    def on_generate_pages(self, book, context):
+    def on_generate_assets(self, book, context):
+        pass
 
+    def on_generate_pages(self, book, context):
         page_template = context['env'].get_template('page.html.jinja')
         for item in book.items:
             write_to = os.path.join(context['path'], '{}.html'.format(item.filename))
