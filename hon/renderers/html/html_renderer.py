@@ -42,12 +42,8 @@ class HtmlRenderer(Renderer):
         print('in finish')
 
     def on_generate_pages(self, book, context):
-        env = Environment(
-            loader=PackageLoader('hon', 'theme/light/templates'),
-            autoescape=select_autoescape(['html', 'xml'])
-        )
 
-        page_template = env.get_template('page.html.jinja')
+        page_template = context['env'].get_template('page.html.jinja')
         for item in book.items:
             write_to = os.path.join(context['path'], '{}.html'.format(item.filename))
             page_template.stream({
@@ -57,8 +53,12 @@ class HtmlRenderer(Renderer):
             }).dump(write_to)
 
     def on_init(self, book, context):
-
-        pass
+        env = Environment(
+            loader=PackageLoader('hon', 'theme/light/templates'),
+            autoescape=select_autoescape(['html', 'xml'])
+        )
+        context['env'] = env
+        return context
     
     def on_render_page(self, page, book, context):
         raw_text = str(page.raw_text)
