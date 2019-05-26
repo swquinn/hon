@@ -64,9 +64,9 @@ def test_parse_prefix_items_with_a_separator(app):
     #let _ = parser.stream.next(); // step past first event
     actual = parser.parse_affix(is_prefix=True)
     expected = [
-        Link(name="First", location="./first.md"),
+        Link(name="First", source="./first.md"),
         SummaryItemSeparator(),
-        Link(name="Second", location="./second.md"),
+        Link(name="Second", source="./second.md"),
     ]
 
     assert len(actual) == len(expected)
@@ -96,10 +96,10 @@ def test_parse_suffix_items_with_a_separator(app):
     #let _ = parser.stream.next(); // step past first event
     actual = parser.parse_affix(is_prefix=False)
     expected = [
-        Link(name="Third", location="./third.md"),
-        Link(name="Fourth", location="./fourth.md"),
+        Link(name="Third", source="./third.md"),
+        Link(name="Fourth", source="./fourth.md"),
         SummaryItemSeparator(),
-        Link(name="Fifth", location="./fifth.md"),
+        Link(name="Fifth", source="./fifth.md"),
     ]
 
     assert len(actual) == len(expected)
@@ -119,7 +119,7 @@ def test_suffix_items_cannot_be_followed_by_a_list(app):
 
 
 @pytest.mark.parametrize("source, expected", [
-    ('[First](./first.md)', Link(name='First', location='./first.md'))
+    ('[First](./first.md)', Link(name='First', source='./first.md'))
 ])
 def test_parse_a_link(app, source, expected):
     parser = SummaryParser(app, source)
@@ -133,7 +133,7 @@ def test_parse_a_numbered_chapter(app):
     src = "- [First](./first.md)\n"
     link = Link(
         name="First",
-        location="./first.md",
+        source="./first.md",
         level=0
     )
     expected = [link]
@@ -150,11 +150,11 @@ def test_parse_some_prefix_items(app):
     expected = [
         Link(
             name="First",
-            location="./first.md"
+            source="./first.md"
         ),
         Link(
             name="Second",
-            location="./second.md"
+            source="./second.md"
         ),
     ]
 
@@ -169,12 +169,12 @@ def test_parse_nested_numbered_chapters(app):
     expected = [
         Link(
             name="First",
-            location="./first.md",
+            source="./first.md",
             level=0,
             children=[
                 Link(
                     name="Nested",
-                    location="./nested.md",
+                    source="./nested.md",
                     level=1,
                     children=[],
                 ),
@@ -182,7 +182,7 @@ def test_parse_nested_numbered_chapters(app):
         ),
         Link(
             name="Second",
-            location="./second.md",
+            source="./second.md",
             level=0,
             children=[]
         ),
@@ -204,13 +204,13 @@ def test_can_have_a_subheader_between_nested_items(app):
     expected = [
         Link(
             name="First",
-            location="./first.md",
+            source="./first.md",
             level=0,
             children=[]
         ),
         Link(
             name="Second",
-            location="./second.md",
+            source="./second.md",
             level=0,
             children=[]
         ),
@@ -222,7 +222,7 @@ def test_can_have_a_subheader_between_nested_items(app):
 
 
 #[test]
-def test_an_empty_link_location_is_an_error(app):
+def test_an_empty_link_source_is_an_error(app):
     src = "- [Empty]()\n";
     parser = SummaryParser(app, src)
 
@@ -240,21 +240,21 @@ def test_keep_numbering_after_separator(app):
     expected = [
         Link(
             name="First",
-            location="./first.md",
+            source="./first.md",
             level=0,
             children=[]
         ),
         SummaryItemSeparator(),
         Link(
             name="Second",
-            location="./second.md",
+            source="./second.md",
             level=0,
             children=[]
         ),
         SummaryItemSeparator(),
         Link(
             name="Third",
-            location="./third.md",
+            source="./third.md",
             level=0,
             children=[]
         ),

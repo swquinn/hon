@@ -9,7 +9,7 @@
 class Link():
     """A structure representing links to chapters within ``SUMMARY.md``.
 
-    Links have a ``name``, ``location`` (roughly equivalent to the ``href=``
+    Links have a ``name``, ``source`` (roughly equivalent to the ``href=``
     attribute on an HTML anchor link tag), a ``level`` which indicates link
     hierarchy, and links may possible contain nested links.
 
@@ -36,18 +36,18 @@ class Link():
     In the above example, chapter 2 will also have a single nested item.
 
     :type name: str
-    :type location: str
+    :type source: str
     :type level: int
     :type children: list
     """
 
-    def __init__(self, name=None, location=None, level=None, children=None):
+    def __init__(self, name=None, source=None, level=None, children=None):
         #: The name of the chapter.
         self.name = name
 
-        #: The location of the chapter's source file, taking the book's `src`
+        #: The source of the chapter's source file, taking the book's `src`
         #: directory as the root.
-        self.location = location
+        self.source = source
 
         #: The section level, if this chapter is in the leveled section.
         self.level = level
@@ -57,15 +57,15 @@ class Link():
     
     def __eq__(self, other):
         if (self.name == other.name and
-            self.location == other.location and
+            self.source == other.source and
             self.level == other.level and
             self.children == other.children):
             return True
         return False
 
     def __repr__(self):
-        return ('Link(name={name}, location={location}, level={level})'.format(
-            name=repr(self.name), location=repr(self.location),
+        return ('Link(name={name}, source={source}, level={level})'.format(
+            name=repr(self.name), source=repr(self.source),
             level=repr(self.level)))
     
     def append(self, link):

@@ -98,7 +98,7 @@ class SummaryParser():
         href = element.get('href')
         if not href:
             raise ValueError("You can't have an empty link.")
-        return Link(name=element.text, location=href, level=level)
+        return Link(name=element.text, source=href, level=level)
 
 
     def parse_numbered(self):
