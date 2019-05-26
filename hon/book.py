@@ -119,7 +119,7 @@ class Book(object):
     
     def load_chapter(self, item, parent=None):
         part = None
-        chapter_path = os.path.abspath(os.path.join(self.path, item.location))
+        chapter_path = os.path.abspath(os.path.join(self.path, item.source))
         
         if not os.path.exists(chapter_path):
             raise FileNotFoundError('File: {} not found.'.format(chapter_path))
