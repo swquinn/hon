@@ -105,11 +105,12 @@ class Book(object):
     def load_book_from_disk(self):
         """Use the book's summary to load the book's pages from disk."""
         self.app.logger.debug('Loading book from disk')
+        readme = tuple([self.summary.readme])
         prefix = tuple(self.summary.prefix_parts)
         numbered = tuple(self.summary.numbered_parts)
         suffix = tuple(self.summary.suffix_parts)
 
-        summary_items = prefix + numbered + suffix
+        summary_items = readme + prefix + numbered + suffix
 
         for item in summary_items:
             if type(item) == Link:
@@ -185,6 +186,10 @@ class Part(BookItem):
 
     @property
     def is_readme(self):
+        filename = os.path.basename(self.path)
+        root, _ = os.path.splitext(filename)
+        if root.lower() == 'readme':
+            return True
         return False
 
     def __init__(self, name=None, raw_text=None, path=None, number=None, parent=None, children=None):

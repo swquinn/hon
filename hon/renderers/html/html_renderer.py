@@ -47,7 +47,10 @@ class HtmlRenderer(Renderer):
     def on_generate_pages(self, book, context):
         page_template = context['env'].get_template('page.html.jinja')
         for item in book.items:
-            write_to = os.path.join(context['path'], '{}.html'.format(item.filename))
+            filename = '{}.html'.format(item.filename)
+            if item.is_readme:
+                filename = 'index.html'
+            write_to = os.path.join(context['path'], filename)
             page_template.stream({
                 'page': {
                     'content': item.text

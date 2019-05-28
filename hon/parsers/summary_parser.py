@@ -2,6 +2,8 @@
     hon.parsers.summary_parser
     ~~~~~
 """
+import os
+
 from hon.markdown import Markdown
 from hon.structure import Link, Summary
 from hon.utils import xmlutils
@@ -41,8 +43,9 @@ class SummaryParser():
     > **Note:** the `TEXT` terminal is "normal" text, and should (roughly)
     > match the following regex: "[^<>\n[]]+".
     """
-    def __init__(self, app=None, src=None):
+    def __init__(self, app=None, src=None, book=None):
         self.app = app
+        self.book = book
         self.src = src
         self.stream = Markdown()
         self.stream.convert(self.src or '')
@@ -52,17 +55,19 @@ class SummaryParser():
         """Parse the text the `SummaryParser` was created with."""
         title = self.parse_title()
 
+        readme = self.parse_readme()
         prefix_chapters = self.parse_affix(is_prefix=True)
-        #     .chain_err(|| "There was an error parsing the prefix chapters")?;
-
         numbered_chapters = self.parse_numbered()
-        #     .chain_err(|| "There was an error parsing the numbered chapters")?;
-
         suffix_chapters = self.parse_affix(is_prefix=False)
-        #     .chain_err(|| "There was an error parsing the suffix chapters")?;
 
-        return Summary(title=title, prefix_parts=prefix_chapters,
+        return Summary(title=title, readme=readme, prefix_parts=prefix_chapters,
             numbered_parts=numbered_chapters, suffix_parts=suffix_chapters)
+
+    def parse_readme(self):
+        readme_file = os.path.join(self.book.path, 'README.md')
+        if not os.path.exists(readme_file):
+            raise FileNotFoundError('README.md not found.')
+        return Link(name='README', source=os.path.relpath(readme_file, self.book.path))
 
     def parse_affix(self, is_prefix=False):
         """Parse chapters outside of a list.

@@ -93,7 +93,7 @@ def parse_summary(book):
             if not summary_content:
               summary = Summary()
             else:
-              parser = SummaryParser(app, summary_content)
+              parser = SummaryParser(app, summary_content, book=book)
               summary = parser.parse()
     
     # Insert README as first entry if not in SUMMARY.md
