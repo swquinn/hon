@@ -37,6 +37,7 @@ setup(
         'click>=7.0',
         'jinja2>=2.10',
         'markdown>=3.1',
+        'pydash>=4.7.5',
         'pyyaml>=5.1',
     ],
     extras_require={
