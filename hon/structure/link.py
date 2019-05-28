@@ -41,7 +41,12 @@ class Link():
     :type children: list
     """
 
-    def __init__(self, name=None, source=None, level=None, children=None):
+    @property
+    def id(self):
+        root, _ = os.path.splitext(self.source)
+        return slugify(root)
+
+    def __init__(self, name=None, source=None, level=None, children=None):        
         #: The name of the chapter.
         self.name = name
 
