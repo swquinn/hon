@@ -178,6 +178,15 @@ class Part(BookItem):
     :type path: str
     """
 
+    @property
+    def filename(self):
+        filename, _ = os.path.splitext(os.path.basename(self.path))
+        return filename
+
+    @property
+    def is_readme(self):
+        return False
+
     def __init__(self, name=None, raw_text=None, path=None, number=None, parent=None, children=None):
         super(Part, self).__init__(BookItem.PART)
 
@@ -185,10 +194,7 @@ class Part(BookItem):
         self.name = name
 
         #: The page's location on the filesystem
-        self.path = path
-
-        filename, _ = os.path.splitext(os.path.basename(self.path))
-        self.filename = filename
+        self.path = path        
 
         #: The entry's raw, unprocessed, text.
         self.raw_text = raw_text
