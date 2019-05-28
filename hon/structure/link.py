@@ -4,9 +4,12 @@
 
     Module representing a ``Link`` structural element.
 """
+import os
 
+from pydash.strings import slugify
+from hon.json import JsonSerializable
 
-class Link():
+class Link(JsonSerializable):
     """A structure representing links to chapters within ``SUMMARY.md``.
 
     Links have a ``name``, ``source`` (roughly equivalent to the ``href=``
@@ -35,6 +38,7 @@ class Link():
     
     In the above example, chapter 2 will also have a single nested item.
 
+    :type id: str
     :type name: str
     :type source: str
     :type level: int
@@ -78,3 +82,15 @@ class Link():
     
     def extend(self, links):
         self.children.extend(links)
+
+    def to_json(self):
+        json = {
+            'id': self.id,
+            'name': self.name,
+            'source': self.source,
+            'level': self.level,
+            'children': []
+        }
+        for child in self.children:
+            json['children'].append(child.to_json())
+        return json
