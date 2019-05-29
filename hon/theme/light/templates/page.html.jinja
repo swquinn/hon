@@ -17,8 +17,18 @@
             {% include 'header.html.jinja' %}
             <article class="container">
                 <div class="columns">
+                    <div class="column col-1 col-mr-auto">
+                        <div class="p-fixed" style="top: 50vh">
+                            <i class="icon icon-arrow-left"></i>
+                        </div>
+                    </div>
                     <div class="column col-8 col-mx-auto">
                         {{ page.content|safe }}
+                    </div>
+                    <div class="column col-1 col-ml-auto">
+                        <div class="p-fixed" style="top: 50vh">
+                            <i class="icon icon-arrow-right"></i>
+                        </div>
                     </div>
                 </div>
             </article>
