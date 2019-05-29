@@ -2,7 +2,6 @@
     "files.exclude": {
         "**/.git": true,
         "**/.history": true,
-        "**/.ignore": true,
         "**/.pytest_cache": true,
         "**/__pycache__": true,
         "**/*.pyc": true
