@@ -8,7 +8,9 @@ import json
 import yaml
 
 #: The latest version of the Hon config.
-HON_VERSION_LATEST = 1
+HON_VERSION_LATEST = '1.0'
+
+HON_DEFAULT_LANGUAGE = 'en'
 
 
 def _read_yaml_config(file_path):
@@ -51,6 +53,14 @@ def _make_config_from_yaml(file_path):
 
 class BookConfig(dict):
     """A book's configuration details."""
+
+    @property
+    def author(self):
+        return self.get('author', None)
+
+    @property
+    def language(self):
+        return self.get('language', HON_DEFAULT_LANGUAGE)
 
     @property
     def preprocessors(self):

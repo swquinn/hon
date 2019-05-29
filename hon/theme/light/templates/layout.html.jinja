@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html lang="{{ config.language }} {% if page.dir == "rtl" %}dir="rtl"{% endif %}>
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>{% block title %}{{ config.title|d("Hon", true) }}{% endblock %}</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="{% block description %}{% endblock %}">
+        <meta name="generator" content="Hon {{ hon.version }}">
+        {% if config.author %}<meta name="author" content="{{ config.author }}">{% endif %}
+        {% if config.isbn %}<meta name="identifier" content="{{ config.isbn }}" scheme="ISBN">{% endif %}
+        <link rel="stylesheet" href="css/spectre.min.css">
+        <link rel="stylesheet" href="css/spectre-exp.min.css">
+        <link rel="stylesheet" href="css/spectre-icons.min.css">
+        {% block head %}{% endblock %}
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+        {% block javascript %}{% endblock %}
+    </body>
+</html>
