@@ -7,12 +7,13 @@ verify_ssl = true
 black = "*"
 coverage = "*"
 pytest = ">=4.0"
+pytest-cov = "*"
 pytest-mock = "*"
 tox = "*"
 
 [packages]
 click = ">=7.0"
-jinja2 = ">=2.10"
+jinja2 = {editable = true,git = "https://github.com/pallets/jinja.git",ref = "master"}
 markdown = ">=3.1"
 mistune = ">=0.8.4"
 pydash = ">=4.7.5"
