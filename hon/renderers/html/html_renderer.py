@@ -92,6 +92,7 @@ class HtmlRenderer(Renderer):
                     'resources': {}
                 },
                 'page': {
+                    'title': item.name,
                     'content': item.text
                 }
             }).dump(write_to)
