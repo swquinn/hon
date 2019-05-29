@@ -2,20 +2,14 @@
 
 {% block body %}
 <div class="book off-canvas off-canvas-sidebar-show">
-    <a class="off-canvas-toggle btn btn-primary btn-action" href="#sidebar">
-        <i class="icon icon-menu"></i>
-    </a>
-
-    <div id="sidebar" class="off-canvas-sidebar">
+    <div id="sidebar" class="off-canvas-sidebar" style="border-right: 1px solid #e8e8e8;">
     Test
     </div>
-
-    <a class="off-canvas-overlay" href="#close"></a>
 
     <div class="off-canvas-content">
         <div class="content">
             {% include 'header.html.jinja' %}
-            <article class="container">
+            <article class="container" style="padding-top: 2rem; padding-bottom: 4rem">
                 <div class="columns">
                     <div class="column col-1 col-mr-auto">
                         <div class="p-fixed" style="top: 50vh">
