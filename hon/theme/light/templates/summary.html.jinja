@@ -1,0 +1,29 @@
+{% macro articles(_articles, file, config) %}
+    {% for article in _articles %}
+        <li class="chapter">
+            <a href="">{{ article.name }}</a>
+            {% if article.children|length > 0 %}
+                <ul class="articles">
+                    {{ articles(article.children, file, config) }}
+                </ul>
+            {% endif %}
+        </li>
+    {% endfor %}
+{%- endmacro %}
+
+<ul class="summary">
+    {% set _divider = false %}
+
+    {% if _divider %}
+    <li class="divider"></li>
+    {% endif %}
+
+    {% for part in summary.parts %}
+        {% if part.title %}
+        <li class="header">{{ part.title }}</li>
+        {% elif not loop.first %}
+        <li class="divider"></li>
+        {% endif %}
+        {{ articles(part.articles, file, config) }}
+    {% endfor %}
+</ul>

@@ -94,7 +94,8 @@ class HtmlRenderer(Renderer):
                 'page': {
                     'title': item.name,
                     'content': item.text
-                }
+                },
+                'summary': book.summary.to_json()
             }).dump(write_to)
 
     def on_init(self, book, context):
