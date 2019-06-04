@@ -1,4 +1,4 @@
-{% macro articles(_articles, file, config) %}
+{%- macro articles(_articles, file, config) -%}
     {% for article in _articles %}
         <li class="chapter">
             <a href="{{ article.link }}">{{ article.name }}</a>
@@ -9,27 +9,27 @@
             {% endif %}
         </li>
     {% endfor %}
-{%- endmacro %}
+{%- endmacro -%}
 
 <ul class="summary">
     {% set _divider = false %}
 
-    {% if _divider %}
-    <li class="divider"></li>
-    {% endif %}
+    {%- if _divider -%}
+        <li class="divider"></li>
+    {%- endif -%}
 
-    {% if summary.readme %}
+    {%- if summary.readme -%}
         <li class="chapter">
             <a href="">Cover</a>
         </li>
-    {% endif %}
+    {%- endif -%}
 
-    {% for section in summary.sections %}
+    {%- for section in summary.sections -%}
         {% if section.title %}
         <li class="header">{{ section.title }}</li>
         {% elif not loop.first %}
         <li class="divider"></li>
         {% endif %}
         {{ articles(section.parts, file, config) }}
-    {% endfor %}
+    {%- endfor -%}
 </ul>
