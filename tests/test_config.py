@@ -52,7 +52,7 @@ def test__make_config_from_yaml(mock__read_yaml_config):
 
     expected = {
         'title': 'Test',
-        'version': 1,
+        'version': '1.0',
         'description': 'A full configuration example.',
         'preprocessors': {
             'links': {
