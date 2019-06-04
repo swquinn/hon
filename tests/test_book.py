@@ -1,10 +1,10 @@
 import pytest
 from hon.book import (
-    Book, BookItem, Part, Separator
+    Book, BookItem, Chapter, Separator
 )
 
 @pytest.fixture
-def part_content():
+def chapter_content():
     return """static str = "
 # Dummy Chapter
 
@@ -27,48 +27,48 @@ def philosophy_book():
 
 
 @pytest.fixture
-def sample_part(part_content):
-    part = Part(name='Chapter 1', raw_text=part_content)
-    return part
+def sample_chapter(chapter_content):
+    chapter = Chapter(name='Chapter 1', raw_text=chapter_content)
+    return chapter
 
 
 @pytest.fixture
-def sample_part_with_nested_items(part_content):
+def sample_chapter_with_nested_items(chapter_content):
     nested_items = [
-        Part(name='Hello, World!'),
+        Chapter(name='Hello, World!'),
         Separator(),
-        Part(name='Goodbye, Cruel World!')
+        Chapter(name='Goodbye, Cruel World!')
     ]
-    part = Part(
+    chapter = Chapter(
         name='Chapter 1',
-        raw_text=part_content,
+        raw_text=chapter_content,
         path='Chapter_1/index.md',
         children=nested_items,
         number=None,
         parent=None
     )
-    return part
+    return chapter
 
 
-def test_book_iter_iterates_over_sequential_items(philosophy_book, sample_part):
-    philosophy_book.add_all([sample_part, Separator()])
+def test_book_iter_iterates_over_sequential_items(philosophy_book, sample_chapter):
+    philosophy_book.add_all([sample_chapter, Separator()])
 
     expected = philosophy_book.sections
     actual = philosophy_book.items
     assert actual == expected
 
 
-def test_iterate_over_nested_book_items(philosophy_book, sample_part_with_nested_items):
+def test_iterate_over_nested_book_items(philosophy_book, sample_chapter_with_nested_items):
     philosophy_book.add_all([
-        sample_part_with_nested_items,
+        sample_chapter_with_nested_items,
         Separator()
     ])
 
     actual = philosophy_book.items
     assert len(actual) == 5
     
-    part_names = [item.name for item in actual if item.type == BookItem.PART]
-    assert part_names == ['Chapter 1', 'Hello, World!', 'Goodbye, Cruel World!']
+    chapter_names = [item.name for item in actual if item.type == BookItem.PART]
+    assert chapter_names == ['Chapter 1', 'Hello, World!', 'Goodbye, Cruel World!']
 
 
 # #[cfg(test)]
