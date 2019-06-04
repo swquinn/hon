@@ -5,7 +5,7 @@
 import os
 
 from hon.markdown import Markdown
-from hon.structure import Link, Part, Section, Summary
+from hon.structure import Part, Section, Summary
 from hon.utils import xmlutils
 
 
