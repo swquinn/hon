@@ -1,7 +1,7 @@
 {% macro articles(_articles, file, config) %}
     {% for article in _articles %}
         <li class="chapter">
-            <a href="">{{ article.name }}</a>
+            <a href="{{ article.link }}">{{ article.name }}</a>
             {% if article.children|length > 0 %}
                 <ul class="articles">
                     {{ articles(article.children, file, config) }}
