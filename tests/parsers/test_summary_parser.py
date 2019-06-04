@@ -3,9 +3,29 @@ from hon.markdown import Markdown
 from hon.parsers.summary_parser import (
     SectionNumber, SummaryParser, SummaryItemSeparator, stringify_events
 )
-from hon.structure import Link
+from hon.structure import Link, Part, Section
 from hon.utils.mdutils import flatten_tree
 from xml.etree.ElementTree import ElementTree
+
+
+@pytest.mark.parametrize("source, expected", [
+    ('[First](./first.md)', Part(name='First', source='./first.md')),
+])
+def test_create_part(app, source, expected):
+    parser = SummaryParser(app, source)
+    element = parser.stream.elements.find('.//a')
+
+    actual = parser.create_part(element)
+    assert actual == expected
+
+
+def test_create_part_raises_value_error_when_link_is_empty(app):
+    src = "[Empty]()\n";
+    parser = SummaryParser(app, src)
+
+    element = parser.stream.elements.find('.//a')
+    with pytest.raises(ValueError):
+        parser.create_part(element)
 
 
 @pytest.mark.parametrize("inputs, expected", [
@@ -41,227 +61,216 @@ def test_stringify_events(source, expected):
     assert actual == expected
 
 
-def test_parse_prefix_items_with_a_separator(app):
-    src = """
-[First](./first.md)
-
----
-
-[Second](./second.md)
-
-- Item 1
-- Item 2
-
-[Third](./third.md)
-
-[Fourth](./fourth.md)
-
----
-
-[Fifth](./fifth.md)"""
-    parser = SummaryParser(app, src)
-
-    #let _ = parser.stream.next(); // step past first event
-    actual = parser.parse_affix(is_prefix=True)
-    expected = [
-        Link(name="First", source="./first.md"),
-        SummaryItemSeparator(),
-        Link(name="Second", source="./second.md"),
-    ]
-
-    assert len(actual) == len(expected)
-    assert actual == expected
+def test_parse_sections_with_no_sections(app):
+    parser = SummaryParser(app, '')
+    actual = parser.parse_sections()
+    assert actual == []
 
 
-def test_parse_suffix_items_with_a_separator(app):
-    src = """
-[First](./first.md)
-
----
-
-[Second](./second.md)
-
-- Item 1
-- Item 2
-
-[Third](./third.md)
-
-[Fourth](./fourth.md)
-
----
-
-[Fifth](./fifth.md)"""
-    parser = SummaryParser(app, src)
-
-    #let _ = parser.stream.next(); // step past first event
-    actual = parser.parse_affix(is_prefix=False)
-    expected = [
-        Link(name="Third", source="./third.md"),
-        Link(name="Fourth", source="./fourth.md"),
-        SummaryItemSeparator(),
-        Link(name="Fifth", source="./fifth.md"),
-    ]
-
-    assert len(actual) == len(expected)
-    assert actual == expected
-
-
-def test_suffix_items_cannot_be_followed_by_a_list(app):
-    src = """
-[First](./first.md)
-
-- [Second](./second.md)"""
-    parser = SummaryParser(app, src)
-
-    with pytest.raises(ValueError):
-        parser.parse_affix(is_prefix=False)
-
-
-
-@pytest.mark.parametrize("source, expected", [
-    ('[First](./first.md)', Link(name='First', source='./first.md'))
-])
-def test_parse_a_link(app, source, expected):
+def test_parse_sections_with_one_section_and_no_heading(app):
+    source = """
+- [1A](./1A.md)
+- [1B](./1B.md)
+- [1C](./1C.md)
+"""
     parser = SummaryParser(app, source)
-    link = parser.stream.elements.find('.//a')
-
-    actual = parser.parse_link(link)
-    assert actual == expected
-
-
-def test_parse_a_numbered_chapter(app):
-    src = "- [First](./first.md)\n"
-    link = Link(
-        name="First",
-        source="./first.md",
-        level=0
-    )
-    expected = [link]
-
-    parser = SummaryParser(app, src)
-    actual = parser.parse_numbered()
-    assert actual == expected
-
-
-def test_parse_some_prefix_items(app):
-    src = "[First](./first.md)\n[Second](./second.md)\n"
-    parser = SummaryParser(app, src)
+    actual = parser.parse_sections()
 
     expected = [
-        Link(
-            name="First",
-            source="./first.md"
-        ),
-        Link(
-            name="Second",
-            source="./second.md"
-        ),
+        Section(parts=[
+            Part('1A', source='./1A.md', level=0),
+            Part('1B', source='./1B.md', level=0),
+            Part('1C', source='./1C.md', level=0),
+        ])
     ]
-
-    actual = parser.parse_affix(is_prefix=True)
     assert actual == expected
 
 
+def test_parse_sections_with_one_section_and_heading(app):
+    source = """
+## Section 1
 
-def test_parse_nested_numbered_chapters(app):
-    src = "- [First](./first.md)\n    - [Nested](./nested.md)\n- [Second](./second.md)"
+- [1A](./1A.md)
+- [1B](./1B.md)
+- [1C](./1C.md)
+"""
+    parser = SummaryParser(app, source)
+    actual = parser.parse_sections()
 
     expected = [
-        Link(
-            name="First",
-            source="./first.md",
-            level=0,
-            children=[
-                Link(
-                    name="Nested",
-                    source="./nested.md",
-                    level=1,
-                    children=[],
-                ),
-            ]
-        ),
-        Link(
-            name="Second",
-            source="./second.md",
-            level=0,
-            children=[]
-        ),
+        Section(title='Section 1', parts=[
+            Part('1A', source='./1A.md', level=0),
+            Part('1B', source='./1B.md', level=0),
+            Part('1C', source='./1C.md', level=0),
+        ])
     ]
-
-    parser = SummaryParser(app, src)
-    actual = parser.parse_numbered()
     assert actual == expected
 
 
-def test_can_have_a_subheader_between_nested_items(app):
-    """
-    This test ensures the book will continue to pass because it breaks the
-    `SUMMARY.md` up using level 2 headers ([example]).
+def test_parse_section_with_one_section_excluding_non_links(app):
+    src = """
+- [First](./first.md)
+- [Second](./second.md)
+- Item 1
+- Item 2
+- [Third](./third.md)"""
+    parser = SummaryParser(app, src)
+    actual = parser.parse_sections()
 
-    [example]: https://github.com/rust-lang/book/blob/2c942dc094f4ddcdc7aba7564f80782801197c99/second-edition/src/SUMMARY.md#basic-rust-literacy
-    """
-    src = "- [First](./first.md)\n\n## Subheading\n\n- [Second](./second.md)\n";
     expected = [
-        Link(
-            name="First",
-            source="./first.md",
-            level=0,
-            children=[]
-        ),
-        Link(
-            name="Second",
-            source="./second.md",
-            level=0,
-            children=[]
-        ),
+        Section(parts=[
+            Part('First', source='./first.md', level=0),
+            Part('Second', source='./second.md', level=0),
+            Part('Third', source='./third.md', level=0),
+        ])
     ]
-
-    parser = SummaryParser(app, src)
-    actual = parser.parse_numbered()
     assert actual == expected
 
 
-#[test]
-def test_an_empty_link_source_is_an_error(app):
-    src = "- [Empty]()\n";
-    parser = SummaryParser(app, src)
+def test_parse_sections_with_one_section_and_heading_without_title(app):
+    source = """
+---
 
-    link = parser.stream.elements.find('.//a')
-    with pytest.raises(ValueError):
-        parser.parse_link(link)
+- [1A](./1A.md)
+- [1B](./1B.md)
+- [1C](./1C.md)
+"""
+    parser = SummaryParser(app, source)
+    actual = parser.parse_sections()
 
-
-def test_keep_numbering_after_separator(app):
-    """
-    /// Regression test for https://github.com/rust-lang-nursery/mdBook/issues/779
-    /// Ensure section numbers are correctly incremented after a horizontal separator.
-    """
-    src = "- [First](./first.md)\n\n---\n\n- [Second](./second.md)\n\n---\n\n- [Third](./third.md)\n"
     expected = [
-        Link(
-            name="First",
-            source="./first.md",
-            level=0,
-            children=[]
-        ),
-        SummaryItemSeparator(),
-        Link(
-            name="Second",
-            source="./second.md",
-            level=0,
-            children=[]
-        ),
-        SummaryItemSeparator(),
-        Link(
-            name="Third",
-            source="./third.md",
-            level=0,
-            children=[]
-        ),
+        Section(parts=[
+            Part('1A', source='./1A.md', level=0),
+            Part('1B', source='./1B.md', level=0),
+            Part('1C', source='./1C.md', level=0),
+        ])
     ]
-
-    parser = SummaryParser(app, src)
-    actual = parser.parse_numbered()
     assert actual == expected
 
-#: TODO: Add tests for empty summaries? Is this supported? Doesn't the book just end put as empty? Should we err with this instead?
+
+def test_parse_sections_with_multiple_sections(app):
+    source = """
+## Section 1
+
+- [1A](./1A.md)
+- [1B](./1B.md)
+- [1C](./1C.md)
+
+---
+
+- [2A](./2A.md)
+- [2B](./2B.md)
+- [2C](./2C.md)
+- [2D](./2D.md)
+
+#### Section 3
+
+- [3A](./3A.md)
+
+"""
+    parser = SummaryParser(app, source)
+    actual = parser.parse_sections()
+
+    expected = [
+        Section(title='Section 1', parts=[
+            Part('1A', source='./1A.md', level=0),
+            Part('1B', source='./1B.md', level=0),
+            Part('1C', source='./1C.md', level=0),
+        ]),
+        Section(parts=[
+            Part('2A', source='./2A.md', level=0),
+            Part('2B', source='./2B.md', level=0),
+            Part('2C', source='./2C.md', level=0),
+            Part('2D', source='./2D.md', level=0),
+        ]),
+        Section(title='Section 3', parts=[
+            Part('3A', source='./3A.md', level=0),
+        ]),
+    ]
+    assert actual == expected
+
+
+def test_parse_sections_with_multiple_sections_where_first_section_has_no_heading(app):
+    source = """
+- [1A](./1A.md)
+- [1B](./1B.md)
+- [1C](./1C.md)
+
+## Section 2
+
+- [2A](./2A.md)
+
+"""
+    parser = SummaryParser(app, source)
+    actual = parser.parse_sections()
+
+    expected = [
+        Section(parts=[
+            Part('1A', source='./1A.md', level=0),
+            Part('1B', source='./1B.md', level=0),
+            Part('1C', source='./1C.md', level=0),
+        ]),
+        Section(title='Section 2', parts=[
+            Part('2A', source='./2A.md', level=0),
+        ]),
+    ]
+    assert actual == expected
+
+
+def test_parse_prefix_section(app):
+    source = """
+[1A](./1A.md)
+[1B](./1B.md)
+[1C](./1C.md)
+
+## Section 2
+
+- [2A](./2A.md)
+- [2B](./2B.md)
+
+"""
+    parser = SummaryParser(app, source)
+    actual = parser.parse_sections()
+
+    expected = [
+        Section(parts=[
+            Part('1A', source='./1A.md'),
+            Part('1B', source='./1B.md'),
+            Part('1C', source='./1C.md'),
+        ]),
+        Section(title='Section 2', parts=[
+            Part('2A', source='./2A.md', level=0),
+            Part('2B', source='./2B.md', level=0),
+        ]),
+    ]
+    assert actual == expected
+
+
+def test_parse_suffix_section(app):
+    source = """
+## Section 1
+
+- [1A](./1A.md)
+- [1B](./1B.md)
+
+---
+
+[2A](./2A.md)
+[2B](./2B.md)
+[2C](./2C.md)
+"""
+    parser = SummaryParser(app, source)
+    actual = parser.parse_sections()
+
+    expected = [
+        Section(title='Section 1', parts=[
+            Part('1A', source='./1A.md', level=0),
+            Part('1B', source='./1B.md', level=0),
+        ]),
+        Section(parts=[
+            Part('2A', source='./2A.md'),
+            Part('2B', source='./2B.md'),
+            Part('2C', source='./2C.md'),
+        ]),
+    ]
+    assert actual == expected

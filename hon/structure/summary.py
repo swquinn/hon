@@ -19,20 +19,16 @@ class Summary():
     """
 
     @property
-    def legacy_parts(self):
-        readme = tuple([self.readme])
-        prefix = tuple(self.prefix_parts)
-        numbered = tuple(self.numbered_parts)
-        suffix = tuple(self.suffix_parts)
-        return readme + prefix + numbered + suffix
+    def all_parts(self):
+        parts = []
+        parts.append(self.readme)
+        for section in self.sections:
+            parts.extend(section.parts)
+        return parts
 
-    def __init__(self, title=None, readme=None, prefix_parts=None, numbered_parts=None, suffix_parts=None, sections=None):
+    def __init__(self, title=None, readme=None, sections=None):
         self.title = title
         self.readme = readme
-        self.prefix_parts = prefix_parts or []
-        self.numbered_parts = numbered_parts or []
-        self.suffix_parts = suffix_parts or []
-
         self.sections = sections or []
     
     def add_section(self, section):
@@ -42,28 +38,19 @@ class Summary():
         self.sections.extend(sections)
     
     def to_json(self):
-        parts_json = []
+        sections_json = []
 
-        parts_json.append({
-            'articles': [self.readme.to_json()]
+        sections_json.append({
+            'parts': [
+                {
+                    'articles': [self.readme.to_json()]
+                }
+            ]
         })
 
-        prefix_part = { 'articles': [] }
-        for part in self.prefix_parts:
-            prefix_part['articles'].append(part.to_json())
-        parts_json.append(prefix_part)
-
-        numbered_part = { 'articles': [] }
-        for part in self.numbered_parts:
-            numbered_part['articles'].append(part.to_json())
-        parts_json.append(numbered_part)
-
-        suffix_part = { 'articles': [] }
-        for part in self.suffix_parts:
-            suffix_part['articles'].append(part.to_json())
-        parts_json.append(suffix_part)
-
-        return { 'parts': parts_json }
+        for section in self.sections:
+            sections_json.append(section.to_json())
+        return { 'sections': sections_json }
 
 
 class Section():
@@ -73,11 +60,27 @@ class Section():
         self.title = title
         self.parts = parts or []
 
+    def __eq__(self, other):
+        if (self.title == other.title and
+            self.parts == other.parts):
+            return True
+        return False
+
+    def __repr__(self):
+        return '<Section(title={title}), parts={parts}>'.format(
+            title=repr(self.title), parts=repr(self.parts))
+
     def add_part(self, part):
         self.parts.append(part)
     
     def add_parts(self, parts):
         self.parts.extend(parts)
+    
+    def to_json(self):
+        parts_json = []
+        for part in self.parts:
+            parts_json.append(part.to_json())
+        return { 'title': self.title, 'parts': parts_json }
 
 
 class Part():
@@ -124,3 +127,9 @@ class Part():
     
     def add_children(self, children):
         self.children.extend(children)
+
+    def to_json(self):
+        part_json = { 'name': self.name, 'source': self.source, 'level': self.level, 'children': [] }
+        for part in self.children:
+            part_json['children'].append(part.to_json())
+        return part_json

@@ -21,6 +21,11 @@ def find_elements_by_tag(element, tag_names=None, max_depth=0, current_depth=0):
     logger.debug(f'Looking for any elements matching: {tag_names} starting at: {element}')
     found = []
 
+    #: If the element is empty, we can't match anything and therefore we should
+    #: just return an empty array. [SWQ]
+    if not element:
+        return []
+
     #: If None or * were passed into the ``tag_names`` argument, we're going to
     #: assume that the user wants all tags up to a certain depth. This is
     #: similar to how the iter(tag=...) function within ElementTree works. [SWQ]

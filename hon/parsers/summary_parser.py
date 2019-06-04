@@ -5,7 +5,7 @@
 import os
 
 from hon.markdown import Markdown
-from hon.structure import Link, Summary
+from hon.structure import Link, Part, Section, Summary
 from hon.utils import xmlutils
 
 
@@ -56,118 +56,86 @@ class SummaryParser():
         title = self.parse_title()
 
         readme = self.parse_readme()
-        prefix_chapters = self.parse_affix(is_prefix=True)
-        numbered_chapters = self.parse_numbered()
-        suffix_chapters = self.parse_affix(is_prefix=False)
+        glossary = self.parse_glossary()
+        sections = self.parse_sections()
 
-        return Summary(title=title, readme=readme, prefix_parts=prefix_chapters,
-            numbered_parts=numbered_chapters, suffix_parts=suffix_chapters)
+        return Summary(title=title, readme=readme, sections=sections)
+
+    def parse_glossary(self):
+        return None
 
     def parse_readme(self):
         readme_file = os.path.join(self.book.path, 'README.md')
         if not os.path.exists(readme_file):
             raise FileNotFoundError('README.md not found.')
-        return Link(name='README', source=os.path.relpath(readme_file, self.book.path))
+        return Part('README', source=os.path.relpath(readme_file, self.book.path))
 
-    def parse_affix(self, is_prefix=False):
-        """Parse chapters outside of a list.
+    def parse_sections(self):
+        sections = []
 
-        Parse the affix chapters. This expects the first event (start of
-        paragraph) to have already been consumed by the previous parser.
-        """
-        items = []
-        affix_type = "prefix" if is_prefix else "suffix"
-        self.app.logger.debug("Parsing {} items".format(affix_type))
+        section_heading_tags = ['h2', 'h3', 'h4', 'h5', 'h6', 'hr']
+        section_body_tags = ['ul', 'ol', 'p', 'a']
 
-        events = self.stream.elements if is_prefix else self.stream.reverse_elements
-        print("{}".format(list(events)))
-        for e in events.iter():
-            if e.tag == 'a':
-                link = self.parse_link(e)
-                items.append(link)
-            elif e.tag == 'hr':
-                sep = SummaryItemSeparator()
-                items.append(sep)
-            elif e.tag == 'ul' or e.tag == 'ol':
-                # if not is_prefix and len(items) < 1:
-                #     raise ValueError('Lists cannot come after suffix elements.')
-                break
-        if not is_prefix:
-            items.reverse()
-        
-        if not items:
-            self.app.logger.debug('No {} items found.'.format(affix_type))
-        return items
+        tags = tuple(section_heading_tags + section_body_tags)
+        events = xmlutils.find_elements_by_tag(self.stream.elements, tag_names=tags, max_depth=1)
 
-    def parse_link(self, element, level=None):
-        href = element.get('href')
-        if not href:
-            raise ValueError("You can't have an empty link.")
-        return Link(name=element.text, source=href, level=level)
-
-
-    def parse_numbered(self):
-        """
-        Parse the numbered chapters. This assumes the opening list tag has
-        already been consumed by a previous parser.
-        """
-        self.app.logger.debug('[START] Begin parsing structured chapters')
-        items = []
-        root_items = 0
-
-        events = xmlutils.find_elements_by_tag(self.stream.elements, tag_names=['ul', 'ol', 'hr', 'p'], max_depth=1)
-        print(events)
         for e in events:
-            if e.tag == 'ul' or e.tag == 'ol':
-                bunch_of_items = self.parse_chapters(e)
-                root_items += len(bunch_of_items)
-                items.extend(bunch_of_items)
+            if e.tag in section_heading_tags:
+                title = None
+                if e.tag in ('h2', 'h3', 'h4', 'h5', 'h6'):
+                    title = stringify_events(e)
+                section = Section(title=title)
+                sections.append(section)
+            elif e.tag == 'ul' or e.tag == 'ol':
+                if not sections:
+                    section = Section()
+                    sections.append(section)
+                parts = self.parse_parts(e)
+                sections[-1].add_parts(parts)
             elif e.tag == 'p':
-                break
-            elif e.tag == 'hr':
-                self.app.logger.debug(f'Adding separator between lists')
-                items.append(SummaryItemSeparator())
-        self.app.logger.debug('[END] Finished parsing structured chapters')
-        return items
-
-    def parse_chapters(self, parent, level=0):
-        self.app.logger.debug(f'(LEVEL {level}) Parsing chapters for: {parent}')
-        items = []
+                if not sections:
+                    section = Section()
+                    sections.append(section)
+                parts = self.parse_parts(e)
+                sections[-1].add_parts(parts)
+        print('**** sections are: {}'.format(sections))
+        return sections
+    
+    def parse_parts(self, parent, level=0):
+        self.app.logger.debug(f'(LEVEL {level}) Parsing parts for: {parent}')
+        parts = []
 
         for e in list(parent):
-            if e.tag == 'li':
-                print('Parsing list item: {}'.format(e))
-                item = self.parse_chapter_link_from_list_item(e, level=level)
-                if item:
-                    self.app.logger.debug(f'(LEVEL {level}) Adding chapter link: {item}')
-                    items.append(item)
-            elif e.tag == 'ul' or e.tag == 'ol':
-                if len(items) < 1:
-                    raise IndexError('Encountered nested list before any links were parsed')
-                bunch_of_items = self.parse_chapters(e, level=level+1)
-                items[-1].extend(bunch_of_items)
-            elif e.tag == 'hr':
-                self.app.logger.debug(f'(LEVEL {level}) Adding summary item separator')
-                items.append(SummaryItemSeparator())
-        return items
+            if e.tag == 'a':
+                part = self.create_part(e)
+                parts.append(part)
+            elif e.tag == 'li':
+                part = self.parse_part(e, level=level)
+                if part:
+                    self.app.logger.debug(f'(LEVEL {level}) Adding part link: {part}')
+                    parts.append(part)
+            else:
+                if len(parts) < 1:
+                    raise IndexError('Encountered nested list before any parts were parsed')
+                bunch_of_parts = self.parse_parts(e, level=level+1 if level else None)
+                parts[-1].extend(bunch_of_parts)
+        return parts
 
-    def parse_chapter_link_from_list_item(self, list_item, level=0):
-        self.app.logger.debug(f'(LEVEL {level}) Parsing chapter link from : {list_item}')
+    def parse_part(self, list_item, level=0):
+        self.app.logger.debug(f'(LEVEL {level}) Parsing part from : {list_item}')
 
-        chapter_link = None
+        part = None
         link_element = xmlutils.find_first_element_by_tag(list_item, 'a', skip=['ul', 'ol'])
         if link_element is not None:
             self.app.logger.debug(f'(LEVEL {level}) Found chapter link: {link_element} for: {link_element.text}')
-            chapter_link = self.parse_link(link_element, level=level)
+            part = self.create_part(link_element, level=level)
+        return part
 
-        for e in list(list_item):
-            if e.tag == 'ul' or e.tag == 'ol':
-                if chapter_link is None: 
-                    raise TypeError('Unable to append sublinks to an undefined link.')
-
-                children = self.parse_chapters(e, level=level + 1)
-                chapter_link.children = children
-        return chapter_link
+    def create_part(self, element, level=None):
+        href = element.get('href')
+        if not href:
+            raise ValueError("You can't have an empty link.")
+        return Part(name=element.text, source=href, level=level)
 
     def parse_title(self):
         """Try to parse the title line."""

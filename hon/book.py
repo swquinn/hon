@@ -2,7 +2,7 @@ import os
 import markdown
 
 from collections.abc import Iterable, Iterator
-from hon.structure import Link
+from hon.structure import Link, Part
 from hon.summary import parse_summary
 
 
@@ -25,7 +25,7 @@ class Book(object):
     """A simple tree structure representing a book.
 
     A book is a collection of ``BookItems``, which are typically rendered as
-    either ``Parts`` or ``Separators``.
+    either ``Chapters`` or ``Separators``.
 
     :type name: str
     :type authors: str or []
@@ -105,21 +105,17 @@ class Book(object):
     def load_book_from_disk(self):
         """Use the book's summary to load the book's pages from disk."""
         self.app.logger.debug('Loading book from disk')
-        readme = tuple([self.summary.readme])
-        prefix = tuple(self.summary.prefix_parts)
-        numbered = tuple(self.summary.numbered_parts)
-        suffix = tuple(self.summary.suffix_parts)
 
-        summary_items = readme + prefix + numbered + suffix
+        summary_items = self.summary.all_parts
+        print('**** summary items: {}'.format(summary_items))
 
         for item in summary_items:
-            if type(item) == Link:
+            if type(item) == Part:
                 chapter = self.load_chapter(item)
                 self.sections.append(chapter)
-            elif type(item) == Separator:
     
     def load_chapter(self, item, parent=None):
-        part = None
+        chapter = None
         chapter_path = os.path.abspath(os.path.join(self.path, item.source))
         
         if not os.path.exists(chapter_path):
@@ -127,20 +123,20 @@ class Book(object):
                 
         with open(chapter_path) as f:
             raw = f.read()
-            part = Part(name=item.name, raw_text=raw, path=chapter_path, number=item.level, parent=parent)
+            chapter = Chapter(name=item.name, raw_text=raw, path=chapter_path, number=item.level, parent=parent)
         
-        if not part:
-            raise TypeError('Part not created')
+        if not chapter:
+            raise TypeError('Chapter not created')
 
-        sub_parts = []
+        sub_chapters = []
         if item.children:
             for sub_item in item.children:
-                sub_part = self.load_chapter(sub_item, parent=item)
-                sub_parts.append(sub_part)
+                sub_chapter = self.load_chapter(sub_item, parent=item)
+                sub_chapters.append(sub_chapter)
         
-        if sub_parts:
-            part.children = sub_parts
-        return part
+        if sub_chapters:
+            chapter.children = sub_chapters
+        return chapter
 
     def parse_contents(self):
         # parse_readme(self)
@@ -157,7 +153,7 @@ class Book(object):
 
 class BookItem(object):
     """The base class for all book items."""
-    PART = 'Part'
+    PART = 'Chapter'
     SEPARATOR = 'Separator'
 
     def __init__(self, book_item_type):
@@ -166,11 +162,11 @@ class BookItem(object):
         self.type = book_item_type
 
 
-class Part(BookItem):
-    """A Part represents an entry in a book.
+class Chapter(BookItem):
+    """A Chapter represents an entry in a book.
 
     FROM mdBook:
-        A Part is a representation of a "chapter", usually mapping to
+        A Chapter is a representation of a "chapter", usually mapping to
         a single file on disk however it may contain multiple sub-chapters.
 
     :type name: str
@@ -193,7 +189,7 @@ class Part(BookItem):
         return False
 
     def __init__(self, name=None, raw_text=None, path=None, number=None, parent=None, children=None):
-        super(Part, self).__init__(BookItem.PART)
+        super(Chapter, self).__init__(BookItem.PART)
 
         #: The name of the entry.
         self.name = name
@@ -211,7 +207,7 @@ class Part(BookItem):
         self.children = children or []
     
     def __repr__(self):
-        return ('Part(name={name}, raw_text=..., path={path}, '
+        return ('Chapter(name={name}, raw_text=..., path={path}, '
             'number=..., parent=..., children=...)').format(
             name=self.name, path=self.path)
 

@@ -18,12 +18,18 @@
     <li class="divider"></li>
     {% endif %}
 
-    {% for part in summary.parts %}
-        {% if part.title %}
-        <li class="header">{{ part.title }}</li>
+    {% if summary.readme %}
+        <li class="chapter">
+            <a href="">Cover</a>
+        </li>
+    {% endif %}
+
+    {% for section in summary.sections %}
+        {% if section.title %}
+        <li class="header">{{ section.title }}</li>
         {% elif not loop.first %}
         <li class="divider"></li>
         {% endif %}
-        {{ articles(part.articles, file, config) }}
+        {{ articles(section.parts, file, config) }}
     {% endfor %}
 </ul>
