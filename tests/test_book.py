@@ -37,7 +37,6 @@ def sample_chapter(chapter_content):
 def sample_chapter_with_nested_items(chapter_content):
     nested_items = [
         Chapter(name='Hello, World!'),
-        Separator(),
         Chapter(name='Goodbye, Cruel World!')
     ]
     chapter = Chapter(
@@ -50,8 +49,52 @@ def sample_chapter_with_nested_items(chapter_content):
     return chapter
 
 
+def test_book_add_chapter(philosophy_book, sample_chapter):
+    philosophy_book.add_chapter(sample_chapter)
+
+    assert len(philosophy_book.chapters) == 1
+    assert philosophy_book.chapters[0] == sample_chapter
+    assert philosophy_book.chapters[0].previous_chapter == None
+    assert philosophy_book.chapters[0].next_chapter == None
+
+    new_chapter = Chapter(name='Chapter 2')
+    philosophy_book.add_chapter(new_chapter)
+
+    assert len(philosophy_book.chapters) == 2
+    assert philosophy_book.chapters[1] == new_chapter
+    assert philosophy_book.chapters[0].previous_chapter == None
+    assert philosophy_book.chapters[0].next_chapter == new_chapter
+    assert philosophy_book.chapters[1].previous_chapter == sample_chapter
+    assert philosophy_book.chapters[1].next_chapter == None
+
+    last_chapter = Chapter(name='Chapter 3')
+    philosophy_book.add_chapter(last_chapter)
+
+    assert len(philosophy_book.chapters) == 3
+    assert philosophy_book.chapters[2] == last_chapter
+    assert philosophy_book.chapters[0].previous_chapter == None
+    assert philosophy_book.chapters[0].next_chapter == new_chapter
+    assert philosophy_book.chapters[1].previous_chapter == sample_chapter
+    assert philosophy_book.chapters[1].next_chapter == last_chapter
+    assert philosophy_book.chapters[2].previous_chapter == new_chapter
+    assert philosophy_book.chapters[2].next_chapter == None
+
+
+def test_book_add_chapters(philosophy_book, sample_chapter):
+    chapters = [sample_chapter, Chapter(name='Chapter 2'), Chapter(name='Chapter 3')]
+    philosophy_book.add_chapters(chapters)
+
+    assert len(philosophy_book.chapters) == 3
+    assert philosophy_book.chapters[0].previous_chapter == None
+    assert philosophy_book.chapters[0].next_chapter == chapters[1]
+    assert philosophy_book.chapters[1].previous_chapter == chapters[0]
+    assert philosophy_book.chapters[1].next_chapter == chapters[2]
+    assert philosophy_book.chapters[2].previous_chapter == chapters[1]
+    assert philosophy_book.chapters[2].next_chapter == None
+
+
 def test_book_iter_iterates_over_sequential_items(philosophy_book, sample_chapter):
-    philosophy_book.add_chapters([sample_chapter, Separator()])
+    philosophy_book.add_chapters([sample_chapter, Chapter()])
 
     expected = philosophy_book.chapters
     actual = philosophy_book.items
@@ -61,14 +104,14 @@ def test_book_iter_iterates_over_sequential_items(philosophy_book, sample_chapte
 def test_iterate_over_nested_book_items(philosophy_book, sample_chapter_with_nested_items):
     philosophy_book.add_chapters([
         sample_chapter_with_nested_items,
-        Separator()
+        Chapter(name='Chapter 2')
     ])
 
     actual = philosophy_book.items
-    assert len(actual) == 5
+    assert len(actual) == 4
     
     chapter_names = [item.name for item in actual if type(item) == Chapter]
-    assert chapter_names == ['Chapter 1', 'Hello, World!', 'Goodbye, Cruel World!']
+    assert chapter_names == ['Chapter 1', 'Hello, World!', 'Goodbye, Cruel World!', 'Chapter 2']
 
 
 # #[cfg(test)]

@@ -48,12 +48,15 @@ class Chapter():
             return True
         return False
 
-    def __init__(self, name=None, raw_text=None, path=None, parent=None, children=None):
+    def __init__(self, name=None, raw_text=None, path=None, link=None, parent=None, children=None):
         #: The name of the entry.
         self.name = name
 
         #: The page's location on the filesystem
-        self.path = path        
+        self.path = path
+
+        #: The link to this chapter.
+        self.link = link
 
         #: The entry's raw, unprocessed, text.
         self.raw_text = raw_text

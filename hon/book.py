@@ -83,10 +83,22 @@ class Book(object):
         self.language = self.config.get('language') or self.language
 
     def add_chapter(self, chapter):
+        """Adds a chapter to the book, updating the graph."""
+        last_chapter = self.chapters[-1] if self.chapters else None
+
+        #: If we're adding a new chapter, and it isn't the first chapter, we
+        #: need to Update the chapter we're adding to point to the previous
+        #: chapter AND the previous chapter's next chapter pointer to reference
+        #: the chapter being added.
+        if last_chapter:
+            chapter.previous_chapter = last_chapter
+            last_chapter.next_chapter = chapter
         self.chapters.append(chapter)
     
     def add_chapters(self, chapters):
-        self.chapters.extend(chapters)
+        """Adds all chapters to a book, updating the graph."""
+        for chapter in chapters:
+            self.add_chapter(chapter)
 
     def init_app(self, app):
         self.app = app
@@ -116,7 +128,7 @@ class Book(object):
         for item in summary_items:
             if type(item) == Part:
                 chapter = self.load_chapter(item)
-                self.chapters.append(chapter)
+                self.add_chapter(chapter)
     
     def load_chapter(self, item, parent=None):
         chapter = None
@@ -127,7 +139,7 @@ class Book(object):
                 
         with open(chapter_path) as f:
             raw = f.read()
-            chapter = Chapter(name=item.name, raw_text=raw, path=chapter_path, parent=parent)
+            chapter = Chapter(name=item.name, raw_text=raw, path=chapter_path, link=item.link, parent=parent)
         
         if not chapter:
             raise TypeError('Chapter not created')

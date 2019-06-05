@@ -93,7 +93,9 @@ class HtmlRenderer(Renderer):
                 },
                 'page': {
                     'title': item.name,
-                    'content': item.text
+                    'content': item.text,
+                    'previous_chapter': item.previous_chapter,
+                    'next_chapter': item.next_chapter,
                 },
                 'summary': book.summary
             }).dump(write_to)

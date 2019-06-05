@@ -9,11 +9,15 @@
     <div class="off-canvas-content">
         <div class="content">
             {% include 'header.html.jinja' %}
-            <article class="container" style="padding-top: 2rem; padding-bottom: 4rem">
+            <article class="container" style="padding-top: 2rem; padding-bottom: 4rem; min-height: 100vh;">
                 <div class="columns">
                     <div class="column col-1 col-mr-auto">
                         <div class="p-fixed" style="top: 50vh">
-                            <i class="icon icon-arrow-left"></i>
+                            {%- if page.previous_chapter -%}
+                                <a href="{{ page.previous_chapter.link }}">
+                                    <i class="icon icon-arrow-left"></i>
+                                </a>
+                            {%- endif -%}
                         </div>
                     </div>
                     <div class="column col-8 col-mx-auto">
@@ -21,7 +25,11 @@
                     </div>
                     <div class="column col-1 col-ml-auto">
                         <div class="p-fixed" style="top: 50vh">
-                            <i class="icon icon-arrow-right"></i>
+                            {%- if page.next_chapter -%}
+                                <a href="{{ page.next_chapter.link }}">
+                                    <i class="icon icon-arrow-right"></i>
+                                </a>
+                            {%- endif -%}
                         </div>
                     </div>
                 </div>
