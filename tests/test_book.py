@@ -1,7 +1,8 @@
 import pytest
-from hon.book import (
-    Book, BookItem, Chapter, Separator
-)
+
+from hon.book import Book
+from hon.structure import Chapter, Separator
+
 
 @pytest.fixture
 def chapter_content():
@@ -44,22 +45,21 @@ def sample_chapter_with_nested_items(chapter_content):
         raw_text=chapter_content,
         path='Chapter_1/index.md',
         children=nested_items,
-        number=None,
         parent=None
     )
     return chapter
 
 
 def test_book_iter_iterates_over_sequential_items(philosophy_book, sample_chapter):
-    philosophy_book.add_all([sample_chapter, Separator()])
+    philosophy_book.add_chapters([sample_chapter, Separator()])
 
-    expected = philosophy_book.sections
+    expected = philosophy_book.chapters
     actual = philosophy_book.items
     assert actual == expected
 
 
 def test_iterate_over_nested_book_items(philosophy_book, sample_chapter_with_nested_items):
-    philosophy_book.add_all([
+    philosophy_book.add_chapters([
         sample_chapter_with_nested_items,
         Separator()
     ])
@@ -67,7 +67,7 @@ def test_iterate_over_nested_book_items(philosophy_book, sample_chapter_with_nes
     actual = philosophy_book.items
     assert len(actual) == 5
     
-    chapter_names = [item.name for item in actual if item.type == BookItem.PART]
+    chapter_names = [item.name for item in actual if type(item) == Chapter]
     assert chapter_names == ['Chapter 1', 'Hello, World!', 'Goodbye, Cruel World!']
 
 

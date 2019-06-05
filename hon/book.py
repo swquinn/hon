@@ -1,8 +1,12 @@
+"""
+    hon.book
+    ~~~~~
+"""
 import os
 import markdown
 
 from collections.abc import Iterable, Iterator
-from hon.structure import Link, Part
+from hon.structure import Chapter, Link, Part
 from hon.summary import parse_summary
 
 
@@ -31,13 +35,13 @@ class Book(object):
     :type authors: str or []
     :type language: str
     :type config: Config
-    :type sections: []
+    :type chapters: []
     """
 
     @property
     def items(self):
-        #: TODO: This presents a view of the flattened book of all the sections.
-        flattened_book = _flatten_book_items(self.sections)
+        #: TODO: This presents a view of the flattened book of all the chapters.
+        flattened_book = _flatten_book_items(self.chapters)
         return list(flattened_book)
 
     def __init__(self, app=None, name=None, path=None, authors=None, language=None, config=None):
@@ -62,7 +66,7 @@ class Book(object):
         self.path = path
 
         #: 
-        self.sections = []
+        self.chapters = []
 
         self.glossary = None
         self.readme = None
@@ -78,11 +82,11 @@ class Book(object):
         self.authors = self.config.get('authors') or self.authors
         self.language = self.config.get('language') or self.language
 
-    def add(self, item):
-        self.sections.append(item)
+    def add_chapter(self, chapter):
+        self.chapters.append(chapter)
     
-    def add_all(self, items):
-        self.sections.extend(items)
+    def add_chapters(self, chapters):
+        self.chapters.extend(chapters)
 
     def init_app(self, app):
         self.app = app
@@ -112,7 +116,7 @@ class Book(object):
         for item in summary_items:
             if type(item) == Part:
                 chapter = self.load_chapter(item)
-                self.sections.append(chapter)
+                self.chapters.append(chapter)
     
     def load_chapter(self, item, parent=None):
         chapter = None
@@ -123,7 +127,7 @@ class Book(object):
                 
         with open(chapter_path) as f:
             raw = f.read()
-            chapter = Chapter(name=item.name, raw_text=raw, path=chapter_path, number=item.level, parent=parent)
+            chapter = Chapter(name=item.name, raw_text=raw, path=chapter_path, parent=parent)
         
         if not chapter:
             raise TypeError('Chapter not created')
@@ -149,72 +153,3 @@ class Book(object):
             name=repr(self.name), path=repr(self.path),
             authors=repr(self.authors), language=repr(self.language),
             config=repr(self.config))
-
-
-class BookItem(object):
-    """The base class for all book items."""
-    PART = 'Chapter'
-    SEPARATOR = 'Separator'
-
-    def __init__(self, book_item_type):
-        #: All book items have a type associated with them, this can be used
-        #: to control logic specific to that type.
-        self.type = book_item_type
-
-
-class Chapter(BookItem):
-    """A Chapter represents an entry in a book.
-
-    FROM mdBook:
-        A Chapter is a representation of a "chapter", usually mapping to
-        a single file on disk however it may contain multiple sub-chapters.
-
-    :type name: str
-    :type raw_text: str
-    :type children: []
-    :type path: str
-    """
-
-    @property
-    def filename(self):
-        filename, _ = os.path.splitext(os.path.basename(self.path))
-        return filename
-
-    @property
-    def is_readme(self):
-        filename = os.path.basename(self.path)
-        root, _ = os.path.splitext(filename)
-        if root.lower() == 'readme':
-            return True
-        return False
-
-    def __init__(self, name=None, raw_text=None, path=None, number=None, parent=None, children=None):
-        super(Chapter, self).__init__(BookItem.PART)
-
-        #: The name of the entry.
-        self.name = name
-
-        #: The page's location on the filesystem
-        self.path = path        
-
-        #: The entry's raw, unprocessed, text.
-        self.raw_text = raw_text
-
-        #: The processed text.
-        self.text = None
-
-        #: The children of this page.
-        self.children = children or []
-    
-    def __repr__(self):
-        return ('Chapter(name={name}, raw_text=..., path={path}, '
-            'number=..., parent=..., children=...)').format(
-            name=self.name, path=self.path)
-
-
-class Separator(BookItem):
-    def __init__(self):
-        super(Separator, self).__init__(BookItem.SEPARATOR)
-    
-    def __repr__(self):
-        return 'Separator()'
