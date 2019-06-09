@@ -60,11 +60,11 @@ class Section():
         self.title = title
         self.parts = parts or []
 
+    def __hash_key(self):
+        return (self.title, self.parts)
+
     def __eq__(self, other):
-        if (self.title == other.title and
-            self.parts == other.parts):
-            return True
-        return False
+        return isinstance(self, type(other)) and self.__hash_key() == other.__hash_key()
 
     def __repr__(self):
         return '<Section(title={title}), parts={parts}>'.format(
@@ -110,13 +110,11 @@ class Part():
         #: Any nested items this part contains.
         self.children = children or []
 
+    def __hash_key(self):
+        return (self.name, self.source, self.level, self.children)
+
     def __eq__(self, other):
-        if (self.name == other.name and
-            self.source == other.source and
-            self.level == other.level and
-            self.children == other.children):
-            return True
-        return False
+        return isinstance(self, type(other)) and self.__hash_key() == other.__hash_key()
 
     def __repr__(self):
         return ('<Part(name={name}, source={source}, level={level})>'.format(
