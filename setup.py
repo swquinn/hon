@@ -36,9 +36,11 @@ setup(
     install_requires=[
         'click>=7.0',
         'jinja2>=2.10',
+        'flask',
         'markdown>=3.1',
         'pydash>=4.7.5',
         'pyyaml>=5.1',
+        'watchdog',
     ],
     extras_require={
         'dotenv': [],
