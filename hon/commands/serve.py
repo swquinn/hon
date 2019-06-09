@@ -44,7 +44,7 @@ def create_flask_app(serve_from=None):
     return app
 
 
-@click.command('serve', short_help='serve the book as a website for testing')
+@click.command('serve', short_help='Serve the book as a website for testing')
 @click.argument('book', default=None, required=False)
 @click.argument('output', default='book', required=False)
 @click.option('--port', 'port', default='4000',
