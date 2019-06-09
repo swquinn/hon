@@ -22,7 +22,7 @@ _sentinel = object()
 
 #: The default output path to use, if one was not passed by the command line
 #: interface, or otherwise specified in the configuration.
-DEFAULT_OUTPUT_PATH = '_book'
+DEFAULT_OUTPUT_PATH = 'book'
 
 #: A collection of valid book configuration files which, if present, identify
 #: a directory as being the root of a book.
