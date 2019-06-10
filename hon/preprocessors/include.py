@@ -8,8 +8,6 @@ from collections import namedtuple
 
 from .preprocessor import Preprocessor
 from hon.utils.numberutils import to_int_ns
-# use utils::fs::file_to_string;
-# use utils::take_lines;
 
 ESCAPE_CHAR = '\\'
 
@@ -165,54 +163,28 @@ class IncludeType(object):
 
 
 class IncludeItem(IncludeType):
-    """
+    """An abstract item representing an inclusion type.
+
+    :type start_index: int
+    :type end_index: int
+    :type include: str
+    :type include_text: str
     """
     def __init__(self, start_index=None, end_index=None, include=None, include_text=None):
-        #: int - starting position where to begin swapping out the text
+        #: The starting position where text should begin to be replaced.
         self.start_index = start_index
-        #: int - ending position where to begin swapping out the text
+        #: The ending position for the text replacement.
         self.end_index = end_index
-        #: inclusion instance type, e.g. playpen, include, etc.
+        #: The inclusion instance type, e.g. playpen, include, etc.
         self.include = include
-        #: str
+        #: The inclusion tag that was parsed.
         self.include_text = include_text
 
-    # fn from_capture(cap: Captures<'a>) -> Option<Link<'a>> {
-    #     let link_type = match (cap.get(0), cap.get(1), cap.get(2)) {
-    #         (_, Some(typ), Some(rest)) => {
-    #             let mut path_props = rest.as_str().split_whitespace();
-    #             let file_arg = path_props.next();
-    #             let props: Vec<&str> = path_props.collect();
-
-    #             match (typ.as_str(), file_arg) {
-    #                 ("include", Some(pth)) => Some(parse_include_path(pth)),
-    #                 ("playpen", Some(pth)) => Some(LinkType::Playpen(pth.into(), props)),
-    #                 _ => None,
-    #             }
-    #         }
-    #         (Some(mat), None, None) if mat.as_str().starts_with(ESCAPE_CHAR) => {
-    #             Some(LinkType::Escaped)
-    #         }
-    #         _ => None,
-    #     };
-
-    #     link_type.and_then(|lnk| {
-    #         cap.get(0).map(|mat| Link {
-    #             start_index: mat.start(),
-    #             end_index: mat.end(),
-    #             link: lnk,
-    #             link_text: mat.as_str(),
-    #         })
-    #     })
-    # }
+    def __hash_key(self):
+        return (self.start_index, self.end_index, self.include, self.include_text)
 
     def __eq__(self, other):
-        if (self.start_index == other.start_index and
-            self.end_index == other.end_index and
-            self.include == other.include and
-            self.include_text == other.include_text):
-            return True
-        return False
+        return isinstance(self, type(other)) and self.__hash_key() == other.__hash_key()
 
     def __repr__(self):
         return ('IncludeItem(start_index={start_index}, end_index={end_index}, '
@@ -225,13 +197,14 @@ class EscapedInclude(IncludeType):
     """
     """
     def __eq__(self, other):
-        if self.__class__ == other.__class__:
-            return True
-        return False
+        return isinstance(self, type(other))
 
 
 class IncludeRange(IncludeType):
     """
+
+    :type path: str
+    :type select_range: SelectRange
     """
     def __init__(self, path, select_range=None):
         self.path = path
@@ -251,15 +224,17 @@ class IncludeRange(IncludeType):
 
 class Playpen(IncludeType):
     """
+
+    :type path: str
     """
     def __init__(self, path):
         self.path = path
     
+    def __hash_key(self):
+        return (self.path, )
+    
     def __eq__(self, other):
-        if (self.__class__ == other.__class__ and
-            self.path == other.path):
-            return True
-        return False
+        return isinstance(self, type(other)) and self.__hash_key() == other.__hash_key()
 
     def __repr__(self):
         return 'Playpen(path={path})'.format(path=repr(self.path))
