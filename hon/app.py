@@ -240,8 +240,18 @@ class Hon():
         """
         return AppContext(self)
 
-    def build(self):
+    def build(self, build_only=None):
+        """Build a book in one or more formats.
+
+        The ``build_only`` argument specifies which book renderers should be
+        run. If no book renderers are specified (i.e. ``book_only=None``), then
+        all book renderers will be run. The book renders supported by Hon are:
+        ``html``, ``pdf``, ``epub``, and ``mobi``. Hon extensions may make
+        additional renderers available.
+        """
         self.logger.info('Found {} books to build...'.format(len(self.books)))
+        if build_only is None:
+            build_only = tuple([renderer.name for renderer in self.renderers])
 
         # TODO: Get and create output directory
 
@@ -256,7 +266,8 @@ class Hon():
 
             #: Render
             for renderer in self.renderers:
-                renderer.render(book)
+                if build_only and renderer.name in build_only:
+                    renderer.render(book)
 
     def do_teardown_appcontext(self, exc=_sentinel):
         """Called right before the application context is popped.
