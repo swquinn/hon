@@ -59,10 +59,10 @@ class Chapter():
         self.link = link
 
         #: The entry's raw, unprocessed, text.
-        self.raw_text = raw_text
+        self.raw_text = raw_text or ''
 
         #: The processed text.
-        self.text = None
+        self.text = ''
 
         self.parent = parent
 
