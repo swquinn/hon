@@ -11,7 +11,7 @@
             <tr>
             {% for item in data %}
                 <td>{{ loop.index }}</td>
-                {% for key, value in item.items() %}<td>{{ value }}{% endfor %}
+                {% for key, value in item.items() %}<td>{{ value }}</td>{% endfor %}
             {% endfor %}
             </tr>
         </tbody>
