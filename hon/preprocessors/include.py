@@ -1,7 +1,13 @@
+"""
+    hon.preprocessors.include
+    ~~~~~
+"""
+import os
 import re
 from collections import namedtuple
-from hon.utils.numberutils import to_int_ns
+
 from .preprocessor import Preprocessor
+from hon.utils.numberutils import to_int_ns
 # use utils::fs::file_to_string;
 # use utils::take_lines;
 
@@ -88,7 +94,7 @@ def _parse_target(target):
     #: starting range, and the third is the ending range.
     target_parts = (target.strip().split(':') + (3 * [None]))[:3]
 
-    file_path = target_parts[0]
+    file_path = target_parts[0].strip('"\'')
     select_range = None
 
     start_range = to_int_ns(target_parts[1] or None)
@@ -114,28 +120,53 @@ def process_matches(matches):
 
 def find_includes(contents):
     pattern = (
-        r'(\\\{\{\#.+\}\})'             # match an escaped include, e.g. \{#include ...}
-        r'|'                            # or
-        r'\{\{\s*'                      # include opening parens and whitespace
-        r'\#([a-zA-Z\d]+)'              # the include type
-        r'\s+'                          # separating whitespace
-        r'([a-zA-Z\d\s_\.\-:/\\]+)'     # the inclusion target, posibly including range limitations
-        r'\s*\}\}'                      # whitespace and include closing parens
+        r'(\\\{\%.+\%\})'                # match an escaped include, e.g. \{% include ... %}
+        r'|'                             # or
+        r'\{\%\s*'                       # include opening parens and whitespace
+        r'([a-zA-Z\d]+)'                 # the include type
+        r'\s+'                           # separating whitespace
+        r'([a-zA-Z\d\s_\.\-:/\\\'\"]+)'  # the inclusion target, posibly including range limitations
+        r'\s*\%\}'                       # whitespace and include closing parens
     )
     match_iter = re.finditer(pattern, contents, flags=(re.MULTILINE & re.IGNORECASE))
     matches = list(match_iter)
     return process_matches(matches)
 
 
-class IncludeType(object):
+def replace_all(text, relative_path, depth=0):
+    """
+    """
+    replaced = text
 
+    for include_item in find_includes(text):
+        include_filepath = os.path.abspath(
+            os.path.join(relative_path, include_item.include.path)
+        )
+        with open(include_filepath) as f:
+            raw = f.read()
+            #: TODO: Support including only parts of the a file...
+
+            if depth < MAX_INCLUDE_NESTED_DEPTH:
+                raw = replace_all(raw, os.path.dirname(include_filepath), depth=depth+1)
+            else:
+                raise RuntimeError('Too deep!')
+
+            replaced = replaced.replace(
+                include_item.include_text, str(raw))
+    return replaced
+
+
+class IncludeType(object):
+    """
+    """
     def __repr__(self):
         class_name = self.__class__.__name__
         return '{class_name}()'.format(class_name=class_name)
 
 
 class IncludeItem(IncludeType):
-
+    """
+    """
     def __init__(self, start_index=None, end_index=None, include=None, include_text=None):
         #: int - starting position where to begin swapping out the text
         self.start_index = start_index
@@ -191,7 +222,8 @@ class IncludeItem(IncludeType):
 
 
 class EscapedInclude(IncludeType):
-
+    """
+    """
     def __eq__(self, other):
         if self.__class__ == other.__class__:
             return True
@@ -199,7 +231,8 @@ class EscapedInclude(IncludeType):
 
 
 class IncludeRange(IncludeType):
-
+    """
+    """
     def __init__(self, path, select_range=None):
         self.path = path
         self.select_range = select_range
@@ -217,7 +250,8 @@ class IncludeRange(IncludeType):
 
 
 class Playpen(IncludeType):
-
+    """
+    """
     def __init__(self, path):
         self.path = path
     
@@ -259,94 +293,17 @@ class IncludePreprocessor(Preprocessor):
     """A preprocessor for expanding inclusion helpers in a chapter.
 
     The include preprocessor supports multiple different type of inclusion
-    blocks, those are the Playpen block: ``{{# playpen ... }}``, the 
-    Handlebars style include: ``{{# include ... }}``, and the Gitbook style
+    blocks, those are the Playpen block: ``{% playpen ... %}``, the 
+    Handlebars style include: ``{% include ... %}``, and the Gitbook style
     include: ``{% include}``.
     """
     _name = 'include'
 
     def run(self, book):
-        #: 1. Get the book source directory
-        #: 
-        pass
-    # fn run(&self, ctx: &PreprocessorContext, mut book: Book) -> Result<Book> {
-    #     let src_dir = ctx.root.join(&ctx.config.book.src);
+        for item in book.items:
+            content = replace_all(item.raw_text, book.path)
+            item.raw_text = content
 
-    #     book.for_each_mut(|section: &mut BookItem| {
-    #         if let BookItem::Chapter(ref mut ch) = *section {
-    #             let base = ch
-    #                 .path
-    #                 .parent()
-    #                 .map(|dir| src_dir.join(dir))
-    #                 .expect("All book items have a parent");
-
-    #             let content = replace_all(&ch.content, base, &ch.path, 0);
-    #             ch.content = content;
-    #         }
-    #     });
-
-    #     Ok(book)
-    # }
-
-
-# use super::{Preprocessor, PreprocessorContext};
-# use book::{Book, BookItem};
-
-# const ESCAPE_CHAR: char = '\\';
-
-
-
-
-# }
-
-# fn replace_all<P1, P2>(s: &str, path: P1, source: P2, depth: usize) -> String
-# where
-# P1: AsRef<Path>,
-# P2: AsRef<Path>,
-# {
-# // When replacing one thing in a string by something with a different length,
-# // the indices after that will not correspond,
-# // we therefore have to store the difference to correct this
-# let path = path.as_ref();
-# let source = source.as_ref();
-# let mut previous_end_index = 0;
-# let mut replaced = String::new();
-
-# for playpen in find_links(s) {
-#     replaced.push_str(&s[previous_end_index..playpen.start_index]);
-
-#     match playpen.render_with_path(&path) {
-#         Ok(new_content) => {
-#             if depth < MAX_LINK_NESTED_DEPTH {
-#                 if let Some(rel_path) = playpen.link.relative_path(path) {
-#                     replaced.push_str(&replace_all(&new_content, rel_path, source, depth + 1));
-#                 } else {
-#                     replaced.push_str(&new_content);
-#                 }
-#             } else {
-#                 error!(
-#                     "Stack depth exceeded in {}. Check for cyclic includes",
-#                     source.display()
-#                 );
-#             }
-#             previous_end_index = playpen.end_index;
-#         }
-#         Err(e) => {
-#             error!("Error updating \"{}\", {}", playpen.link_text, e);
-#             for cause in e.iter().skip(1) {
-#                 warn!("Caused By: {}", cause);
-#             }
-
-#             // This should make sure we include the raw `{{# ... }}` snippet
-#             // in the page content if there are any errors.
-#             previous_end_index = playpen.start_index;
-#         }
-#     }
-# }
-
-# replaced.push_str(&s[previous_end_index..]);
-# replaced
-# }
 
 # fn return_relative_path<P: AsRef<Path>>(base: P, relative: P) -> PathBuf {
 # base.as_ref()

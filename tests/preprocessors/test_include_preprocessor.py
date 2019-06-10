@@ -92,139 +92,139 @@ def test_find_includes_no_link():
 
 
 def test_find_includes_partial_link():
-    s = "Some random text with {{#playpen..."
+    s = "Some random text with {% playpen..."
     actual = find_includes(s)
     assert actual == []
 
-    s = "Some random text with {{#include..."
+    s = "Some random text with {% include..."
     actual = find_includes(s)
     assert actual == []
 
-    s = "Some random text with \\{{#include..."
+    s = "Some random text with \\{% include..."
     actual = find_includes(s)
     assert actual == []
 
 
 def test_find_includes_empty_link():
-    s = "Some random text with {{#playpen}} and {{#playpen   }} {{}} {{#}}..."
+    s = "Some random text with {% playpen %} and {% playpen    %} {{}} {%%}..."
     actual = find_includes(s)
     assert actual == []
 
 
 def test_find_includes_unknown_link_type():
-    s = "Some random text with {{#playpenz ar.rs}} and {{#incn}} {{baz}} {{#bar}}..."
+    s = "Some random text with {% playpenz ar.rs %} and {% incn %} {baz %} {% bar %}..."
     actual = find_includes(s)
     assert actual == []
 
 
 def test_find_includes_simple_link():
-    s = "Some random text with {{#playpen file.py}} and {{#playpen test.rs }}..."
+    s = "Some random text with {% playpen file.py %} and {% playpen test.rs  %}..."
 
     actual = find_includes(s)
-    # print("OUTPUT: {}".format(actual))
+    print("OUTPUT: {}".format(actual))
 
     assert actual == [
         IncludeItem(
             start_index=22,
-            end_index=42,
+            end_index=43,
             include=Playpen('file.py'),
-            include_text='{{#playpen file.py}}'
+            include_text='{% playpen file.py %}'
         ),
         IncludeItem(
-            start_index=47,
-            end_index=68,
+            start_index=48,
+            end_index=70,
             include=Playpen('test.rs'),
-            include_text='{{#playpen test.rs }}'
+            include_text='{% playpen test.rs  %}'
         ),
     ]
 
 def test_find_includes_with_range():
-    s = "Some random text with {{#include file.py:10:20}}..."
+    s = "Some random text with {% include file.py:10:20 %}..."
     actual = find_includes(s)
 
     #print("OUTPUT: {}".format(actual))
     assert actual == [
         IncludeItem(
             start_index=22,
-            end_index=48,
+            end_index=49,
             include=IncludeRange("file.py", select_range=SelectRange(start=10, stop=20)),
-            include_text="{{#include file.py:10:20}}",
+            include_text="{% include file.py:10:20 %}",
         )
     ]
 
 
 def test_find_includes_with_line_number():
-    s = "Some random text with {{#include file.py:10}}..."
+    s = "Some random text with {% include file.py:10 %}..."
+    actual = find_includes(s)
+    print("OUTPUT: {}".format(actual))
+    assert actual == [
+        IncludeItem(
+            start_index=22,
+            end_index=46,
+            include=IncludeRange("file.py", select_range=SelectRange(start=10)),
+            include_text="{% include file.py:10 %}",
+        )
+    ]
+
+
+def test_find_includes_with_from_range():
+    s = "Some random text with {% include file.py:10: %}..."
+    actual = find_includes(s)
+    print("OUTPUT: {}".format(actual))
+    assert actual == [
+        IncludeItem(
+            start_index=22,
+            end_index=47,
+            include=IncludeRange("file.py", select_range=SelectRange(start=10)),
+            include_text="{% include file.py:10: %}",
+        )
+    ]
+
+
+def test_find_includes_with_to_range():
+    s = "Some random text with {% include file.py::20 %}..."
+    actual = find_includes(s)
+    print("OUTPUT: {}".format(actual))
+    assert actual == [
+        IncludeItem(
+            start_index=22,
+            end_index=47,
+            include=IncludeRange("file.py", select_range=SelectRange(stop=20)),
+            include_text="{% include file.py::20 %}",
+        )
+    ]
+
+
+def test_find_includes_with_full_range():
+    s = "Some random text with {% include file.py:: %}..."
     actual = find_includes(s)
     print("OUTPUT: {}".format(actual))
     assert actual == [
         IncludeItem(
             start_index=22,
             end_index=45,
-            include=IncludeRange("file.py", select_range=SelectRange(start=10)),
-            include_text="{{#include file.py:10}}",
-        )
-    ]
-
-
-def test_find_includes_with_from_range():
-    s = "Some random text with {{#include file.py:10:}}..."
-    actual = find_includes(s)
-    print("OUTPUT: {}".format(actual))
-    assert actual == [
-        IncludeItem(
-            start_index=22,
-            end_index=46,
-            include=IncludeRange("file.py", select_range=SelectRange(start=10)),
-            include_text="{{#include file.py:10:}}",
-        )
-    ]
-
-
-def test_find_includes_with_to_range():
-    s = "Some random text with {{#include file.py::20}}..."
-    actual = find_includes(s)
-    print("OUTPUT: {}".format(actual))
-    assert actual == [
-        IncludeItem(
-            start_index=22,
-            end_index=46,
-            include=IncludeRange("file.py", select_range=SelectRange(stop=20)),
-            include_text="{{#include file.py::20}}",
-        )
-    ]
-
-
-def test_find_includes_with_full_range():
-    s = "Some random text with {{#include file.py::}}..."
-    actual = find_includes(s)
-    print("OUTPUT: {}".format(actual))
-    assert actual == [
-        IncludeItem(
-            start_index=22,
-            end_index=44,
             include=IncludeRange("file.py"),
-            include_text="{{#include file.py::}}",
+            include_text="{% include file.py:: %}",
         )
     ]
 
 
 def test_find_includes_with_no_range_specified():
-    s = "Some random text with {{#include file.py}}..."
+    s = "Some random text with {% include file.py %}..."
     actual = find_includes(s)
     print("OUTPUT: {}".format(actual))
     assert actual == [
         IncludeItem(
             start_index=22,
-            end_index=42,
+            end_index=43,
             include=IncludeRange("file.py"),
-            include_text="{{#include file.py}}",
+            include_text="{% include file.py %}",
         )
     ]
 
 
 def test_find_includes_escaped_link():
-    s = "Some random text with escaped playpen \\{{#playpen file.py editable}} ..."
+    s = "Some random text with escaped playpen \\{% playpen file.py editable %} ..."
     print(s)
     actual = find_includes(s)
     print("OUTPUT: {}".format(actual))
@@ -232,25 +232,25 @@ def test_find_includes_escaped_link():
     assert actual == [
         IncludeItem(
             start_index=38,
-            end_index=68,
+            end_index=69,
             include=EscapedInclude(),
-            include_text="\\{{#playpen file.py editable}}",
+            include_text="\\{% playpen file.py editable %}",
         )
     ]
 
 
 def test_find_includes_gitbook_style():
-    s = "Some random text with escaped playpen {{% include 'file.py' }} ..."
+    s = "Some random text with escaped playpen {% include 'file.py' %} ..."
     print(s)
     actual = find_includes(s)
     print("OUTPUT: {}".format(actual))
 
     assert actual == [
         IncludeItem(
-            start_index=22,
-            end_index=42,
+            start_index=38,
+            end_index=61,
             include=IncludeRange("file.py"),
-            include_text="{{% include 'file.py' }}",
+            include_text="{% include 'file.py' %}",
         )
     ]
 
@@ -260,12 +260,12 @@ def test_find_includes_gitbook_style():
 #     let start = r"
 #     Some text over here.
 #     ```hbs
-#     \{{#include file.py}} << an escaped link!
+#     \{% include file.py %} << an escaped link!
 #     ```";
 #     let end = r"
 #     Some text over here.
 #     ```hbs
-#     {{#include file.py}} << an escaped link!
+#     {% include file.py %} << an escaped link!
 #     ```";
 #     assert_eq!(replace_all(start, "", "", 0), end);
 # }
@@ -274,8 +274,8 @@ def test_find_includes_gitbook_style():
 
 # #[test]
 # fn test_find_playpens_with_properties() {
-#     let s = "Some random text with escaped playpen {{#playpen file.py editable }} and some \
-#                 more\n text {{#playpen my.rs editable no_run should_panic}} ...";
+#     let s = "Some random text with escaped playpen {% playpen file.py editable  %} and some \
+#                 more\n text {% playpen my.rs editable no_run should_panic %} ...";
 
 #     let res = find_links(s).collect::<Vec<_>>();
 #     println!("\nOUTPUT: {:?}\n", res);
@@ -286,7 +286,7 @@ def test_find_includes_gitbook_style():
 #                 start_index=38,
 #                 end_index=68,
 #                 include=Playpen("file.py", vec!["editable"]),
-#                 include_text="{{#playpen file.py editable }}",
+#                 include_text="{% playpen file.py editable  %}",
 #             },
 #             Link {
 #                 start_index=89,
@@ -294,7 +294,7 @@ def test_find_includes_gitbook_style():
 #                 include=Playpen(
 #                     "my.rs"),#                     vec!["editable", "no_run", "should_panic"],
 #                 ),
-#                 include_text="{{#playpen my.rs editable no_run should_panic}}",
+#                 include_text="{% playpen my.rs editable no_run should_panic %}",
 #             },
 #         ]
 #     );
@@ -302,9 +302,9 @@ def test_find_includes_gitbook_style():
 
 # #[test]
 # fn test_find_all_link_types() {
-#     let s = "Some random text with escaped playpen {{#include file.py}} and \\{{#contents are \
-#                 insignifficant in escaped link}} some more\n text  {{#playpen my.rs editable \
-#                 no_run should_panic}} ...";
+#     let s = "Some random text with escaped playpen {% include file.py %} and \\{% contents are \
+#                 insignifficant in escaped link %} some more\n text  {% playpen my.rs editable \
+#                 no_run should_panic %} ...";
 
 #     let res = find_links(s).collect::<Vec<_>>();
 #     println!("\nOUTPUT: {:?}\n", res);
@@ -315,7 +315,7 @@ def test_find_includes_gitbook_style():
 #             start_index=38,
 #             end_index=58,
 #             include=IncludeRangeFull("file.py", ..),
-#             include_text="{{#include file.py}}",
+#             include_text="{% include file.py %}",
 #         }
 #     );
 #     assert_eq!(
@@ -324,7 +324,7 @@ def test_find_includes_gitbook_style():
 #             start_index=63,
 #             end_index=112,
 #             include=Escaped,
-#             include_text="\\{{#contents are insignifficant in escaped link}}",
+#             include_text="\\{% contents are insignifficant in escaped link %}",
 #         }
 #     );
 #     assert_eq!(
@@ -335,7 +335,7 @@ def test_find_includes_gitbook_style():
 #             include=Playpen(
 #                 "my.rs"),#                 vec!["editable", "no_run", "should_panic"]
 #             ),
-#             include_text="{{#playpen my.rs editable no_run should_panic}}",
+#             include_text="{% playpen my.rs editable no_run should_panic %}",
 #         }
 #     );
 # }
