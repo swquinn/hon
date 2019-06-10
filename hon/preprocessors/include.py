@@ -149,6 +149,10 @@ def replace_all(text, relative_path, depth=0):
             else:
                 raise RuntimeError('Too deep!')
 
+            #: TODO: We can't really just replace the 'include_text', because
+            #:       what if this shows up in multiple places and only one of
+            #:       those places should actually have the substitution (e.g.
+            #:       other instances are escaped)
             replaced = replaced.replace(
                 include_item.include_text, str(raw))
     return replaced
