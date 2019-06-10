@@ -80,7 +80,9 @@ class Chapter():
         self.next_chapter = None
 
     def __repr__(self):
-        truncated_text = '{}...'.format(self.raw_text[10])
+        truncated_text = ''
+        if self.raw_text:
+            truncated_text = '{}...'.format(self.raw_text[:10])
         return ('<Chapter(name={name}, raw_text={raw_text}, path={path}, '
             'parent={parent}, children={children})>').format(
             name=self.name, raw_text=repr(truncated_text), path=self.path,
