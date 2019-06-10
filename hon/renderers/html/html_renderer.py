@@ -1,6 +1,11 @@
 import os
 import shutil
-from jinja2 import Environment, PackageLoader, select_autoescape
+from jinja2 import (
+    Environment,
+    PackageLoader,
+    Template,
+    select_autoescape
+)
 
 from hon.markdown import Markdown
 from ..renderer import Renderer
@@ -73,8 +78,13 @@ class HtmlRenderer(Renderer):
 
 
     def on_generate_pages(self, book, context):
+        """
+        """
         page_template = context['env'].get_template('page.html.jinja')
         for item in book.items:
+            intermediate_template = Template(item.text)
+            content = intermediate_template.render()
+
             filename = '{}.html'.format(item.filename)
             if item.is_readme:
                 filename = 'index.html'
@@ -93,7 +103,7 @@ class HtmlRenderer(Renderer):
                 },
                 'page': {
                     'title': item.name,
-                    'content': item.text,
+                    'content': content,
                     'previous_chapter': item.previous_chapter,
                     'next_chapter': item.next_chapter,
                 },
