@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="{{ config.language }} {% if page.dir == "rtl" %}dir="rtl"{% endif %}>
+<html lang="{{ config.language }}"{%- if page.dir == "rtl" %} dir="rtl"{% endif -%}>
     <head>
         <meta charset="UTF-8">
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -12,6 +12,15 @@
         <link rel="stylesheet" href="css/spectre.min.css">
         <link rel="stylesheet" href="css/spectre-exp.min.css">
         <link rel="stylesheet" href="css/spectre-icons.min.css">
+        {% block style %}
+            {%- for resource in plugins.resources.css %}
+                {% if resource.url %}
+                {# <link rel="stylesheet" href="{{ resource.url }}"> #}
+                {% else %}
+                {# <link rel="stylesheet" href="{{ resource.path|resolveAsset }}"> #}
+                {% endif %}
+            {% endfor %}
+        {% endblock %}
         {% block head %}{% endblock %}
     </head>
     <body>
