@@ -3,6 +3,11 @@
 #:       by the app.
 class Preprocessor(object):
     """
+
+    Preprocessors receive their configuration from two sources: global .honrc
+    configuration which applies to all preprocessors and then book specific
+    configuration which is read from the book.yaml file.
+
     :param app: The instance of the hon application.
     :type app: hon.app.Hon
     """
@@ -32,6 +37,11 @@ class Preprocessor(object):
                 'must have a name. E.g. "index", "links", etc.').format(
                 cls.__name__))
         return cls._name
+
+    def init_book(self, book):
+        """
+        """
+        pass
 
     def run(self, book):
         raise NotImplementedError('A preprocessor must implement this method.')
