@@ -322,6 +322,12 @@ class Hon():
                     located_books.append(book_path)
         return sorted(set(located_books), key=attrgetter('filepath'))
 
+    def get_preprocessor(self, name):
+        for preprocessor in self.preprocessors:
+            if preprocessor.name == name:
+                return preprocessor
+        return None
+
     def load_books(self, source_path=None):
         """Initialize a project's books.
         """

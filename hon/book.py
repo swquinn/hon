@@ -100,6 +100,15 @@ class Book(object):
         for chapter in chapters:
             self.add_chapter(chapter)
 
+    def get_variables(self):
+        if not self.app:
+            return {}
+        
+        variables_preprocessor = self.app.get_preprocessor('variables')
+        if variables_preprocessor and variables_preprocessor.enabled:
+            return variables_preprocessor.variables
+        return {}
+
     def init_app(self, app):
         self.app = app
 
@@ -107,6 +116,9 @@ class Book(object):
         """Load a book into memory."""
         if app:
             self.init_app(app)
+
+        for preprocessor in self.app.preprocessors:
+            preprocessor.init_book(self)
 
         print()
         self.app.logger.info('Loading book: {}'.format(self.name))
