@@ -44,4 +44,8 @@ class Preprocessor(object):
         pass
 
     def run(self, book):
+        if self.enabled:
+            self.on_run(book)
+
+    def on_run(self, book):
         raise NotImplementedError('A preprocessor must implement this method.')
