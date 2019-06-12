@@ -104,12 +104,10 @@ def _parse_target(target):
 
 def process_matches(matches):
     results = []
-    print(f'Found {len(matches)}')
     for index, match in enumerate(matches):
         meta = IncludeMeta(text=match.group(0), start_index=match.start(), end_index=match.end())
 
         filtered = [m for m in match.groups() if m]
-        print(f'matching {index+1}: {filtered}')
         item = _create_include_item(*filtered, metadata=meta)
         if item:
             results.append(item)

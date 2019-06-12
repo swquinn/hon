@@ -25,12 +25,10 @@ def _create_variable(variable_name=None, metadata=None):
 
 def process_matches(matches):
     results = []
-    print(f'Found {len(matches)}')
     for index, match in enumerate(matches):
         meta = VariableMeta(token=match.group(0), start_index=match.start(), end_index=match.end())
 
         filtered = [m for m in match.groups() if m][:1]
-        print(f'matching {index+1}: {filtered}')
         item = _create_variable(*filtered, metadata=meta)
         if item:
             results.append(item)
