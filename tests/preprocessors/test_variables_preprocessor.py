@@ -33,7 +33,7 @@ def test_find_variables_empty_variable():
 
 
 def test_find_variables_simple_variable():
-    s = "Some random text with {{foo}} and {{bar }} {{ baz }}..."
+    s = "Some random text with {{book.foo}} and {{book.bar }} {{ book.baz }}..."
 
     actual = find_variables(s)
     # print("OUTPUT: {}".format(actual))
@@ -41,36 +41,36 @@ def test_find_variables_simple_variable():
     assert actual == [
         Variable(
             start_index=22,
-            end_index=29,
+            end_index=34,
             name='foo',
-            token_text='{{foo}}'
+            token_text='{{book.foo}}'
         ),
         Variable(
-            start_index=34,
-            end_index=42,
-            name='bar',
-            token_text='{{bar }}'
-        ),
-        Variable(
-            start_index=43,
+            start_index=39,
             end_index=52,
+            name='bar',
+            token_text='{{book.bar }}'
+        ),
+        Variable(
+            start_index=53,
+            end_index=67,
             name='baz',
-            token_text='{{ baz }}'
+            token_text='{{ book.baz }}'
         ),
     ]
 
 
 def test_find_variables_with_namespace():
-    s = "Some random text with {{ my.ns.foo }}..."
+    s = "Some random text with {{ book.my.ns.foo }}..."
     actual = find_variables(s)
 
     #print("OUTPUT: {}".format(actual))
     assert actual == [
         Variable(
             start_index=22,
-            end_index=37,
+            end_index=42,
             name='my.ns.foo',
-            token_text="{{ my.ns.foo }}",
+            token_text="{{ book.my.ns.foo }}",
         )
     ]
 
