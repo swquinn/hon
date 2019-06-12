@@ -116,7 +116,7 @@ class HtmlRenderer(Renderer):
 
     def on_init(self, book, context):
         env = Environment(
-            loader=PackageLoader('hon', 'theme/light/templates'),
+            loader=PackageLoader('hon', 'theme/light/templates/website'),
             autoescape=select_autoescape(['html', 'xml'])
         )
         context['env'] = env
