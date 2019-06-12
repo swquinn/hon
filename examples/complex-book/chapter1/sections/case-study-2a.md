@@ -18,6 +18,10 @@
     </table>
 {% endmacro %}
 
+Pellentesque lacinia nisl vitae semper condimentum. Sed fringilla nisi vitae dui efficitur lacinia. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+
+Integer tempor finibus ornare: {{ book.simple_variable }}
+
 Phasellus a velit mauris.
 
 {{ render_table([

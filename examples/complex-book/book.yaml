@@ -1,9 +1,8 @@
 book:
   title: My Complex Book
+  authors: 'Sean Quinn'
   language: ~
   build: ~
-  preprocessor:
-    links: ~
-    variables:
-      - my_var: "foo"
-      - book.scoped_var: "bar"
+  variables:
+    simple_variable: "foo"
+    scoped.variable: "bar"
