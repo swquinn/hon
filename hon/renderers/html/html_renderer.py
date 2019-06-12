@@ -83,12 +83,15 @@ class HtmlRenderer(Renderer):
         page_template = context['env'].get_template('page.html.jinja')
         for item in book.items:
             intermediate_template = Template(item.text)
-            content = intermediate_template.render()
+            content = intermediate_template.render(book={})
 
             filename = '{}.html'.format(item.filename)
             if item.is_readme:
                 filename = 'index.html'
             write_to = os.path.join(context['path'], filename)
+            book_context = {}
+            book_context.update(book.get_variables())
+
             page_template.stream({
                 'hon': {
                     'version': None
@@ -107,6 +110,7 @@ class HtmlRenderer(Renderer):
                     'previous_chapter': item.previous_chapter,
                     'next_chapter': item.next_chapter,
                 },
+                'book': book_context,
                 'summary': book.summary
             }).dump(write_to)
 
