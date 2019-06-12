@@ -278,7 +278,7 @@ class IncludePreprocessor(Preprocessor):
     """
     _name = 'include'
 
-    def run(self, book):
+    def on_run(self, book):
         for item in book.items:
             content = replace_all(item.raw_text, book.path)
             item.raw_text = content
