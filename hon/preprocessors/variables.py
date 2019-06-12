@@ -42,12 +42,23 @@ def find_variables(contents):
         r'(\\\{\{.+\}\})'             # match an escaped variable, e.g. \{{ foo.bar }}
         r'|'                          # or
         r'\{\{\s*'                    # variable opening parens and whitespace
-        r'([a-zA-Z\d\-\_\.]+)'        # the variable reference
+        r'book\.([a-zA-Z\d\-\_\.]+)'  # the variable reference
         r'\s*\}\}'                    # whitespace and variable closing parens
     )
     match_iter = re.finditer(pattern, contents, flags=(re.MULTILINE & re.IGNORECASE))
     matches = list(match_iter)
     return process_matches(matches)
+
+
+def replace_all(text, book_variables):
+    """
+    """
+    replaced = text
+
+    for placeholder in find_variables(text):
+        replacement_text = book_variables.get(placeholder.name, '')
+        replaced = replaced.replace(placeholder.token_text, replacement_text)
+    return replaced
 
 
 class Variable(object):
@@ -61,14 +72,12 @@ class Variable(object):
         self.name = name
         #: str
         self.token_text = token_text
+    
+    def __hash_key(self):
+        return (self.start_index, self.end_index, self.name, self.token_text)
 
     def __eq__(self, other):
-        if (self.start_index == other.start_index and
-            self.end_index == other.end_index and
-            self.name == other.name and
-            self.token_text == other.token_text):
-            return True
-        return False
+        return isinstance(self, type(other)) and self.__hash_key() == other.__hash_key()
 
     def __repr__(self):
         return ('Variable(start_index={start_index}, end_index={end_index}, '
@@ -78,11 +87,25 @@ class Variable(object):
 
 
 class VariablesPreprocessor(Preprocessor):
+    """
+    """
     _name = 'variables'
 
     default_config = {
-        'enabled': True
+        'enabled': True,
+        'data': {}
     }
 
-    def run(self, book):
-        pass
+    def __init__(self, app, config=None):
+        super(VariablesPreprocessor, self).__init__(app, config=config)
+        self.variables = {}
+
+    def init_book(self, book):
+        self.variables = book.config.get('variables', {})
+
+    def on_run(self, book):
+        """
+        """
+        for item in book.items:
+            content = replace_all(item.raw_text, self.variables)
+            item.raw_text = content
