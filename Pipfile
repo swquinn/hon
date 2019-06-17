@@ -21,6 +21,7 @@ pyyaml = ">=5.1"
 six = ">=1.12"
 flask = "*"
 watchdog = "*"
+blinker = "*"
 
 [requires]
 python_version = "3.7"

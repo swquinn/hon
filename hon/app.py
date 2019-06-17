@@ -17,6 +17,7 @@ from .ctx import _AppCtxGlobals, AppContext
 from .helpers import locked_cached_property
 from .logging import create_logger
 from .plugins import Plugin
+from .signals import before_build, after_build
 
 # a singleton sentinel value for parameter defaults
 _sentinel = object()
@@ -282,6 +283,8 @@ class Hon():
         for book in self.books:
             self.logger.info('Building book: {} ({})'.format(book.name, book.path))
 
+            before_build.send(book)
+
             #: Preprocess
             for preprocessor in self.preprocessors:
                 if preprocessor.enabled:
@@ -292,6 +295,8 @@ class Hon():
             for renderer in self.renderers:
                 if build_only and renderer.name in build_only:
                     renderer.render(book)
+
+            after_build.send(book)
 
     def do_teardown_appcontext(self, exc=_sentinel):
         """Called right before the application context is popped.
