@@ -202,7 +202,6 @@ class Hon():
             self.config.update(config_dict.get('config', {}))
         except:
             self.logger.warning('No .honrc file found, falling back to defaults.')
-            pass
         return self.config
     
     def _load_preprocessors(self):
