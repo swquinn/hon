@@ -25,7 +25,6 @@ setup(
     version=version,
     url='http://github.com/swquinn/hon/',
     author='Sean Quinn',
-    author_email='sean-quinn@pluralsight.com',
     description='A tool for creating books from markdown files.',
     long_description=readme,
     packages=['hon'],
