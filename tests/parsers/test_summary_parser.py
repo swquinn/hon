@@ -1,5 +1,5 @@
 import pytest
-from hon.markdown import Markdown
+from hon.parsing import MarkdownParser
 from hon.parsers.summary_parser import (
     SectionNumber, SummaryParser, SummaryItemSeparator, stringify_events
 )
@@ -13,7 +13,7 @@ from xml.etree.ElementTree import ElementTree
 ])
 def test_create_part(app, source, expected):
     parser = SummaryParser(app, source)
-    element = parser.stream.elements.find('.//a')
+    element = parser.stream.parse_tree.find('.//a')
 
     actual = parser.create_part(element)
     assert actual == expected
@@ -23,7 +23,7 @@ def test_create_part_raises_value_error_when_link_is_empty(app):
     src = "[Empty]()\n";
     parser = SummaryParser(app, src)
 
-    element = parser.stream.elements.find('.//a')
+    element = parser.stream.parse_tree.find('.//a')
     with pytest.raises(ValueError):
         parser.create_part(element)
 
@@ -54,10 +54,10 @@ def test_parse_initial_title(app, source, expected):
      'Hello World, this is some text and a link')
 ])
 def test_stringify_events(source, expected):
-    md = Markdown()
-    md.convert(source)
+    parser = MarkdownParser()
+    parser.parse(source)
 
-    actual = stringify_events(md.parse_tree)
+    actual = stringify_events(parser.parse_tree)
     assert actual == expected
 
 

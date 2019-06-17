@@ -1,6 +1,12 @@
-from markdown import Markdown as BaseMarkdown
+"""
+    hon.parsing.markdown.markdown
+    ~~~~~
+"""
+from markdown import Markdown as MarkdownPython
 from markdown import util
 from xml.etree.ElementTree import Element, ElementTree
+
+from ..parser import Parser
 
 
 def _build_reverse(element, items):
@@ -11,8 +17,7 @@ def _build_reverse(element, items):
     return element
 
 
-class Markdown(BaseMarkdown):
-
+class _Markdown(MarkdownPython):
     @property
     def parse_tree(self):
         return self.elements
@@ -25,9 +30,8 @@ class Markdown(BaseMarkdown):
         _build_reverse(root, items)
         return root
 
-
     def __init__(self, **kwargs):
-        super(Markdown, self).__init__(**kwargs)
+        super(_Markdown, self).__init__(**kwargs)
         self.elements = None
 
     def convert(self, source):
@@ -101,3 +105,18 @@ class Markdown(BaseMarkdown):
             output = pp.run(output)
 
         return output.strip()
+
+
+class MarkdownParser(Parser):
+    """A markdown parser implementing the Markdown-Python library.
+    """
+
+    def parse_front_matter(self):
+        pass
+
+    def parse(self, text):
+        md = _Markdown()
+
+        markedup_text = md.convert(text)
+        self._parse_tree = md.parse_tree
+        return markedup_text

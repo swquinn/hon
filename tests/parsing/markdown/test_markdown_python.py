@@ -1,5 +1,8 @@
 import pytest
-from hon.markdown import Markdown
+from hon.parsing.markdown.markdown_python import (
+    _Markdown,
+    MarkdownParser
+)
 
 
 @pytest.fixture
@@ -29,7 +32,7 @@ With some text in between and a **bolded** item with _emphasis_.
 
 
 def test_markdown_elements(document):
-    md = Markdown()
+    md = _Markdown()
     md.convert(document)
 
     actual_tags = [e.tag for e in list(md.elements)]
@@ -40,7 +43,7 @@ def test_markdown_elements(document):
 
 
 def test_markdown_reverse_elements(document):
-    md = Markdown()
+    md = _Markdown()
     md.convert(document)
 
     actual_tags = [e.tag for e in list(md.reverse_elements)]

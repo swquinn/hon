@@ -4,7 +4,6 @@
 """
 import logging
 from hon.exc import InvalidBookError
-from hon.markdown import Markdown
 from hon.parsers.summary_parser import SummaryParser
 from hon.structure import Link, Summary, parse_structure_file
 from hon.utils.mdutils import flatten_tree

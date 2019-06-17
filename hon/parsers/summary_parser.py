@@ -4,7 +4,7 @@
 """
 import os
 
-from hon.markdown import Markdown
+from hon.parsing import MarkdownParser
 from hon.structure import Part, Section, Summary
 from hon.utils import xmlutils
 
@@ -47,8 +47,8 @@ class SummaryParser():
         self.app = app
         self.book = book
         self.src = src
-        self.stream = Markdown()
-        self.stream.convert(self.src or '')
+        self.stream = MarkdownParser()
+        self.stream.parse(self.src or '')
         print(self.stream)
 
     def parse(self):
@@ -77,7 +77,7 @@ class SummaryParser():
         section_body_tags = ['ul', 'ol', 'p', 'a']
 
         tags = tuple(section_heading_tags + section_body_tags)
-        events = xmlutils.find_elements_by_tag(self.stream.elements, tag_names=tags, max_depth=1)
+        events = xmlutils.find_elements_by_tag(self.stream.parse_tree, tag_names=tags, max_depth=1)
 
         for e in events:
             if e.tag in section_heading_tags:

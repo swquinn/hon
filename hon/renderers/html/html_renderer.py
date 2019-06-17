@@ -7,7 +7,7 @@ from jinja2 import (
     select_autoescape
 )
 
-from hon.markdown import Markdown
+from hon.parsing import MarkdownParser
 from ..renderer import Renderer
 
 
@@ -111,8 +111,8 @@ class HtmlRenderer(Renderer):
     
     def on_render_page(self, page, book, context):
         raw_text = str(page.raw_text)
-        md = Markdown()
-        markedup_text = md.convert(raw_text)
+        parser = MarkdownParser()
+        markedup_text = parser.parse(raw_text)
 
         page_template = context['env'].get_template('page.html.jinja')
 
