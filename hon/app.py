@@ -199,9 +199,7 @@ class Hon():
         try:
             config_file = os.path.abspath(os.path.join(self.root, '.honrc'))
             config_dict = _read_yaml_config(config_file)
-            print(config_dict)
             self.config.update(config_dict.get('config', {}))
-            print(self.config)
         except:
             self.logger.warning('No .honrc file found, falling back to defaults.')
             pass
