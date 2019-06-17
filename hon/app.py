@@ -16,6 +16,7 @@ from .config import (_read_yaml_config, BookConfig)
 from .ctx import _AppCtxGlobals, AppContext
 from .helpers import locked_cached_property
 from .logging import create_logger
+from .plugins import Plugin
 
 # a singleton sentinel value for parameter defaults
 _sentinel = object()
@@ -72,6 +73,10 @@ def setupmethod(f):
 
 class Hon():
     """
+
+    :type plugins: list
+    :type preprocessors: list
+    :type renderers: list
     """
     #: The class that is used for the :data:`~hon.g` instance.
     #:
@@ -142,6 +147,7 @@ class Hon():
 
         self._root = root
         self._output_path = output_path or DEFAULT_OUTPUT_PATH
+        self._loaded_plugins = False
         self.config_file = config_file
 
         #: Assign default values to the configuration. The default values do
@@ -163,6 +169,7 @@ class Hon():
 
         self.preprocessors = []
         self.renderers = []
+        self.plugins = []
 
         #: A list of functions that are called when the application context
         #: is destroyed.  Since the application context is also torn down
@@ -183,6 +190,7 @@ class Hon():
 
         self._load_preprocessors()
         self._load_renderers()
+        self._load_plugins()
 
     def _configure(self):
         """Configure the hon application environment.
@@ -216,6 +224,22 @@ class Hon():
             self.register_renderer(r)
         self._load_plugin_renderers()
     
+    def _load_plugins(self):
+        """
+        """
+        if self._loaded_plugins:
+            return
+        try:
+            import pkg_resources
+        except ImportError:
+            self._loaded_plugins = True
+            return
+
+        for entry_point in pkg_resources.iter_entry_points('hon.plugins'):
+            # TODO: This is causing double logging...
+            self.register_plugin(entry_point.load())
+        self._loaded_plugins = True
+
     def _load_plugin_preprocessors(self):
         pass
     
@@ -322,6 +346,17 @@ class Hon():
                     located_books.append(book_path)
         return sorted(set(located_books), key=attrgetter('filepath'))
 
+    def get_plugin(self, name):
+        """
+        """
+        if issubclass(name, Plugin):
+            name = name.get_name()
+
+        for plugin in self.plugins:
+            if plugin.name == name:
+                return plugin
+        return None
+
     def get_preprocessor(self, name):
         for preprocessor in self.preprocessors:
             if preprocessor.name == name:
@@ -349,6 +384,19 @@ class Hon():
 
             self.books.append(book)
         return self
+
+    def register_plugin(self, plugin):
+        key = 'plugin.{}'.format(plugin.get_name())
+        plugin_config = dict(plugin.default_config)
+
+        if key in self.config:
+            plugin_config.update(self.config[key])
+        
+        self.config[key] = plugin_config
+
+        obj = plugin(app=self, config=plugin_config)
+        self.plugins.append(obj)
+        return obj
 
     def register_preprocessor(self, preprocessor):
         key = 'preprocessor.{}'.format(preprocessor.get_name())
