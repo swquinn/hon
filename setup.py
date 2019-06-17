@@ -33,6 +33,7 @@ setup(
     platforms='any',
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
     install_requires=[
+        'blinker',
         'click>=7.0',
         'jinja2>=2.10',
         'flask',
