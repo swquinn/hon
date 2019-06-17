@@ -47,6 +47,22 @@ class Chapter():
         if root.lower() == 'readme':
             return True
         return False
+    
+    @property
+    def keywords(self):
+        return []
+
+    @property
+    def search(self):
+        return True
+
+    @property
+    def summary(self):
+        return ''
+
+    @property
+    def title(self):
+        return self.name
 
     def __init__(self, name=None, raw_text=None, path=None, link=None, parent=None, children=None):
         #: The name of the entry.
