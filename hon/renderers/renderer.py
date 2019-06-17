@@ -41,6 +41,8 @@ class Renderer(object):
         hon.finish_render.send(self.app, book=book, renderer=self, context=context)
 
     def generate_assets(self, book, context):
+        """Generate assets.
+        """
         self.app.logger.debug('Generating assets...')
         self.on_generate_assets(book, context)
 
@@ -49,9 +51,7 @@ class Renderer(object):
     
     def generate_pages(self, book, context):
         self.app.logger.debug('Generating pages...')
-        # let mut is_index = true;
         for item in book.items:
-            # create a render context? could fold book into that.
             hon.before_render_page.send(self.app, book=book, renderer=self, page=item)
             self.on_render_page(item, book, context)
             hon.after_render_page.send(self.app, book=book, renderer=self, page=item)
@@ -66,6 +66,12 @@ class Renderer(object):
             os.makedirs(render_path, exist_ok=True)
 
         context['path'] = render_path
+        context['plugins'] = {
+            'resources': {
+                'css': [],
+                'js': [],
+            }
+        }
         self.on_init(book, context)
         return context
 

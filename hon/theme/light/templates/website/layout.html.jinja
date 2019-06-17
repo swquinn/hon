@@ -12,19 +12,37 @@
         <link rel="stylesheet" href="css/spectre.min.css">
         <link rel="stylesheet" href="css/spectre-exp.min.css">
         <link rel="stylesheet" href="css/spectre-icons.min.css">
+        <link rel="stylesheet" href="css/theme.css">
         {% block style %}
             {%- for resource in plugins.resources.css %}
                 {% if resource.url %}
-                {# <link rel="stylesheet" href="{{ resource.url }}"> #}
+                <link rel="stylesheet" href="{{ resource.url }}">
                 {% else %}
-                {# <link rel="stylesheet" href="{{ resource.path|resolveAsset }}"> #}
+                <link rel="stylesheet" href="{{ resource.path }}">
                 {% endif %}
             {% endfor %}
         {% endblock %}
-        {% block head %}{% endblock %}
+        {%- block head -%}
+            {%- if page.next_chapter and page.next_chapter.link -%}
+            <link rel="next" href="{{ page.next_chapter.link }}" />
+            {%- endif -%}
+            {%- if page.previous_chapter and page.previous_chapter.link -%}
+            <link rel="prev" href="{{ page.previous_chapter.link }}" />
+            {%- endif -%}
+        {%- endblock -%}
     </head>
     <body>
         {% block body %}{% endblock %}
-        {% block javascript %}{% endblock %}
+        {% block javascript %}
+            <script src="{{ "hon.js" }}"></script>
+            {# <script src="{{ "theme.js" }}"></script> #}
+            {% for resource in plugins.resources.js %}
+                {% if resource.url %}
+                <script src="{{ resource.url }}"></script>
+                {% else %}
+                <script src="{{ resource.path }}"></script>
+                {% endif %}
+            {% endfor %}
+        {% endblock %}
     </body>
 </html>
