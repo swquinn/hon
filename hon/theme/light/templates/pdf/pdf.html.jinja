@@ -1,0 +1,9 @@
+{% extends './layout.html.jinja' %}
+
+{% block body %}
+    {% for page in pages %}
+    <article> {# add page-break css #}
+        {{ page.content }}
+    </article>
+    {% endfor %}
+{% endblock %}

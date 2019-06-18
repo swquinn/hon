@@ -41,6 +41,7 @@ setup(
         'pydash>=4.7.5',
         'pyyaml>=5.1',
         'watchdog',
+        'weasyprint',
     ],
     extras_require={
         'dotenv': [],

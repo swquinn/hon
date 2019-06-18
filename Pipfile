@@ -22,6 +22,7 @@ six = ">=1.12"
 flask = "*"
 watchdog = "*"
 blinker = "*"
+weasyprint = "*"
 
 [requires]
 python_version = "3.7"

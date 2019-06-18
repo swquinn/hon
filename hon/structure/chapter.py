@@ -36,6 +36,10 @@ class Chapter():
     """
 
     @property
+    def content(self):
+        return self.text
+
+    @property
     def filename(self):
         filename, _ = os.path.splitext(os.path.basename(self.path))
         return filename
