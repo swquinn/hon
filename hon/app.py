@@ -51,7 +51,7 @@ def get_default_renderers():
     return (
         r.HtmlRenderer,
         r.PdfRenderer,
-        r.EbookRenderer,
+        r.EpubRenderer,
     )
 
 
