@@ -23,7 +23,7 @@ def find_elements_by_tag(element, tag_names=None, max_depth=0, current_depth=0):
 
     #: If the element is empty, we can't match anything and therefore we should
     #: just return an empty array. [SWQ]
-    if not element:
+    if element is None or len(element) == 0:
         return []
 
     #: If None or * were passed into the ``tag_names`` argument, we're going to
