@@ -6,6 +6,7 @@ import os
 from datetime import datetime
 
 import hon
+from .render_context import RenderContext
 
 
 class Renderer(object):
@@ -59,19 +60,8 @@ class Renderer(object):
 
     def init(self, book):
         self.app.logger.debug('Initializing renderer...')
-        context = dict()
+        context = RenderContext(book=book, render_path=self.render_path)
 
-        render_path = os.path.join(self.app.output_path, self.render_path)
-        if not os.path.exists(render_path):
-            os.makedirs(render_path, exist_ok=True)
-
-        context['path'] = render_path
-        context['plugins'] = {
-            'resources': {
-                'css': [],
-                'js': [],
-            }
-        }
         self.on_init(book, context)
         return context
 
