@@ -12,6 +12,7 @@ from jinja2 import (
 )
 
 from hon.parsing import MarkdownParser
+from hon.utils.fileutils import copy_from
 from .ebook_renderer import EbookRenderer
 
 IGNORED_FILES = ('__init__.py', )
@@ -23,18 +24,7 @@ class EpubRenderer(EbookRenderer):
         import hon.renderers.ebook.epub_assets
         assets_path = os.path.dirname(hon.renderers.ebook.epub_assets.__file__) 
 
-        for dirpath, dirnames, filenames in os.walk(assets_path):
-            relative_dir = os.path.relpath(dirpath, start=assets_path)
-
-            if relative_dir != '.':
-                os.makedirs(os.path.join(context['path'], relative_dir), exist_ok=True)
-
-            for filename in filenames:
-                source = os.path.join(dirpath, filename)
-                
-                if os.path.isfile(source) and filename not in IGNORED_FILES:
-                    dest = os.path.join(context['path'], relative_dir, filename)
-                    shutil.copyfile(source, dest)
+        copy_from(assets_path, context['path'], exclude=('__init__.py', ))
 
     def on_generate_pages(self, book, context):
         """

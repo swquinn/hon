@@ -8,6 +8,7 @@ from jinja2 import (
 )
 
 from hon.parsing import MarkdownParser
+from hon.utils.fileutils import copy_from
 from ..renderer import Renderer
 
 
@@ -51,39 +52,12 @@ class HtmlRenderer(Renderer):
     def on_generate_assets(self, book, context):
         import hon.renderers.html.assets
         assets_dir = os.path.dirname(hon.renderers.html.assets.__file__) 
-        assets_js_dir = os.path.abspath(os.path.join(assets_dir, 'js'))
-
-        js_files = os.listdir(assets_js_dir)
-        for js_file in js_files:
-            source = os.path.join(assets_js_dir, js_file)
-            if os.path.isfile(source):
-                dest = os.path.join(context['path'], js_file)
-                shutil.copyfile(source, dest)
+        assets_js_dir = os.path.join(assets_dir, 'js')
+        copy_from(assets_js_dir, context['path'], exclude=('__init__.py',))
 
         import hon.theme.light
         theme_dir = os.path.dirname(hon.theme.light.__file__)
-        theme_js_dir = os.path.abspath(os.path.join(theme_dir, 'js'))
-        theme_css_dir = os.path.abspath(os.path.join(theme_dir, 'css'))
-        
-        js_output_dir = os.path.join(context['path'], 'js')
-        os.makedirs(js_output_dir, exist_ok=True)
-
-        css_output_dir = os.path.join(context['path'], 'css')
-        os.makedirs(css_output_dir, exist_ok=True)
-
-        theme_css_files = os.listdir(theme_css_dir)
-        for css_file in theme_css_files:
-            source = os.path.join(theme_css_dir, css_file)
-            if os.path.isfile(source):
-                dest = os.path.join(css_output_dir, css_file)
-                shutil.copyfile(source, dest)
-
-        theme_js_files = os.listdir(theme_js_dir)
-        for js_file in theme_js_files:
-            source = os.path.join(theme_js_dir, js_file)
-            if os.path.isfile(source):
-                dest = os.path.join(js_output_dir, js_file)
-                shutil.copyfile(source, dest)
+        copy_from(theme_dir, context['path'], include=('*.css', '*.js'))
 
         # TODO: Copy non-markdown files from source to output folder, retaining relative hierarchy
 
