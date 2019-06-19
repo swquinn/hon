@@ -53,11 +53,11 @@ class HtmlRenderer(Renderer):
         import hon.renderers.html.assets
         assets_dir = os.path.dirname(hon.renderers.html.assets.__file__) 
         assets_js_dir = os.path.join(assets_dir, 'js')
-        copy_from(assets_js_dir, context['path'], exclude=('__init__.py',))
+        copy_from(assets_js_dir, context.path, exclude=('__init__.py',))
 
         import hon.theme.light
         theme_dir = os.path.dirname(hon.theme.light.__file__)
-        copy_from(theme_dir, context['path'], include=('*.css', '*.js'))
+        copy_from(theme_dir, context.path, include=('*.css', '*.js'))
 
         # TODO: Copy non-markdown files from source to output folder, retaining relative hierarchy
 
@@ -70,17 +70,18 @@ class HtmlRenderer(Renderer):
 
             if item.is_readme:
                 filename = 'index.html'
-            write_to = os.path.join(context['path'], filename)
+            write_to = os.path.join(context.path, filename)
 
             with open(write_to, 'w') as f:
                 f.write(item.text)
 
     def on_init(self, book, context):
-        env = Environment(
-            loader=PackageLoader('hon', 'theme/light/templates/website'),
-            autoescape=select_autoescape(['html', 'xml'])
-        )
-        context['env'] = env
+        """
+
+        :param context: The rendering context for the book.
+        :type context: hon.renderers.RenderingContext
+        """
+        context.configure_environment('theme/light/templates/website')
         return context
     
     def on_render_page(self, page, book, context):
@@ -88,33 +89,22 @@ class HtmlRenderer(Renderer):
         parser = MarkdownParser()
         markedup_text = parser.parse(raw_text)
 
-        page_template = context['env'].get_template('page.html.jinja')
+        page_template = context.environment.get_template('page.html.jinja')
 
         if markedup_text:
             intermediate_template = Template(markedup_text)
             content = intermediate_template.render(book={})
 
-            book_context = {}
-            book_context.update(book.get_variables())
-
-            print('*** context: {}'.format(context))
-            content = page_template.render({
-                'hon': {
-                    'version': None
-                },
-                'config': {
-                    'title': book.config.title,
-                    'author': book.config.author,
-                    'language': book.config.language,
-                },
-                'plugins': context.get('plugins'),
+            data = {
                 'page': {
                     'title': page.name,
                     'content': content,
                     'previous_chapter': page.previous_chapter,
                     'next_chapter': page.next_chapter,
-                },
-                'book': book_context,
-                'summary': book.summary
-            })
+                }
+            }
+            data.update(context.data)
+
+            print('*** context: {}'.format(context))
+            content = page_template.render(data)
             page.text = content

@@ -17,32 +17,54 @@ from .ebook_renderer import EbookRenderer
 
 IGNORED_FILES = ('__init__.py', )
 
+
 class EpubRenderer(EbookRenderer):
     _name = 'epub'
 
-    def on_generate_assets(self, book, context):
-        import hon.renderers.ebook.epub_assets
-        assets_path = os.path.dirname(hon.renderers.ebook.epub_assets.__file__) 
+    def create_ebook_container(self, book, context):
+        pass
 
-        copy_from(assets_path, context['path'], exclude=('__init__.py', ))
-
-    def on_generate_pages(self, book, context):
+    def generate_chapters(self, book, context):
         """
         """
         for item in book.items:
             filename = '{}.xhtml'.format(item.filename)
 
-            write_to = os.path.join(context['path'], filename)
+            write_to = os.path.join(context.path, filename)
 
             with open(write_to, 'w') as f:
                 f.write(item.text)
+
+    def generate_manifest(self):
+        """Creates the ``content.opf`` manifest file for the ebook.
+        """
+        pass
+
+    def generate_toc(self):
+        """Creates the table of contents (``toc.ncx``) file for the ebook.
+        """
+        pass
+
+    def on_generate_assets(self, book, context):
+        import hon.renderers.ebook.epub_assets
+        assets_path = os.path.dirname(hon.renderers.ebook.epub_assets.__file__) 
+
+        copy_from(assets_path, context.path, exclude=('__init__.py', ))
+
+    def on_generate_pages(self, book, context):
+        """
+        """
+        self.generate_chapters(book, context)
+        self.generate_toc()
+        self.generate_manifest()
     
     def on_init(self, book, context):
-        env = Environment(
-            loader=PackageLoader('hon', 'theme/light/templates/ebook'),
-            autoescape=select_autoescape(['html', 'xml'])
-        )
-        context['env'] = env
+        """
+
+        :param context: The rendering context for the book.
+        :type context: hon.renderers.RenderingContext
+        """
+        context.configure_environment('theme/light/templates/ebook')
         return context
 
     def on_render_page(self, page, book, context):
@@ -50,33 +72,22 @@ class EpubRenderer(EbookRenderer):
         parser = MarkdownParser()
         markedup_text = parser.parse(raw_text)
 
-        page_template = context['env'].get_template('page.xhtml.jinja')
+        page_template = context.environment.get_template('page.xhtml.jinja')
 
         if markedup_text:
             intermediate_template = Template(markedup_text)
             content = intermediate_template.render(book={})
 
-            book_context = {}
-            book_context.update(book.get_variables())
-
-            print('*** context: {}'.format(context))
-            content = page_template.render({
-                'hon': {
-                    'version': None
-                },
-                'config': {
-                    'title': book.config.title,
-                    'author': book.config.author,
-                    'language': book.config.language,
-                },
-                'plugins': context.get('plugins'),
+            data = {
                 'page': {
                     'title': page.name,
                     'content': content,
                     'previous_chapter': page.previous_chapter,
                     'next_chapter': page.next_chapter,
-                },
-                'book': book_context,
-                'summary': book.summary
-            })
+                }
+            }
+            data.update(context.data)
+
+            print('*** context: {}'.format(context))
+            content = page_template.render(data)
             page.text = content

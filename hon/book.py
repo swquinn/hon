@@ -44,6 +44,10 @@ class Book(object):
         flattened_book = _flatten_book_items(self.chapters)
         return list(flattened_book)
 
+    @property
+    def title(self):
+        return self.name
+
     def __init__(self, app=None, name=None, path=None, authors=None, language=None, config=None):
         #: The configuration associated with the book, if the configuration
         #: supplies overrides for the book's name, authors, etc. it will

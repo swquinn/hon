@@ -136,6 +136,11 @@ class Hon():
     def root(self):
         return self._root
 
+    @property
+    def version(self):
+        from . import __version__
+        return __version__
+
     def __init__(self, root=None, output_path=None, config_file=None, debug=False):
         #: Hon differentiates between a project path and a source path. The
         #: project path is the folder that encompasses all things related to
