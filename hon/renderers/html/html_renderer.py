@@ -53,7 +53,7 @@ class HtmlRenderer(Renderer):
         import hon.renderers.html.assets
         assets_dir = os.path.dirname(hon.renderers.html.assets.__file__) 
         assets_js_dir = os.path.join(assets_dir, 'js')
-        copy_from(assets_js_dir, context.path, exclude=('__init__.py',))
+        copy_from(assets_js_dir, context.path, exclude=('**/__init__.py',))
 
         import hon.theme.light
         theme_dir = os.path.dirname(hon.theme.light.__file__)

@@ -15,7 +15,7 @@ from hon.parsing import MarkdownParser
 from hon.utils.fileutils import copy_from
 from .ebook_renderer import EbookRenderer
 
-IGNORED_FILES = ('__init__.py', )
+IGNORED_FILES = ('**/__init__.py', )
 
 
 class EpubRenderer(EbookRenderer):
@@ -59,7 +59,7 @@ class EpubRenderer(EbookRenderer):
         import hon.renderers.ebook.epub_assets
         assets_path = os.path.dirname(hon.renderers.ebook.epub_assets.__file__) 
 
-        copy_from(assets_path, context.path, exclude=('__init__.py', ))
+        copy_from(assets_path, context.path, exclude=IGNORED_FILES)
 
     def on_generate_pages(self, book, context):
         """

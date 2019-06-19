@@ -3,6 +3,7 @@
 import os
 import shutil
 from fnmatch import fnmatch
+from six import string_types
 
 CURRENT_DIRECTORY = '.'
 
@@ -10,6 +11,9 @@ CURRENT_DIRECTORY = '.'
 def _match(filepath, pattern):
     """
     """
+    if isinstance(pattern, string_types):
+        pattern = (pattern, )
+
     for p in tuple(pattern):
         if fnmatch(filepath, p):
             return True
@@ -54,9 +58,8 @@ def copy_from(source, destination, make_dirs=True, include='*', exclude=None):
 
         for filename in filenames:
             copy_file = os.path.join(dirpath, filename)
-            included = _match(copy_file, pattern=include)
-            excluded = _match(copy_file, pattern=exclude)
-
+            included = _match(copy_file, include)
+            excluded = _match(copy_file, exclude)
             if os.path.isfile(copy_file) and included and not excluded:
                 #: Only create output directories if they don't already exist
                 #: and we're going to write something to them. [SWQ]

@@ -5,8 +5,18 @@ from hon.utils.fileutils import (
     copy_from
 )
 
-def test__match():
-    pytest.fail()
+@pytest.mark.parametrize('subject, pattern, expected', [
+    ('foo', 'foo', True),
+    ('foo', ['foo'], True),
+    ('foo', 'bar', False),
+    ('foo', ['bar'], False),
+    ('foo', ['foo', 'bar'], True),
+    ('prefixed/foo', 'foo', False),
+    ('prefixed/foo', '**/foo', True),
+])
+def test__match(subject, pattern, expected):
+    actual = _match(subject, pattern)
+    assert actual == expected
 
 
 @pytest.mark.parametrize('path, expected', [
