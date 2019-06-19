@@ -19,14 +19,14 @@
       </navLabel>
       <content src="titlepage.xhtml"/>
     </navPoint>
-% for i,chapter in enumerate(chapters): 
-    <navPoint id="${"id%03d"%i}" playOrder="${i+2}">
+    {% for part in summary.all_parts %}
+    <navPoint id="id{{ loop.index }}" playOrder="{{ loop.index + 2 }}">
       <navLabel>
-          <text>${chapter[0]}</text>
+          <text>{{ part.name }}</text>
       </navLabel>
-      <content src="${'chapter_%03d.xhtml'%i}"/>
+      <content src="{{ part.link_name }}.xhtml"/>
    </navPoint>
-% endfor
+   {% endfor %}
 
   </navMap>
 </ncx>

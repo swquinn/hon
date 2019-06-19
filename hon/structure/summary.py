@@ -95,6 +95,11 @@ class Part():
         root, _ = os.path.splitext(self.source)
         return '{}.html'.format(root)
 
+    @property
+    def link_name(self):
+        root, _ = os.path.splitext(self.source)
+        return root
+
     def __init__(self, name, source=None, level=None, children=None):
         #: The name of the part.
         self.name = name
