@@ -35,15 +35,25 @@ class EpubRenderer(EbookRenderer):
             with open(write_to, 'w') as f:
                 f.write(item.text)
 
-    def generate_manifest(self):
+    def generate_manifest(self, book, context):
         """Creates the ``content.opf`` manifest file for the ebook.
         """
-        pass
+        template = context.environment.get_template('content.opf.jinja')
+        write_to = os.path.join(context.path, 'content.opf')
 
-    def generate_toc(self):
+        data = {}
+        data.update(context.data)
+        template.stream(data).dump(write_to)
+
+    def generate_toc(self, book, context):
         """Creates the table of contents (``toc.ncx``) file for the ebook.
         """
-        pass
+        template = context.environment.get_template('toc.ncx.jinja')
+        write_to = os.path.join(context.path, 'toc.ncx')
+
+        data = {}
+        data.update(context.data)
+        template.stream(data).dump(write_to)
 
     def on_generate_assets(self, book, context):
         import hon.renderers.ebook.epub_assets
@@ -55,8 +65,8 @@ class EpubRenderer(EbookRenderer):
         """
         """
         self.generate_chapters(book, context)
-        self.generate_toc()
-        self.generate_manifest()
+        self.generate_toc(book, context)
+        self.generate_manifest(book, context)
     
     def on_init(self, book, context):
         """
