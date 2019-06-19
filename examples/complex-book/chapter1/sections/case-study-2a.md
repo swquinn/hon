@@ -8,12 +8,12 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
             {% for item in data %}
+            <tr>
                 <td>{{ loop.index }}</td>
                 {% for key, value in item.items() %}<td>{{ value }}</td>{% endfor %}
-            {% endfor %}
             </tr>
+            {% endfor %}
         </tbody>
     </table>
 {% endmacro %}
