@@ -1,11 +1,13 @@
 """
 """
 import os
+from datetime import datetime
 from jinja2 import (
     Environment,
     PackageLoader,
     select_autoescape
 )
+from six import string_types
 
 
 class RenderContext():
@@ -78,9 +80,14 @@ class RenderContext():
         #: Populate the data for the render context.
         self.data['_hon']['version'] = app.version
         self.data['title'] = book.title
-        self.data['authors'] = book.authors
+        if isinstance(book.authors, string_types):
+            self.data['authors'] = (book.authors, )
+        else:
+            self.data['authors'] = tuple(book.authors)
         self.data['language'] = book.language
-        self.data['isbn'] = ''
+        self.data['isbn'] = '000-0000000000'
+        self.data['date'] = datetime.now().isoformat()
+        self.data['publisher'] = 'Hon'
 
         book_data = {}
         book_data.update(book.get_variables())

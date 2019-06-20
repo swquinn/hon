@@ -20,7 +20,7 @@
       <content src="titlepage.xhtml"/>
     </navPoint>
     {% for part in summary.all_parts %}
-    <navPoint id="id{{ loop.index }}" playOrder="{{ loop.index + 2 }}">
+    <navPoint id="id{{ loop.index }}" playOrder="{{ loop.index + 1 }}">
       <navLabel>
           <text>{{ part.name }}</text>
       </navLabel>

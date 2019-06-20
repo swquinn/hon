@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-        <title>Cover</title>
+        <title>{{ title }}</title>
         <style type="text/css" title="override_css">
             @page {padding: 0pt; margin:0pt}
             body { text-align: center; padding:0pt; margin: 0pt; }
@@ -10,8 +10,11 @@
         </style>
     </head>
     <body>
+        <h1>{{ title }}</h1>
+        {% if cover %}
         <div>
             <img src="cover.jpg" alt="cover" style="height: 100%"/>
         </div>
+        {% endif %}
     </body>
 </html>

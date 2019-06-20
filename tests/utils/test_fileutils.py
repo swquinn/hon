@@ -1,6 +1,6 @@
 import pytest
 from hon.utils.fileutils import (
-    _match,
+    filename_matches_pattern,
     is_current_directory,
     copy_from
 )
@@ -15,7 +15,7 @@ from hon.utils.fileutils import (
     ('prefixed/foo', '**/foo', True),
 ])
 def test__match(subject, pattern, expected):
-    actual = _match(subject, pattern)
+    actual = filename_matches_pattern(subject, pattern)
     assert actual == expected
 
 

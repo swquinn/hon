@@ -8,7 +8,7 @@ from six import string_types
 CURRENT_DIRECTORY = '.'
 
 
-def _match(filepath, pattern):
+def filename_matches_pattern(filepath, pattern):
     """
     """
     if isinstance(pattern, string_types):
@@ -58,8 +58,8 @@ def copy_from(source, destination, make_dirs=True, include='*', exclude=None):
 
         for filename in filenames:
             copy_file = os.path.join(dirpath, filename)
-            included = _match(copy_file, include)
-            excluded = _match(copy_file, exclude)
+            included = filename_matches_pattern(copy_file, include)
+            excluded = filename_matches_pattern(copy_file, exclude)
             if os.path.isfile(copy_file) and included and not excluded:
                 #: Only create output directories if they don't already exist
                 #: and we're going to write something to them. [SWQ]
