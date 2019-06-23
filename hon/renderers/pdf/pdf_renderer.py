@@ -44,7 +44,7 @@ class PdfRenderer(Renderer):
         :param context: The rendering context for the book.
         :type context: hon.renderers.RenderingContext
         """
-        context.configure_environment('theme/light/templates/pdf')
+        context.configure_environment('theme/light/pdf/templates')
         return context
 
     def on_render_page(self, page, book, context):
