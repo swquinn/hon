@@ -5,7 +5,7 @@
 import os
 
 
-class Chapter():
+class Chapter(object):
     """A ``Chapter`` represents an entry in a book.
 
     In many cases, a chapter usually maps to a single file on disk. However,

@@ -13,13 +13,18 @@ from jinja2 import (
 from weasyprint import HTML
 
 from hon.parsing import MarkdownParser
+from hon.utils.fileutils import copy_from
 from ..renderer import Renderer
 
 class PdfRenderer(Renderer):
     _name = 'pdf'
 
     def on_generate_assets(self, book, context):
-        pass
+        import hon.theme.light.pdf
+        theme_dir = os.path.dirname(hon.theme.light.pdf.__file__)
+
+        theme_css_dir = os.path.join(theme_dir, 'css')
+        copy_from(theme_css_dir, context.path, include=('*.css', ))
 
     def on_generate_pages(self, book, context):
         """

@@ -2,7 +2,7 @@
 
 {% block body %}
     {% for page in pages %}
-    <article> {# add page-break css #}
+    <article class="chapter">
         {{ page.content }}
     </article>
     {% endfor %}
