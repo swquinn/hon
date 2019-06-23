@@ -55,8 +55,8 @@ class HtmlRenderer(Renderer):
         assets_js_dir = os.path.join(assets_dir, 'js')
         copy_from(assets_js_dir, context.path, exclude=('**/__init__.py',))
 
-        import hon.theme.light
-        theme_dir = os.path.dirname(hon.theme.light.__file__)
+        import hon.theme.light.website
+        theme_dir = os.path.dirname(hon.theme.light.website.__file__)
         copy_from(theme_dir, context.path, include=('*.css', '*.js'))
 
         # TODO: Copy non-markdown files from source to output folder, retaining relative hierarchy
@@ -81,7 +81,7 @@ class HtmlRenderer(Renderer):
         :param context: The rendering context for the book.
         :type context: hon.renderers.RenderingContext
         """
-        context.configure_environment('theme/light/templates/website')
+        context.configure_environment('theme/light/website/templates')
         return context
     
     def on_render_page(self, page, book, context):
