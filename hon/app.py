@@ -93,19 +93,14 @@ class Hon():
     default_config = {
         'title': None,
         'description': None,
-        # TODO: should we allow discrete definition of books? arrays aren't
-        #       supported by default from the config parser so this would
-        #       have to have special handling.
-
+        'preprocessor': {},
+        'output': {},
         'structure': {
             'readme': 'README.md',
             'glossary': 'GLOSSARY.md',
             'summary': 'SUMMARY.md'
         },
-
         'build': {
-            #mdBook -> build-dir: "book",
-            #gitbook?
             'build-dir': 'book',
             'create-missing': True,
             'use-default-preprocessors': True,
@@ -125,12 +120,22 @@ class Hon():
         return create_logger(self)
 
     @property
+    def output_config(self):
+        """Convenience property for accessing the output configuration."""
+        return self.config.get('output', {})
+
+    @property
     def output_path(self):
         output_path = self._output_path
         if not output_path:
             self.logger.warn('Output path was unset, falling back to default.')
             output_path = DEFAULT_OUTPUT_PATH
         return  os.path.join(self.root, output_path)
+
+    @property
+    def preprocessor_config(self):
+        """Convenience property for accessing the preprocessor configuration."""
+        return self.config.get('preprocessor', {})
 
     @property
     def root(self):
@@ -412,26 +417,24 @@ class Hon():
         return obj
 
     def register_preprocessor(self, preprocessor):
-        key = 'preprocessor.{}'.format(preprocessor.get_name())
+        key = preprocessor.get_name()
         preprocessor_config = dict(preprocessor.default_config)
 
-        if key in self.config:
-            preprocessor_config.update(self.config[key])
-        
-        self.config[key] = preprocessor_config
+        if key in self.preprocessor_config:
+            preprocessor_config.update(self.preprocessor_config[key])
+        self.preprocessor_config[key] = preprocessor_config
 
         obj = preprocessor(app=self, config=preprocessor_config)
         self.preprocessors.append(obj)
         return obj
     
     def register_renderer(self, renderer):
-        key = 'output.{}'.format(renderer.get_name())
+        key = renderer.get_name()
         renderer_config = dict(renderer.default_config)
 
-        if key in self.config:
-            renderer_config.update(self.config[key])
-        
-        self.config[key] = renderer_config
+        if key in self.output_config:
+            renderer_config.update(self.output_config[key])
+        self.output_config[key] = renderer_config
 
         obj = renderer(app=self, config=renderer_config)
         self.renderers.append(obj)
