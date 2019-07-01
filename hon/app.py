@@ -141,7 +141,7 @@ class Hon():
         from . import __version__
         return __version__
 
-    def __init__(self, root=None, output_path=None, config_file=None, debug=False):
+    def __init__(self, root=None, output_path=None, honrc_filepath=None, debug=False):
         #: Hon differentiates between a project path and a source path. The
         #: project path is the folder that encompasses all things related to
         #: the Hon project, e.g. the source folder for the book, the .honrc
@@ -154,7 +154,7 @@ class Hon():
         self._root = root
         self._output_path = output_path or DEFAULT_OUTPUT_PATH
         self._loaded_plugins = False
-        self.config_file = config_file
+        self.honrc_filepath = honrc_filepath
 
         #: Assign default values to the configuration. The default values do
         #: not include any of the default configuration for renderers (i.e.
@@ -192,6 +192,7 @@ class Hon():
         loaded. When we run ``_configure()`` it will potentially overwrite these
         defaults.
         """
+        self.logger.debug('Initializing Hon application...')
         self._configure()
 
         self._load_preprocessors()
@@ -202,8 +203,13 @@ class Hon():
         """Configure the hon application environment.
         """
         try:
-            config_file = os.path.abspath(os.path.join(self.root, '.honrc'))
-            config_dict = _read_yaml_config(config_file)
+            config_filepath = self.honrc_filepath
+            if config_filepath is None:
+                config_filepath = os.path.abspath(os.path.join(self.root, '.honrc'))
+                self.honrc_filepath = config_filepath
+            
+            self.logger.debug('Reading configuration file: {}'.format(config_filepath))
+            config_dict = _read_yaml_config(config_filepath)
             self.config.update(config_dict.get('config', {}))
         except:
             self.logger.warning('No .honrc file found, falling back to defaults.')
@@ -467,7 +473,7 @@ class Hon():
         return f
 
 
-def create_app(root=None, config_file='book.yaml', debug=False):
-    app = Hon(root=root, config_file=config_file, debug=True)
+def create_app(root=None, honrc_filepath=None, debug=False):
+    app = Hon(root=root, honrc_filepath=honrc_filepath, debug=True)
     app.init_app()
     return app

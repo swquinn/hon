@@ -10,6 +10,7 @@ from __future__ import print_function
 
 import ast
 import click
+import logging
 import os
 import platform
 import re
@@ -30,28 +31,58 @@ class NoAppException(click.UsageError):
     """Raised if an application cannot be found or loaded."""
 
 
-def get_version(ctx, param, value):
-    if not value or ctx.resilient_parsing:
-        return
-    message = (
-        'Python %(python)s\n'
-        'Hon %(hon)s'
-    )
-    click.echo(message % {
-        'python': platform.python_version(),
-        'hon': __version__,
-    }, color=ctx.color)
-    ctx.exit()
+def honrc_filepath_option():
+    """The ``--config`` option for specifying the path to the ``.honrc`` file.
+    """
+    def callback(ctx, param, value):
+        state = ctx.ensure_object(ScriptInfo)
+        state.honrc_filepath = value
+        return value
+    return click.Option(
+        ['-c', '--config'],
+        help='Specify the location of the .honrc config',
+        callback=callback)
 
 
-version_option = click.Option(
-    ['--version'],
-    help='Show the version',
-    expose_value=False,
-    callback=get_version,
-    is_flag=True,
-    is_eager=True
-)
+def debug_option():
+    """The debug option."""
+    def callback(ctx, param, value):
+        state = ctx.ensure_object(ScriptInfo)
+        # TODO: state.debug = value
+        return value
+    return click.Option(
+        ['--debug', '--no-debug'],
+        help='Enables or disables debugging output.',
+        expose_value=False,
+        callback=callback,
+        is_flag=True,
+        is_eager=False)
+
+
+def version_option():
+    """The version option."""
+
+    def callback(ctx, param, value):
+        """
+        """
+        if not value or ctx.resilient_parsing:
+            return
+        message = (
+            'Python %(python)s\n'
+            'Hon %(hon)s'
+        )
+        click.echo(message % {
+            'python': platform.python_version(),
+            'hon': __version__,
+        }, color=ctx.color)
+        ctx.exit()
+    return click.Option(
+        ['--version'],
+        help='Show the version',
+        expose_value=False,
+        callback=callback,
+        is_flag=True,
+        is_eager=True)
 
 
 def get_default_commands():
@@ -129,13 +160,20 @@ class HonGroup(AppGroup):
         environment
     """
 
-    def __init__(self, add_default_commands=True,  add_version_option=True,
-                 load_dotenv=True, set_debug_flag=True, **extra):
+    def __init__(self, add_default_commands=True, add_debug_options=True,
+            add_honrc_filepath_option=True, add_version_option=True,
+            load_dotenv=True, set_debug_flag=True, **extra):
         #: Pop the params, if any were defined for this group, and then check
         #: to see if we should be adding the version option.
         params = list(extra.pop('params', None) or ())
         if add_version_option:
-            params.append(version_option)
+            params.append(version_option())
+        
+        if add_debug_options:
+            params.append(debug_option())
+
+        if add_honrc_filepath_option:
+            params.append(honrc_filepath_option())
 
         #: Initialize the underlying app command group with the params and
         #: anything else in the **extra kwargs.
@@ -196,6 +234,7 @@ class HonGroup(AppGroup):
         return super(HonGroup, self).main(*args, **kwargs)
 
 
+#: TODO: This object is what maintains state, sooooo... let's us it!
 class ScriptInfo(object):
     """Helper object to deal with Hon applications.
     
@@ -206,9 +245,10 @@ class ScriptInfo(object):
     Inspired by Flask's own ScriptInfo.
     """
 
-    def __init__(self, set_debug_flag=True):        
+    def __init__(self, set_debug_flag=True):
         self.set_debug_flag = set_debug_flag
         self._loaded_app = None
+        self.honrc_filepath = None
 
     def load_app(self):
         """Loads the hon app (if not yet loaded) and returns it.
@@ -221,10 +261,15 @@ class ScriptInfo(object):
         if self._loaded_app is not None:
             return self._loaded_app
 
-        app = create_app()
+        honrc_filepath = self.honrc_filepath
+        if honrc_filepath:
+            honrc_filepath = os.path.abspath(honrc_filepath)
+
+        app = create_app(honrc_filepath=honrc_filepath)
         if not app:
             raise NoAppException('Could not instantiate the Hon application.')
 
+        # TODO: This is overwriting whatever debug flag we would set above.
         if self.set_debug_flag:
             #: Update the app's debug flag through the descriptor so that
             #: other values repopulate as well.
