@@ -187,6 +187,9 @@ class Hon():
         #: if the request ends this is the place to store code that disconnects
         #: from databases.
         self.teardown_appcontext_funcs = []
+
+        #: Instantiate the logger before anything else calls the logger property.
+        create_logger(self)
     
     def init_app(self):
         """Initializes the ``hon`` application.
