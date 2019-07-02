@@ -391,6 +391,7 @@ class Hon():
         #: the assumption that the book source path is the same as the project
         #: path, which may be the directory in which the ``hon`` application
         #: was run from.
+        self.logger.info('Loading books on: {}'.format(source_path))
         if not source_path:
             source_path = self.root
 
