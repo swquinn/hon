@@ -7,3 +7,13 @@ config:
             enabled: true
         variables:
             enabled: true
+    output:
+        pdf:
+            styles:
+                - ./styles/pdf.css
+        html:
+            styles:
+                - ./styles/website.css
+        epub:
+            styles:
+                - ./styles/epub.css

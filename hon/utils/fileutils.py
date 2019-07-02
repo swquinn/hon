@@ -46,8 +46,16 @@ def copy_from(source, destination, make_dirs=True, include='*', exclude=None):
     filtered list of 
     
     """
-    if not os.path.isdir(source):
-        raise FileNotFoundError('Source must be a directory.')
+
+    #: If the source is actually a file, rather than a directory, short-circuit
+    #: the directory walk and just copy the file over to the destination. [SWQ]
+    if os.path.isfile(source):
+        if not os.path.isdir(destination) and make_dirs:
+            os.makedirs(output_dir, exist_ok=True)
+        filename = os.path.basename(source)
+        output_file = os.path.join(destination, filename)
+        shutil.copyfile(source, output_file)
+        return
 
     if exclude is None:
         exclude = tuple()

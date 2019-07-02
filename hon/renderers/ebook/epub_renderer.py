@@ -45,7 +45,27 @@ class EpubContainer(ZipFile):
 
 
 class EpubRenderer(EbookRenderer):
+    """Renders a book to an epub file.
+    """
     _name = 'epub'
+
+    default_config = {
+        'enabled': True,
+        'styles': []
+    }
+
+    def __init__(self, app, config=None):
+        styles = config.get('styles', [])
+        if styles:
+            resolved_styles = []
+            root = os.path.dirname(app.honrc_filepath)
+            for style in styles:
+                resolved_style_filepath = os.path.abspath(
+                    os.path.join(root, style))
+                resolved_styles.append(resolved_style_filepath)
+            config['styles'] = resolved_styles
+
+        super(EpubRenderer, self).__init__(app, config=config)
 
     def create_ebook_container(self, book, context):
         write_to = os.path.join(context.path, 'book.epub')
@@ -114,6 +134,12 @@ class EpubRenderer(EbookRenderer):
         theme_path = os.path.dirname(hon.theme.light.epub.__file__)
         theme_css_path = os.path.join(theme_path, 'css')
         copy_from(theme_css_path, context.path, include=('*.css', ))
+
+        user_styles = self.config.get('styles', [])
+        for style in user_styles:
+            context.add_style(os.path.basename(style))
+            copy_from(style, context.path)
+            
 
     def on_generate_pages(self, book, context):
         """

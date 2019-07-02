@@ -13,12 +13,16 @@ from ..renderer import Renderer
 
 
 class HtmlRenderer(Renderer):
-
+    """Renders a book to HTML files for display as a website.
+    """
     _name = 'html'
 
     #: The default configuration state for the HTML renderer, this is loaded
     #: into the application configuration.
     default_config = {
+        'enabled': True,
+        'styles': [],
+
         'theme': None,
 
         #: The default theme to use, defaults to 'light'

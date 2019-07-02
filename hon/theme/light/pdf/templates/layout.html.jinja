@@ -3,6 +3,11 @@
     <head>
         <title>{{ title }}</title>
         <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+        {%- block style %}
+            {%- for css in styles %}
+            <link rel="stylesheet" href="{{ css }}">
+            {% endfor %}
+        {% endblock %}
     </head>
     <body>
         {% block body %}{% endblock %}

@@ -26,7 +26,8 @@ class RenderContext():
                 'js': [],
                 'css': [],
             }
-        }
+        },
+        'styles': []
     }
 
     @property
@@ -68,6 +69,11 @@ class RenderContext():
         if not self.data['_plugins']['resources'][resource_type]:
             self.data['_plugins']['resources'][resource_type] = []
         self.data['_plugins']['resources'][resource_type].append(resource)
+
+    def add_style(self, style):
+        if not self.data['styles']:
+            self.data['styles'] = []
+        self.data['styles'].append(style)
 
     def init_book(self, book):
         app = book.app
