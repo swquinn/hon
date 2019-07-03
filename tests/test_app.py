@@ -70,7 +70,7 @@ def test_get_default_renderers():
     renderers = get_default_renderers()
     
     actual = [r.get_name() for r in renderers]
-    expected = ['html', 'pdf', 'ebook']
+    expected = ['html', 'pdf', 'epub']
     assert set(actual) == set(expected)
 
 
@@ -99,12 +99,15 @@ def test_default_initialized_instance():
     #: change and make this test more brittle. The individual preprocessor and
     #: renderer tests should validate that their default configuration settings
     #: are accurate. [SWQ]
-    assert 'preprocessor.index' in actual
-    assert 'preprocessor.include' in actual
-    assert 'preprocessor.variables' in actual
-    assert 'output.html' in actual
-    assert 'output.pdf' in actual
-    assert 'output.ebook' in actual
+    preprocessor_config = actual['preprocessor']
+    assert 'index' in preprocessor_config
+    assert 'include' in preprocessor_config
+    assert 'variables' in preprocessor_config
+
+    output_conifg = actual['output']
+    assert 'html' in output_conifg
+    assert 'pdf' in output_conifg
+    assert 'epub' in output_conifg
 
 
 @pytest.mark.parametrize('preprocessor_config, expected', [
@@ -132,16 +135,16 @@ def test_register_preprocessor(preprocessor_config, expected):
             'piyo': 'poyo'
         }
 
-    config_key = 'preprocessor.{}'.format(FooPreprocessor.get_name())
+    config_key = FooPreprocessor.get_name()
 
     app = Hon()
-    app.config[config_key] = preprocessor_config
+    app.config['preprocessor'][config_key] = preprocessor_config
 
     preprocessor = app.register_preprocessor(FooPreprocessor)
     assert preprocessor is not None
     assert preprocessor.config == expected
 
-    app_config = app.config[config_key]
+    app_config = app.config['preprocessor'][config_key]
     assert app_config is not None
     assert app_config == expected
 
@@ -160,7 +163,7 @@ def test_register_preprocessor_without_configuration():
             'quux': 'qaaz'
         }
 
-    config_key = 'preprocessor.{}'.format(BarPreprocessor.get_name())
+    config_key = BarPreprocessor.get_name()
 
     app = Hon()
 
@@ -170,7 +173,7 @@ def test_register_preprocessor_without_configuration():
     assert preprocessor is not None
     assert preprocessor.config == expected
 
-    app_config = app.config[config_key]
+    app_config = app.config['preprocessor'][config_key]
     assert app_config is not None
     assert app_config == expected
 
@@ -200,16 +203,16 @@ def test_register_renderer(renderer_config, expected):
             'piyo': 'poyo'
         }
 
-    config_key = 'output.{}'.format(FooRenderer.get_name())
+    config_key = FooRenderer.get_name()
 
     app = Hon()
-    app.config[config_key] = renderer_config
+    app.config['output'][config_key] = renderer_config
 
     renderer = app.register_renderer(FooRenderer)
     assert renderer is not None
     assert renderer.config == expected
 
-    app_config = app.config[config_key]
+    app_config = app.config['output'][config_key]
     assert app_config is not None
     assert app_config == expected
 
@@ -228,7 +231,7 @@ def test_register_renderer_without_configuration():
             'quux': 'qaaz'
         }
 
-    config_key = 'output.{}'.format(BarRenderer.get_name())
+    config_key = BarRenderer.get_name()
 
     app = Hon()
 
@@ -238,6 +241,6 @@ def test_register_renderer_without_configuration():
     assert renderer is not None
     assert renderer.config == expected
 
-    app_config = app.config[config_key]
+    app_config = app.config['output'][config_key]
     assert app_config is not None
     assert app_config == expected
