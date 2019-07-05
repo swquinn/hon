@@ -8,6 +8,7 @@
 import os
 import configparser
 from collections import namedtuple
+from datetime import datetime
 from functools import update_wrapper
 from operator import attrgetter
 
@@ -297,7 +298,7 @@ class Hon():
             build_only = tuple([renderer.name for renderer in self.renderers])
 
         # TODO: Get and create output directory
-
+        start_time = datetime.now()
         for book in self.books:
             self.logger.info('Building book: {} ({})'.format(book.name, book.path))
 
@@ -306,6 +307,9 @@ class Hon():
                 if build_only and renderer.name in build_only:
                     renderer.render(book)
             after_build.send(book)
+        
+        elapsed_time = datetime.now() - start_time
+        self.logger.info('Finished rendering all books in {}s!'.format(elapsed_time))
 
     def do_teardown_appcontext(self, exc=_sentinel):
         """Called right before the application context is popped.
