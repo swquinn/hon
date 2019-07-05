@@ -96,14 +96,13 @@ class VariablesPreprocessor(Preprocessor):
 
     def __init__(self, app, config=None):
         super(VariablesPreprocessor, self).__init__(app, config=config)
-        self.variables = {}
 
-    def init_book(self, book):
-        self.variables = book.config.get('variables', {})
-
-    def on_run(self, book):
+    def on_run(self, book, renderer, context):
         """
         """
-        for item in book.items:
-            content = replace_all(item.raw_text, self.variables)
+        variables = book.config.get('variables', {})
+        context.data['book'].update(variables)
+
+        for item in renderer.items:
+            content = replace_all(item.raw_text, variables)
             item.raw_text = content

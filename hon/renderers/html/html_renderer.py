@@ -69,13 +69,22 @@ class HtmlRenderer(Renderer):
     def on_generate_pages(self, book, context):
         """
         """
-        for item in book.items:
+        for item in self.items:
             filename = '{}.html'.format(item.filename)
-
             if item.is_readme:
                 filename = 'index.html'
-            write_to = os.path.join(context.path, filename)
+            
+            #: Get the item's path, relative to the book's root. This allows
+            #: us to actually write the transformed items to a structure that
+            #: is similar to the source. [SWQ]
+            relative_item_path = os.path.relpath(item.path, start=book.path)
+            relative_item_dir = os.path.dirname(relative_item_path)
 
+            output_path = os.path.join(context.path, relative_item_dir)
+            if not os.path.exists(output_path):
+                os.makedirs(output_path, exist_ok=True)
+
+            write_to = os.path.join(output_path, filename)
             with open(write_to, 'w') as f:
                 f.write(item.text)
 
@@ -89,6 +98,7 @@ class HtmlRenderer(Renderer):
         return context
     
     def on_render_page(self, page, book, context):
+        #: TODO more intelligible error handling, we don't even know for which item that we're rendering that the error occurred!
         raw_text = str(page.raw_text)
         parser = MarkdownParser()
         markedup_text = parser.parse(raw_text)
@@ -96,6 +106,13 @@ class HtmlRenderer(Renderer):
         page_template = context.environment.get_template('page.html.jinja')
 
         if markedup_text:
+            
+            # print()
+            # print()
+            # print("Markup text: `{}`".format(markedup_text))
+            # print()
+            # print()
+
             intermediate_template = Template(markedup_text)
             content = intermediate_template.render(book={})
 
@@ -108,7 +125,5 @@ class HtmlRenderer(Renderer):
                 }
             }
             data.update(context.data)
-
-            print('*** context: {}'.format(context))
             content = page_template.render(data)
             page.text = content

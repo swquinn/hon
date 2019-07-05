@@ -86,7 +86,7 @@ class EpubRenderer(EbookRenderer):
     def generate_chapters(self, book, context):
         """
         """
-        for item in book.items:
+        for item in self.items:
             filename = '{}.xhtml'.format(item.filename)
 
             write_to = os.path.join(context.path, filename)

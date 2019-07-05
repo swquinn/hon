@@ -86,19 +86,15 @@ class RenderContext():
         #: Populate the data for the render context.
         self.data['_hon']['version'] = app.version
         self.data['title'] = book.title
-        if isinstance(book.authors, string_types):
-            self.data['authors'] = (book.authors, )
+        if isinstance(book.author, string_types):
+            self.data['author'] = (book.author, )
         else:
-            self.data['authors'] = tuple(book.authors)
+            self.data['author'] = tuple(book.author)
         self.data['language'] = book.language
         self.data['isbn'] = '000-0000000000'
         self.data['date'] = datetime.now().isoformat()
         self.data['publisher'] = 'Hon'
-
-        book_data = {}
-        book_data.update(book.get_variables())
-
-        self.data['book'] = book_data
+        self.data['book'] = {}
         self.data['summary'] = book.summary
 
         #: Complete initialization and mark context as initialized.

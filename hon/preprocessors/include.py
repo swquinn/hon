@@ -252,7 +252,8 @@ class IncludePreprocessor(Preprocessor):
     """
     _name = 'include'
 
-    def on_run(self, book):
-        for item in book.items:
-            content = replace_all(item.raw_text, book.path)
+    def on_run(self, book, renderer, context):
+        for item in renderer.items:
+            path = os.path.dirname(item.path)
+            content = replace_all(item.raw_text, path)
             item.raw_text = content

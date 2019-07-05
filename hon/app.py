@@ -40,8 +40,9 @@ def get_default_preprocessors():
     import hon.preprocessors as p
     return (
         p.IndexPreprocessor,
-        p.IncludePreprocessor,
+        #p.IncludePreprocessor,
         p.VariablesPreprocessor,
+        p.JinjaPreprocessor,
     )
 
 
@@ -55,6 +56,7 @@ def get_default_renderers():
     )
 
 
+#: TODO: Reword assertion error
 def setupmethod(f):
     """Wraps a method so that it performs a check in debug mode if the
     first request was already handled.
@@ -300,18 +302,9 @@ class Hon():
             self.logger.info('Building book: {} ({})'.format(book.name, book.path))
 
             before_build.send(book)
-
-            #: Preprocess
-            for preprocessor in self.preprocessors:
-                if preprocessor.enabled:
-                    self.logger.debug("Running the {} preprocessor.".format(preprocessor.name))
-                    preprocessor.run(book)
-
-            #: Render
             for renderer in self.renderers:
                 if build_only and renderer.name in build_only:
                     renderer.render(book)
-
             after_build.send(book)
 
     def do_teardown_appcontext(self, exc=_sentinel):

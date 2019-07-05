@@ -105,7 +105,7 @@ class PdfRenderer(Renderer):
         pdf_template = context.environment.get_template('pdf.html.jinja')
 
         data = {
-            'pages': book.items
+            'pages': self.items
         }
         data.update(context.data)
 

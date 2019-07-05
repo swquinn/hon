@@ -38,14 +38,9 @@ class Preprocessor(object):
                 cls.__name__))
         return cls._name
 
-    def init_book(self, book):
-        """
-        """
-        pass
-
-    def run(self, book):
+    def run(self, book, renderer, context):
         if self.enabled:
-            self.on_run(book)
+            self.on_run(book, renderer, context)
 
-    def on_run(self, book):
+    def on_run(self, book, renderer, context):
         raise NotImplementedError('A preprocessor must implement this method.')

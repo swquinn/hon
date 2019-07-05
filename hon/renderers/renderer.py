@@ -6,11 +6,31 @@ import os
 from datetime import datetime
 
 import hon
+from hon.structure import Chapter, Link, Part
 from .render_context import RenderContext
+
+def _flatten_chapters(items):
+    """Flattens all chapters into a single array.
+
+    :param items: A collection of chapters.
+    :type items: []
+    """
+    flattened = []
+    for item in items:
+        flattened.append(item)
+        if hasattr(item, 'children') and item.children:
+            flattened.extend(_flatten_chapters(item.children))
+    return flattened
 
 
 class Renderer(object):
     default_config = {}
+
+    @property
+    def items(self):
+        #: TODO: This presents a view of the flattened book of all the chapters.
+        flattened_chapters = _flatten_chapters(self.chapters)
+        return list(flattened_chapters)
 
     @property
     def render_path(self):
@@ -25,7 +45,26 @@ class Renderer(object):
     def __init__(self, app, config=None):
         self.app = app
         self.config = config or dict(self.default_config)
+        self.chapters = []
     
+    def add_chapter(self, chapter):
+        """Adds a chapter to the book, updating the graph."""
+        last_chapter = self.chapters[-1] if self.chapters else None
+
+        #: If we're adding a new chapter, and it isn't the first chapter, we
+        #: need to Update the chapter we're adding to point to the previous
+        #: chapter AND the previous chapter's next chapter pointer to reference
+        #: the chapter being added.
+        if last_chapter:
+            chapter.previous_chapter = last_chapter
+            last_chapter.next_chapter = chapter
+        self.chapters.append(chapter)
+    
+    def add_chapters(self, chapters):
+        """Adds all chapters to a book, updating the graph."""
+        for chapter in chapters:
+            self.add_chapter(chapter)
+
     @classmethod
     def get_name(cls):
         if not cls._name:
@@ -52,7 +91,12 @@ class Renderer(object):
     
     def generate_pages(self, book, context):
         self.app.logger.debug('Generating pages...')
-        for item in book.items:
+        
+        # TODO: Write the README.md to file
+        # TODO: Write the SUMMARY.md to file
+        # TODO: Write the GLOSSARY.md to file
+
+        for item in self.items:
             hon.before_render_page.send(self.app, book=book, renderer=self, page=item)
             self.on_render_page(item, book, context)
             hon.after_render_page.send(self.app, book=book, renderer=self, page=item)
@@ -64,6 +108,43 @@ class Renderer(object):
 
         self.on_init(book, context)
         return context
+
+    def init_chapters(self, book):
+        """Use the book's summary to load the book's pages from disk."""
+        self.app.logger.debug('Loading chapters from disk')
+
+        summary_items = book.summary.all_parts
+        print('**** summary items: {}'.format(summary_items))
+
+        for item in summary_items:
+            if type(item) == Part:
+                chapter = self.load_chapter(book, item)
+                self.add_chapter(chapter)
+        return self.chapters
+    
+    def load_chapter(self, book, item, parent=None):
+        chapter = None
+        chapter_path = os.path.abspath(os.path.join(book.path, item.source))
+        
+        if not os.path.exists(chapter_path):
+            raise FileNotFoundError('File: {} not found.'.format(chapter_path))
+                
+        with open(chapter_path) as f:
+            raw = f.read()
+            chapter = Chapter(name=item.name, raw_text=raw, path=chapter_path, link=item.link, parent=parent)
+        
+        if not chapter:
+            raise TypeError('Chapter not created')
+
+        sub_chapters = []
+        if item.children:
+            for sub_item in item.children:
+                sub_chapter = self.load_chapter(book, sub_item, parent=item)
+                sub_chapters.append(sub_chapter)
+        
+        if sub_chapters:
+            chapter.children = sub_chapters
+        return chapter
 
     def on_before_finish(self, book, context):
         pass
@@ -84,15 +165,30 @@ class Renderer(object):
         pass
 
     def render(self, book):
+        """
+        """
         self.app.logger.info('Rendering book: {} with: {} renderer'
             .format(book.name, self.get_name()))
 
         start_time = datetime.now()
 
+        chapters = self.init_chapters(book)
+        self.app.logger.debug('Successfully loaded {} chapters.'.format(len(chapters)))
+
         context = self.init(book)
 
-        #: After the context has been established, but before any of the actual
-        #: rendering has commenced, trigger the "before_render" signal.
+        #: We now preprocess for each renderer, this gives our preprocessors
+        #: access to the not only the book, but also the context. [SWQ]
+        for preprocessor in self.app.preprocessors:
+            if preprocessor.enabled:
+                self.app.logger.debug("Running the {} preprocessor.".format(preprocessor.name))
+                preprocessor.run(book, self, context)
+
+        #: After the context has been established and the preprocessors have
+        #: been run, but before any of the actual rendering has commenced,
+        #: trigger the "before_render" signal. This will allow more general
+        #: plugins the opportunity to do some pre-render work. They can modify
+        #: the context, or even make changes to the render items. [SWQ]
         hon.before_render.send(self.app, book=book, renderer=self, context=context)
 
         #: Run the logic for the renderer, this includes generating assets,

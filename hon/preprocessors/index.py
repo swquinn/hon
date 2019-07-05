@@ -33,7 +33,7 @@ def is_readme(file_path):
 class IndexPreprocessor(Preprocessor):
     _name = 'index'
 
-    def run(self, book):
+    def run(self, book, renderer, context):
         # get the source directory
         # iterate over each book "item"
         # if the book item is a chapter (? not sure about this)
