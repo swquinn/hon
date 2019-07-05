@@ -41,7 +41,6 @@ def get_default_preprocessors():
     import hon.preprocessors as p
     return (
         p.IndexPreprocessor,
-        #p.IncludePreprocessor,
         p.VariablesPreprocessor,
         p.JinjaPreprocessor,
     )

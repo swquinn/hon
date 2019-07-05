@@ -62,7 +62,7 @@ def test_get_default_preprocessors():
     preprocessors = get_default_preprocessors()
 
     actual = [p.get_name() for p in preprocessors]
-    expected = ['index', 'include', 'variables']
+    expected = ['index', 'variables', 'jinja']
     assert set(actual) == set(expected)
 
 
@@ -101,7 +101,7 @@ def test_default_initialized_instance():
     #: are accurate. [SWQ]
     preprocessor_config = actual['preprocessor']
     assert 'index' in preprocessor_config
-    assert 'include' in preprocessor_config
+    assert 'jinja' in preprocessor_config
     assert 'variables' in preprocessor_config
 
     output_conifg = actual['output']

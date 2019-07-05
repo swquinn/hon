@@ -1,5 +1,5 @@
 from .preprocessor import Preprocessor
 
 from .index import IndexPreprocessor
-from .include import IncludePreprocessor
+from .jinja import JinjaPreprocessor
 from .variables import VariablesPreprocessor
