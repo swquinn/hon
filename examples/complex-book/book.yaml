@@ -1,8 +1,12 @@
 book:
   title: My Complex Book
-  authors: 'Sean Quinn'
-  language: ~
+  isbn: ~
+  language: ~ #
+  author: 'Sean Quinn'
+  direction: ~ # rtl or ltr; Direction of texts, default is detected in the pages
   build: ~
+  theme: ~ # Name of the theme plugin to use
   variables:
     simple_variable: "foo"
-    scoped.variable: "bar"
+    scoped:
+      variable: "bar"

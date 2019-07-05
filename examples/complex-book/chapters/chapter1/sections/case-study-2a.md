@@ -1,21 +1,21 @@
 {% macro render_table(data) %}
-    {% set keys = data[0].keys() %}
-    <table>
-        <thead>
-            <tr>
-                <th>Index</th>
-                {% for key in keys %}<th>{{ key }}</th>{% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in data %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                {% for key, value in item.items() %}<td>{{ value }}</td>{% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% set keys = data[0].keys() %}
+<table>
+    <thead>
+        <tr>
+            <th>Index</th>
+            {% for key in keys %}<th>{{ key }}</th>{% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in data %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            {% for key, value in item.items() %}<td>{{ value }}</td>{% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endmacro %}
 
 Pellentesque lacinia nisl vitae semper condimentum. Sed fringilla nisi vitae dui efficitur lacinia. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
