@@ -127,6 +127,14 @@ class SummaryParser():
         if link_element is not None:
             self.app.logger.debug(f'(LEVEL {level}) Found chapter link: {link_element} for: {link_element.text}')
             part = self.create_part(link_element, level=level)
+
+        if part:
+            children = []
+            subparts = xmlutils.find_elements_by_tag(list_item, tag_names=('ul', 'ol'), max_depth=1)
+            for e in list(subparts):
+                if e.tag in ('ul', 'ol'):
+                    children = self.parse_parts(e, level=level+1)
+            part.children = children
         return part
 
     def create_part(self, element, level=None):
