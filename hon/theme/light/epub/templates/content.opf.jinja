@@ -5,7 +5,7 @@
     <dc:title>{{ title }}</dc:title>
     <dc:language>{{ language }}</dc:language>
     <dc:identifier id="BookId" opf:scheme="ISBN">{{ isbn }}</dc:identifier>
-    {% for author in authors %}
+    {% for a in author %}
       {% if loop.first %}
       <dc:creator opf:file-as="{{ author }}" opf:role="aut">{{ author }}</dc:creator>
       {% else %}
