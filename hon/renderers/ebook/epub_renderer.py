@@ -179,6 +179,5 @@ class EpubRenderer(EbookRenderer):
             }
             data.update(context.data)
 
-            print('*** context: {}'.format(context))
             content = page_template.render(data)
             page.text = content

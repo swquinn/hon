@@ -49,7 +49,6 @@ class SummaryParser():
         self.src = src
         self.stream = MarkdownParser()
         self.stream.parse(self.src or '')
-        print(self.stream)
 
     def parse(self):
         """Parse the text the `SummaryParser` was created with."""
@@ -98,7 +97,6 @@ class SummaryParser():
                     sections.append(section)
                 parts = self.parse_parts(e)
                 sections[-1].add_parts(parts)
-        print('**** sections are: {}'.format(sections))
         return sections
     
     def parse_parts(self, parent, level=0):

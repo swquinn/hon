@@ -114,8 +114,6 @@ class Renderer(object):
         self.app.logger.debug('Loading chapters from disk')
 
         summary_items = book.summary.all_parts
-        print('**** summary items: {}'.format(summary_items))
-
         for item in summary_items:
             if type(item) == Part:
                 chapter = self.load_chapter(book, item)

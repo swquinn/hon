@@ -106,13 +106,6 @@ class HtmlRenderer(Renderer):
         page_template = context.environment.get_template('page.html.jinja')
 
         if markedup_text:
-            
-            # print()
-            # print()
-            # print("Markup text: `{}`".format(markedup_text))
-            # print()
-            # print()
-
             intermediate_template = Template(markedup_text)
             content = intermediate_template.render(book={})
 
