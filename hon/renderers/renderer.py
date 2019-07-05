@@ -201,4 +201,5 @@ class Renderer(object):
         hon.after_render.send(self.app, book=book, renderer=self, context=context)
 
         elapsed_time = datetime.now() - start_time
-        self.app.logger.info('Rendering finished with success in {}s!'.format(elapsed_time))
+        self.app.logger.info('Finished rendering book: {} with: {} successfully in {}s!'.format(
+            book.name, self.get_name(), elapsed_time))
