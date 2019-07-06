@@ -13,7 +13,7 @@ from hon.parsing import MarkdownParser
 from hon.utils.fileutils import copy_from, filename_matches_pattern
 from .ebook_renderer import EbookRenderer
 
-IGNORED_FILES = ('**/__init__.py', )
+IGNORED_FILES = ('**/__pycache__/*', '**/__init__.py', )
 
 
 class EpubContainer(ZipFile):
@@ -29,19 +29,17 @@ class EpubContainer(ZipFile):
                 d) remove the temp file
 
         '''
+        try:
+            handle, temp_filename = mkstemp()
+            with open(temp_filename, 'w') as f:
+                f.write(content)
 
-        handle, temp_filename = mkstemp()
-
-        f = open(temp_filename, 'w')
-        f.write(content)
-        f.close()
-
-        # actually add to the epub (zip file), override the archive name,
-        # so we don't end up having the temp file as the name
-        self.write(temp_filename, arcname=filename)
-
-        # remove tempfile, we are done
-        os.remove(temp_filename)
+            # actually add to the epub (zip file), override the archive name,
+            # so we don't end up having the temp file as the name
+            self.write(temp_filename, arcname=filename)
+        finally:
+            # remove tempfile, we are done
+            os.remove(temp_filename)
 
 
 class EpubRenderer(EbookRenderer):
@@ -88,9 +86,20 @@ class EpubRenderer(EbookRenderer):
         """
         for item in self.items:
             filename = '{}.xhtml'.format(item.filename)
+            if item.is_readme:
+                continue
 
-            write_to = os.path.join(context.path, filename)
+            #: Get the item's path, relative to the book's root. This allows
+            #: us to actually write the transformed items to a structure that
+            #: is similar to the source. [SWQ]
+            relative_item_path = os.path.relpath(item.path, start=book.path)
+            relative_item_dir = os.path.dirname(relative_item_path)
 
+            output_path = os.path.join(context.path, relative_item_dir)
+            if not os.path.exists(output_path):
+                os.makedirs(output_path, exist_ok=True)
+
+            write_to = os.path.join(output_path, filename)
             with open(write_to, 'w') as f:
                 f.write(item.text)
 
@@ -138,8 +147,7 @@ class EpubRenderer(EbookRenderer):
         user_styles = self.config.get('styles', [])
         for style in user_styles:
             context.add_style(os.path.basename(style))
-            copy_from(style, context.path)
-            
+            copy_from(style, context.path, exclude=IGNORED_FILES)
 
     def on_generate_pages(self, book, context):
         """
@@ -156,9 +164,37 @@ class EpubRenderer(EbookRenderer):
         :type context: hon.renderers.RenderingContext
         """
         context.configure_environment('theme/light/epub/templates')
+        
+        def foo(parts, context):
+            structure = []
+            for part in parts:
+                part_filepath = '{}.xhtml'.format(part.link_name)
+                if part.is_readme:
+                    part_filepath = 'titlepage.xhtml'
+
+                path = os.path.abspath(os.path.join(context.path, part_filepath))
+                relative_path = os.path.relpath(path, start=context.path)
+                print(relative_path)
+                structure.append({
+                    'name': 'Cover' if part.is_readme else part.name,
+                    'href': relative_path,
+                })
+                if len(part.children) > 0:
+                    structure.extend(foo(part.children, context))
+            return structure
+                
+        # resolve all of the parts that we're working with,
+        print(book.summary.all_parts)
+        structure = foo(book.summary.all_parts, context)
+        print(structure)
+        context.data['epub_chapters'] = structure
         return context
 
     def on_render_page(self, page, book, context):
+        """
+
+        :type page: hon.structure.chapter.Chapter
+        """
         raw_text = str(page.raw_text)
         parser = MarkdownParser()
         markedup_text = parser.parse(raw_text)
@@ -169,10 +205,16 @@ class EpubRenderer(EbookRenderer):
             intermediate_template = Template(markedup_text)
             content = intermediate_template.render(book={})
 
+            relative_page_path = os.path.relpath(page.path, start=book.path)
+            abs_page_path = os.path.join(context.path, relative_page_path)
+            page_dir = os.path.dirname(abs_page_path)
+            root_path = os.path.relpath(context.path, start=page_dir)
+
             data = {
                 'page': {
                     'title': page.name,
                     'content': content,
+                    'root_path': root_path,
                     'previous_chapter': page.previous_chapter,
                     'next_chapter': page.next_chapter,
                 }

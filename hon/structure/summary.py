@@ -100,6 +100,12 @@ class Part():
         root, _ = os.path.splitext(self.source)
         return root
 
+    @property
+    def is_readme(self):
+        if 'readme' == str(self.link_name).lower():
+            return True
+        return False
+
     def __init__(self, name, source=None, level=None, children=None):
         #: The name of the part.
         self.name = name

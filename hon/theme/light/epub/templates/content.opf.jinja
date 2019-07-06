@@ -20,18 +20,16 @@
     <item href="stylesheet.css" id="css" media-type="text/css"/>
     {% if cover %}
     <item href="cover.jpg" id="cover" media-type="image/jpeg"/>
-    {% endif %}
-    <item href="titlepage.xhtml" id="titlepage" media-type="application/xhtml+xml"/>
-    {% for part in summary.all_parts %}
-    <item href="{{ part.link_name }}.xhtml" id="id{{ loop.index }}" media-type="application/xhtml+xml"/>
+    {%- endif -%}
+    {% for chapter in epub_chapters %}
+    <item href="{{ chapter.href }}" id="id{{ loop.index }}" media-type="application/xhtml+xml"/>
     {% endfor %}
     <item href="toc.ncx" media-type="application/x-dtbncx+xml" id="ncx"/>
   </manifest>
  
   <spine toc="ncx">
-    <itemref idref="titlepage"/>
-    {% for part in summary.all_parts %}
-    <itemref idref="id{{ loop.index }}"/>
+    {% for chapter in epub_chapters %}
+    <itemref idref="id{{ loop.index }}" />
     {% endfor %}
   </spine>
  

@@ -13,20 +13,13 @@
       <text>{{ author }}</text>
   </docAuthor>
   <navMap>
-    <navPoint id="titlepage" playOrder="1">
-      <navLabel>
-        <text>Cover</text>
-      </navLabel>
-      <content src="titlepage.xhtml"/>
-    </navPoint>
-    {% for part in summary.all_parts %}
-    <navPoint id="id{{ loop.index }}" playOrder="{{ loop.index + 1 }}">
-      <navLabel>
-          <text>{{ part.name }}</text>
-      </navLabel>
-      <content src="{{ part.link_name }}.xhtml"/>
-   </navPoint>
-   {% endfor %}
-
+    {% for chapter in epub_chapters %}
+      <navPoint id="id{{ loop.index }}" playOrder="{{ loop.index }}">
+        <navLabel>
+          <text>{{ chapter.name }}</text>
+        </navLabel>
+        <content src="{{ chapter.href }}"/>
+      </navPoint>
+   {%- endfor %}
   </navMap>
 </ncx>
