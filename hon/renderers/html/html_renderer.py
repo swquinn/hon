@@ -109,10 +109,16 @@ class HtmlRenderer(Renderer):
             intermediate_template = Template(markedup_text)
             content = intermediate_template.render(book={})
 
+            relative_page_path = os.path.relpath(page.path, start=book.path)
+            abs_page_path = os.path.join(context.path, relative_page_path)
+            page_dir = os.path.dirname(abs_page_path)
+            root_path = os.path.relpath(context.path, start=page_dir)
+
             data = {
                 'page': {
                     'title': page.name,
                     'content': content,
+                    'root_path': root_path,
                     'previous_chapter': page.previous_chapter,
                     'next_chapter': page.next_chapter,
                 }
