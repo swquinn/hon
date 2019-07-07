@@ -33,5 +33,8 @@ def build_command(book, output):
     if not os.path.isdir(book_abspath):
         raise FileNotFoundError(f'Unable to find directory: {book_abspath}, does the directory exist?')
 
+    print(current_app.config)
+    print()
     current_app.load_books(source_path=book_abspath)
+    #current_app.build(build_only=('epub', ))
     current_app.build()

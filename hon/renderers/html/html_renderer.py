@@ -51,7 +51,7 @@ class HtmlRenderer(Renderer):
         return None
     
     def on_finish(self, book, context):
-        print('in finish')
+        pass
 
     def on_generate_assets(self, book, context):
         import hon.renderers.html.assets

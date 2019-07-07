@@ -174,7 +174,6 @@ class EpubRenderer(EbookRenderer):
 
                 path = os.path.abspath(os.path.join(context.path, part_filepath))
                 relative_path = os.path.relpath(path, start=context.path)
-                print(relative_path)
                 structure.append({
                     'name': 'Cover' if part.is_readme else part.name,
                     'href': relative_path,
@@ -184,9 +183,7 @@ class EpubRenderer(EbookRenderer):
             return structure
                 
         # resolve all of the parts that we're working with,
-        print(book.summary.all_parts)
         structure = foo(book.summary.all_parts, context)
-        print(structure)
         context.data['epub_chapters'] = structure
         return context
 
