@@ -85,6 +85,8 @@ class RenderContext():
 
         #: Populate the data for the render context.
         self.data['_hon']['version'] = app.version
+        self.data['_book'] = book
+        self.data['_root'] = self.path
         self.data['title'] = book.title
         if isinstance(book.author, string_types):
             self.data['author'] = (book.author, )
@@ -107,3 +109,8 @@ class RenderContext():
             loader=PackageLoader('hon', template_path),
             autoescape=select_autoescape(['html', 'xml'])
         )
+        self.load_filters()
+    
+    def load_filters(self):
+        from hon.filters import relative_path
+        self._environment.filters['relative_path'] = relative_path

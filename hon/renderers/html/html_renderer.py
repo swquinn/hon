@@ -118,7 +118,9 @@ class HtmlRenderer(Renderer):
                 'page': {
                     'title': page.name,
                     'content': content,
+                    'path': abs_page_path,
                     'root_path': root_path,
+                    'relative_path_prefix': '{}/'.format(root_path) if root_path else None,
                     'previous_chapter': page.previous_chapter,
                     'next_chapter': page.next_chapter,
                 }

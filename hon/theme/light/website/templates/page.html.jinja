@@ -19,7 +19,7 @@
                     <div class="column col-1 col-mr-auto">
                         <div class="p-fixed" style="top: 50vh">
                             {%- if page.previous_chapter -%}
-                                <a href="{{ page.previous_chapter.link }}">
+                                <a href="{{ page.previous_chapter.link|relative_path }}">
                                     <i class="icon icon-arrow-left"></i>
                                 </a>
                             {%- endif -%}
@@ -31,7 +31,7 @@
                     <div class="column col-1 col-ml-auto">
                         <div class="p-fixed" style="top: 50vh">
                             {%- if page.next_chapter -%}
-                                <a href="{{ page.next_chapter.link }}">
+                                <a href="{{ page.next_chapter.link|relative_path }}">
                                     <i class="icon icon-arrow-right"></i>
                                 </a>
                             {%- endif -%}
