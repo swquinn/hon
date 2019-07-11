@@ -2,7 +2,7 @@
 
 {% block body %}
 <div class="book off-canvas off-canvas-sidebar-show">
-    <div id="sidebar" class="off-canvas-sidebar" style="border-right: 1px solid #e8e8e8;">
+    <div id="sidebar" class="off-canvas-sidebar">
         {% block search_input %}
         <div id="book-search-input" role="search">
             <input class="form-input" type="text" placeholder="Type to search" />
@@ -14,10 +14,10 @@
     <div class="off-canvas-content">
         <div class="content">
             {% include 'header.html.jinja' %}
-            <article class="container" style="padding-top: 2rem; padding-bottom: 4rem; min-height: 100vh;">
+            <div class="page-wrapper container">
                 <div class="columns">
-                    <div class="column col-1 col-mr-auto">
-                        <div class="p-fixed" style="top: 50vh">
+                    <div class="prev-chapter column col-1 col-mr-auto">
+                        <div class="p-fixed chapter-nav">
                             {%- if page.previous_chapter -%}
                                 <a href="{{ page.previous_chapter.link|relative_path }}">
                                     <i class="icon icon-arrow-left"></i>
@@ -25,11 +25,13 @@
                             {%- endif -%}
                         </div>
                     </div>
-                    <div class="column col-8 col-mx-auto">
-                        {{ page.content|safe }}
+                    <div class="chapter column col-10 col-mx-auto">
+                        <article class="chapter-body">
+                            {{ page.content|safe }}
+                        </article>
                     </div>
-                    <div class="column col-1 col-ml-auto">
-                        <div class="p-fixed" style="top: 50vh">
+                    <div class="next-chapter column col-1 col-ml-auto">
+                        <div class="p-fixed chapter-nav">
                             {%- if page.next_chapter -%}
                                 <a href="{{ page.next_chapter.link|relative_path }}">
                                     <i class="icon icon-arrow-right"></i>
