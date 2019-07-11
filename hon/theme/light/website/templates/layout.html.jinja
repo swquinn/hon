@@ -34,13 +34,13 @@
     <body>
         {% block body %}{% endblock %}
         {% block javascript %}
-            <script src="{{ "hon.js" }}"></script>
+            <script src="{{ "hon.js"|relative_path }}"></script>
             {# <script src="{{ "theme.js" }}"></script> #}
             {% for resource in _plugins.resources.js %}
                 {% if resource.url %}
                 <script src="{{ resource.url }}"></script>
                 {% else %}
-                <script src="{{ resource.path }}"></script>
+                <script src="{{ resource.path|relative_path }}"></script>
                 {% endif %}
             {% endfor %}
         {% endblock %}
