@@ -148,7 +148,7 @@ class Hon():
         from . import __version__
         return __version__
 
-    def __init__(self, root=None, output_path=None, honrc_filepath=None, debug=False):
+    def __init__(self, root=None, honrc_filepath=None, debug=False):
         #: Hon differentiates between a project path and a source path. The
         #: project path is the folder that encompasses all things related to
         #: the Hon project, e.g. the source folder for the book, the .honrc
@@ -159,7 +159,6 @@ class Hon():
             root = os.getcwd()
 
         self._root = root
-        self._output_path = output_path or DEFAULT_OUTPUT_PATH
         self._loaded_plugins = False
         self.honrc_filepath = honrc_filepath
 
@@ -221,6 +220,10 @@ class Hon():
             self.logger.debug('Reading configuration file: {}'.format(config_filepath))
             config_dict = _read_yaml_config(config_filepath)
             self.config.update(config_dict.get('config', {}))
+
+            #: Configure the output path...
+            self._output_path = self.config.get('build') or DEFAULT_OUTPUT_PATH
+            self.logger.info('Output path is: {}'.format(self.output_path))
         except:
             self.logger.warning('No .honrc file found, falling back to defaults.')
         return self.config
@@ -283,7 +286,7 @@ class Hon():
         """
         return AppContext(self)
 
-    def build(self, build_only=None):
+    def build(self, output_path_override=None, build_only=None):
         """Build a book in one or more formats.
 
         The ``build_only`` argument specifies which book renderers should be
@@ -293,6 +296,10 @@ class Hon():
         additional renderers available.
         """
         self.logger.info('Found {} books to build...'.format(len(self.books)))
+        if output_path_override:
+            self._output_path = output_path_override
+            self.logger.info('Overriding output path. Output path is now: {}'.format(self.output_path))
+
         if build_only is None:
             build_only = tuple([renderer.name for renderer in self.renderers])
 

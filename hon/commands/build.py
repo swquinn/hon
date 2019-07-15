@@ -37,4 +37,4 @@ def build_command(book, output):
     print()
     current_app.load_books(source_path=book_abspath)
     #current_app.build(build_only=('epub', ))
-    current_app.build()
+    current_app.build(output_path_override=output)
