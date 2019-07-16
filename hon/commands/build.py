@@ -23,7 +23,7 @@ from ..cli import with_context
 
 @click.command('build', short_help='Builds a book from its markdown files')
 @click.argument('book', default=None, required=False)
-@click.argument('output', default='book', required=False)
+@click.argument('output', default=None, required=False)
 @click.option('--epub/--no-epub', 'include_epub', is_flag=True, default=True)
 @click.option('--html/--no-html', 'include_html', is_flag=True, default=True)
 @click.option('--pdf/--no-pdf', 'include_pdf', is_flag=True, default=True)
