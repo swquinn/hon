@@ -134,12 +134,13 @@ class PdfRenderer(Renderer):
             intermediate_template = Template(markedup_text)
             content = intermediate_template.render(book={})
 
+            node = self.chapter_graph.get(page)
             data = {
                 'page': {
                     'title': page.name,
                     'content': content,
-                    'previous_chapter': page.previous_chapter,
-                    'next_chapter': page.next_chapter,
+                    'previous_chapter': node.previous.chapter if node.previous else None,
+                    'next_chapter': node.next.chapter if node.next else None,
                 }
             }
             data.update(context.data)

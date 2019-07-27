@@ -6,21 +6,8 @@ import os
 from datetime import datetime
 
 import hon
-from hon.structure import Chapter, Link, Part
+from hon.structure import Chapter, ChapterGraph, Link, Part
 from .render_context import RenderContext
-
-def _flatten_chapters(items):
-    """Flattens all chapters into a single array.
-
-    :param items: A collection of chapters.
-    :type items: []
-    """
-    flattened = []
-    for item in items:
-        flattened.append(item)
-        if hasattr(item, 'children') and item.children:
-            flattened.extend(_flatten_chapters(item.children))
-    return flattened
 
 
 class Renderer(object):
@@ -28,9 +15,10 @@ class Renderer(object):
 
     @property
     def items(self):
-        #: TODO: This presents a view of the flattened book of all the chapters.
-        flattened_chapters = _flatten_chapters(self.chapters)
-        return list(flattened_chapters)
+        chapters = []
+        for node in iter(self.chapter_graph):
+            chapters.append(node.chapter)
+        return tuple(chapters)
 
     @property
     def render_path(self):
@@ -46,18 +34,10 @@ class Renderer(object):
         self.app = app
         self.config = config or dict(self.default_config)
         self.chapters = []
+        self.chapter_graph = ChapterGraph()
     
     def add_chapter(self, chapter):
-        """Adds a chapter to the book, updating the graph."""
-        last_chapter = self.chapters[-1] if self.chapters else None
-
-        #: If we're adding a new chapter, and it isn't the first chapter, we
-        #: need to Update the chapter we're adding to point to the previous
-        #: chapter AND the previous chapter's next chapter pointer to reference
-        #: the chapter being added.
-        if last_chapter:
-            chapter.previous_chapter = last_chapter
-            last_chapter.next_chapter = chapter
+        """Adds a chapter to the renderer."""
         self.chapters.append(chapter)
     
     def add_chapters(self, chapters):
@@ -118,6 +98,7 @@ class Renderer(object):
             if type(item) == Part:
                 chapter = self.load_chapter(book, item)
                 self.add_chapter(chapter)
+        self.chapter_graph.extend(self.chapters)
         return self.chapters
     
     def load_chapter(self, book, item, parent=None):

@@ -114,6 +114,7 @@ class HtmlRenderer(Renderer):
             page_dir = os.path.dirname(abs_page_path)
             root_path = os.path.relpath(context.path, start=page_dir)
 
+            node = self.chapter_graph.get(page)
             data = {
                 'page': {
                     'title': page.name,
@@ -121,8 +122,8 @@ class HtmlRenderer(Renderer):
                     'path': abs_page_path,
                     'root_path': root_path,
                     'relative_path_prefix': '{}/'.format(root_path) if root_path else None,
-                    'previous_chapter': page.previous_chapter,
-                    'next_chapter': page.next_chapter,
+                    'previous_chapter': node.previous.chapter if node.previous else None,
+                    'next_chapter': node.next.chapter if node.next else None,
                 }
             }
             data.update(context.data)
