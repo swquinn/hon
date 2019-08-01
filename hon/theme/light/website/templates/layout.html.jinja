@@ -21,6 +21,9 @@
                 <link rel="stylesheet" href="{{ resource.path }}">
                 {% endif %}
             {% endfor %}
+            {%- for css in styles %}
+                <link rel="stylesheet" href="{{ css|relative_path }}">
+            {% endfor %}
         {% endblock %}
         {%- block head -%}
             {%- if page.next_chapter and page.next_chapter.link -%}

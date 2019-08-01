@@ -11,6 +11,8 @@ from hon.parsing import MarkdownParser
 from hon.utils.fileutils import copy_from
 from ..renderer import Renderer
 
+IGNORED_FILES = ('**/__pycache__/*', '**/__init__.py', )
+
 
 class HtmlRenderer(Renderer):
     """Renders a book to HTML files for display as a website.
@@ -50,6 +52,19 @@ class HtmlRenderer(Renderer):
     def livereload_url(self):
         return None
     
+    def __init__(self, app, config=None):
+        styles = config.get('styles', [])
+        if styles:
+            resolved_styles = []
+            root = os.path.dirname(app.honrc_filepath)
+            for style in styles:
+                resolved_style_filepath = os.path.abspath(
+                    os.path.join(root, style))
+                resolved_styles.append(resolved_style_filepath)
+            config['styles'] = resolved_styles
+
+        super(HtmlRenderer, self).__init__(app, config=config)
+
     def on_finish(self, book, context):
         pass
 
@@ -63,8 +78,10 @@ class HtmlRenderer(Renderer):
         theme_dir = os.path.dirname(hon.theme.light.website.__file__)
         copy_from(theme_dir, context.path, include=('*.css', '*.js'))
 
-        # TODO: Copy non-markdown files from source to output folder, retaining relative hierarchy
-
+        user_styles = self.config.get('styles', [])
+        for style in user_styles:
+            context.add_style(os.path.basename(style))
+            copy_from(style, context.path, exclude=IGNORED_FILES)
 
     def on_generate_pages(self, book, context):
         """
