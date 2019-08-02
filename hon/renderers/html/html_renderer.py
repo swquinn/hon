@@ -90,7 +90,7 @@ class HtmlRenderer(Renderer):
             filename = '{}.html'.format(item.filename)
             if item.is_readme:
                 filename = 'index.html'
-            
+
             #: Get the item's path, relative to the book's root. This allows
             #: us to actually write the transformed items to a structure that
             #: is similar to the source. [SWQ]
