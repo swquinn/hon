@@ -1,7 +1,7 @@
 import pytest
 from hon.parsing import MarkdownParser
 from hon.parsers.summary_parser import (
-    SectionNumber, SummaryParser, SummaryItemSeparator, stringify_events
+    SectionNumber, SummaryParser, stringify_events
 )
 from hon.structure import Part, Section
 from hon.utils.mdutils import flatten_tree

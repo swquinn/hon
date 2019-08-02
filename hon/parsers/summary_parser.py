@@ -151,23 +151,6 @@ class SummaryParser():
         return ''
 
 
-class SummaryItem():
-    """An item in `SUMMARY.md` which could be either a separator or a ``Link``."""
-
-    #: A separator (`---`).
-    SEPARATOR = 'Separator'
-
-
-class SummaryItemSeparator(SummaryItem):
-    def __eq__(self, other):
-        if self.__class__ == other.__class__:
-            return True
-        return False
-
-    def __repr__(self):
-        return 'SummaryItemSeparator()'
-
-
 class SectionNumber():
     """A section number like "1.2.3", basically just a newtype'd `Vec<u32>` with
     a pretty `Display` impl."""
