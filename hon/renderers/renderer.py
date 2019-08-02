@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 
 import hon
-from hon.structure import Chapter, ChapterGraph, Link, Part
+from hon.structure import Chapter, ChapterGraph, Part
 from .render_context import RenderContext
 
 

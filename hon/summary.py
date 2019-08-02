@@ -5,7 +5,7 @@
 import logging
 from hon.exc import InvalidBookError
 from hon.parsers.summary_parser import SummaryParser
-from hon.structure import Link, Summary, parse_structure_file
+from hon.structure import Summary, parse_structure_file
 from hon.utils.mdutils import flatten_tree
 from hon.utils import xmlutils
 

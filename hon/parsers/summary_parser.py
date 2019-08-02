@@ -153,8 +153,6 @@ class SummaryParser():
 
 class SummaryItem():
     """An item in `SUMMARY.md` which could be either a separator or a ``Link``."""
-    #: A link to a chapter.
-    LINK = 'Link'
 
     #: A separator (`---`).
     SEPARATOR = 'Separator'

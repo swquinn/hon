@@ -6,7 +6,7 @@ import os
 import markdown
 
 from collections.abc import Iterable, Iterator
-from hon.structure import Chapter, Link, Part
+from hon.structure import Chapter, Part
 from hon.summary import parse_summary
 
 
