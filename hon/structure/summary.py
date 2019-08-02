@@ -92,6 +92,8 @@ class Part():
     
     @property
     def link(self):
+        if self.is_readme:
+            return 'index.html'
         root, _ = os.path.splitext(self.source)
         return '{}.html'.format(root)
 
