@@ -10,7 +10,6 @@ from __future__ import print_function
 
 import ast
 import click
-import logging
 import os
 import platform
 import re
