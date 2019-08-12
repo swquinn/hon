@@ -12,17 +12,17 @@ pytest-mock = "*"
 tox = "*"
 
 [packages]
+blinker = "*"
 click = ">=7.0"
 epubcheck = ">=0.4.2"
+flask = "*"
 jinja2 = {editable = true,git = "https://github.com/pallets/jinja.git",ref = "master"}
 markdown = ">=3.1"
 mistune = ">=0.8.4"
 pydash = ">=4.7.5"
 pyyaml = ">=5.1"
 six = ">=1.12"
-flask = "*"
 watchdog = "*"
-blinker = "*"
 weasyprint = "*"
 
 [requires]
