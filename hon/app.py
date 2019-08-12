@@ -211,6 +211,7 @@ class Hon():
     def _configure(self):
         """Configure the hon application environment.
         """
+        self.logger.debug('Configuring Hon application...')
         try:
             config_filepath = self.honrc_filepath
             if config_filepath is None:
@@ -231,6 +232,7 @@ class Hon():
     def _load_preprocessors(self):
         """Loads the available preprocessors.
         """
+        self.logger.debug('Loading preprocessors...')
         preprocessors = get_default_preprocessors()
 
         for p in preprocessors:
@@ -240,6 +242,7 @@ class Hon():
     def _load_renderers(self):
         """Loads the available renderers.
         """
+        self.logger.debug('Loading renderers...')
         renderers = get_default_renderers()
 
         for r in renderers:
@@ -249,6 +252,7 @@ class Hon():
     def _load_plugins(self):
         """
         """
+        self.logger.debug('Loading plugins...')
         if self._loaded_plugins:
             return
         try:
@@ -257,8 +261,8 @@ class Hon():
             self._loaded_plugins = True
             return
 
-        for entry_point in pkg_resources.iter_entry_points('hon.plugins'):
-            # TODO: This is causing double logging...
+        _plugin_entry_points = pkg_resources.iter_entry_points('hon.plugins')
+        for entry_point in _plugin_entry_points:
             self.register_plugin(entry_point.load())
         self._loaded_plugins = True
 
