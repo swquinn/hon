@@ -8,6 +8,10 @@ default_handler.setFormatter(
     logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
 )
 
+# We assign the default handler to the root logger, this prevents other code
+# from initializing a root logger which can result in double logging. [SWQ]
+logging.basicConfig(handlers=(default_handler, ))
+
 
 def has_level_handler(logger):
     """Check if there is a handler in the logging.
