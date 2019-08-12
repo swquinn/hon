@@ -13,6 +13,7 @@ tox = "*"
 
 [packages]
 click = ">=7.0"
+epubcheck = ">=0.4.2"
 jinja2 = {editable = true,git = "https://github.com/pallets/jinja.git",ref = "master"}
 markdown = ">=3.1"
 mistune = ">=0.8.4"

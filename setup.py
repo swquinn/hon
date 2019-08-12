@@ -35,6 +35,7 @@ setup(
     install_requires=[
         'blinker',
         'click>=7.0',
+        'epubcheck>=0.4.2',
         'jinja2>=2.10',
         'flask',
         'markdown>=3.1',
