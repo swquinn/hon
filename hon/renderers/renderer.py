@@ -2,6 +2,7 @@
     hon.renderers.renderer
     ~~~~~
 """
+import click
 import os
 from datetime import datetime
 
@@ -44,6 +45,24 @@ class Renderer(object):
         """Adds all chapters to a book, updating the graph."""
         for chapter in chapters:
             self.add_chapter(chapter)
+
+    @classmethod
+    def get_build_render_option(cls):
+        _name = cls.get_name()
+
+        def callback(ctx, param, value):
+            from hon.cli import ScriptInfo
+            state = ctx.ensure_object(ScriptInfo)
+            state.build_renderers[_name] = value
+            return value
+
+        return click.Option(
+            [f'--{_name}', f'--no-{_name}'],
+            help=f'Enable/Disable rendering using the {_name} renderer',
+            callback=callback,
+            is_eager=True,
+            is_flag=True,
+            default=True)
 
     @classmethod
     def get_name(cls):

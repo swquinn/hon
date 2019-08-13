@@ -17,18 +17,46 @@
 """
 import click
 import os
+from functools import update_wrapper
 
 from hon import current_app
-from ..cli import with_context
+from ..cli import with_context, ScriptInfo
 
-@click.command('build', short_help='Builds a book from its markdown files')
+
+class BuildCommand(click.Command):
+    """Custom Click Command for the build command.
+
+    The build command relies on knowing about which renderers have been
+    configured for the system. In order to get this information in the help, as
+    well as expose it to the actual command when it is run, we needed to create
+    a custom Command object and modify the params that are returned.
+    """
+    def get_params(self, ctx):
+        rv = super(BuildCommand, self).get_params(ctx)
+        with ctx.ensure_object(ScriptInfo).load_app().app_context():
+            renderers = current_app.renderers
+            rendering_options = []
+            for r in renderers:
+                rendering_options.append(r.get_build_render_option())
+            rv = rv + rendering_options
+        return rv
+
+
+@click.command('build', short_help='Builds a book from its markdown files', cls=BuildCommand)
 @click.argument('book', default=None, required=False)
 @click.argument('output', default=None, required=False)
-@click.option('--epub/--no-epub', 'include_epub', is_flag=True, default=True)
-@click.option('--html/--no-html', 'include_html', is_flag=True, default=True)
-@click.option('--pdf/--no-pdf', 'include_pdf', is_flag=True, default=True)
+@click.option('--test', 'test_opt', is_flag=True, default=True)
 @with_context
-def build_command(book, output, include_epub=True, include_html=True, include_pdf=True):
+def build_command(book, output, test_opt, **kwargs): #, include_epub=True, include_html=True, include_pdf=True):
+    """
+    """
+    #: The enabled/disabled renderers for this run of the build command are
+    #: stored on the state object (ScriptInfo) for easier access, so this
+    #: command grabs it early. We could, theoretically, pull these same values
+    #: from the ``kwargs`` dictionary, but its not as nicely organized. [SWQ]
+    ctx = click.get_current_context()
+    state = ctx.ensure_object(ScriptInfo)
+
     if book is None:
         book = os.getcwd()
     
@@ -36,19 +64,11 @@ def build_command(book, output, include_epub=True, include_html=True, include_pd
     if not os.path.isdir(book_abspath):
         raise FileNotFoundError(f'Unable to find directory: {book_abspath}, does the directory exist?')
 
-    print(current_app.config)
-    print()
-
     build_only = []
-    if include_epub:
-        build_only.append('epub')
+    for renderer, enabled in state.build_renderers.items():
+        if enabled:
+            build_only = build_only + [renderer]
     
-    if include_html:
-        build_only.append('html')
-
-    if include_pdf:
-        build_only.append('pdf')
-
     current_app.load_books(source_path=book_abspath)
     current_app.build(
         build_only=tuple(build_only),

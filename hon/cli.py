@@ -248,6 +248,7 @@ class ScriptInfo(object):
         self.set_debug_flag = set_debug_flag
         self._loaded_app = None
         self.honrc_filepath = None
+        self.build_renderers = {}
 
     def load_app(self):
         """Loads the hon app (if not yet loaded) and returns it.
