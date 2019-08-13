@@ -16,12 +16,14 @@
     default to ./book.
 """
 import click
+import logging
 import os
 from functools import update_wrapper
 
 from hon import current_app
 from ..cli import with_context, ScriptInfo
 
+logging.disable()
 
 class BuildCommand(click.Command):
     """Custom Click Command for the build command.
@@ -45,7 +47,11 @@ class BuildCommand(click.Command):
         return rv
 
 
-@click.command('build', short_help='Builds a book from its markdown files', cls=BuildCommand)
+@click.command('build', help="""
+Builds a book.
+
+The book is built using one or more of the configured renderers.
+""", short_help='Builds a book from its markdown files', cls=BuildCommand)
 @click.argument('book', default=None, required=False)
 @click.argument('output', default=None, required=False)
 @with_context
@@ -56,6 +62,7 @@ def build_command(book, output, **kwargs): #, include_epub=True, include_html=Tr
     #: stored on the state object (ScriptInfo) for easier access, so this
     #: command grabs it early. We could, theoretically, pull these same values
     #: from the ``kwargs`` dictionary, but its not as nicely organized. [SWQ]
+    logging.disable(logging.NOTSET)
     ctx = click.get_current_context()
     state = ctx.ensure_object(ScriptInfo)
 
