@@ -160,6 +160,7 @@ class Hon():
 
         self._root = root
         self._loaded_plugins = False
+        self._loaded_renderers = False
         self.honrc_filepath = honrc_filepath
 
         #: Assign default values to the configuration. The default values do
@@ -270,7 +271,20 @@ class Hon():
         pass
     
     def _load_plugin_renderers(self):
-        pass
+        self.logger.debug('Loading plugin renderers...')
+        if self._loaded_renderers:
+            return
+        
+        try:
+            import pkg_resources
+        except ImportError:
+            self._loaded_renderers = True
+            return
+
+        _plugin_renderer_entry_points = pkg_resources.iter_entry_points('hon.renderers')
+        for entry_point in _plugin_renderer_entry_points:
+            self.register_renderer(entry_point.load())
+        self._loaded_renderers = True
 
     def app_context(self):
         """Create an :class:`~hon.ctx.AppContext`.

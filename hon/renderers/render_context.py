@@ -102,11 +102,11 @@ class RenderContext():
         #: Complete initialization and mark context as initialized.
         self._initialized = True
 
-    def configure_environment(self, template_path):
+    def configure_environment(self, template_path, pkg='hon'):
         """
         """
         self._environment = Environment(
-            loader=PackageLoader('hon', template_path),
+            loader=PackageLoader(pkg, template_path),
             autoescape=select_autoescape(['html', 'xml'])
         )
         self.load_filters()
