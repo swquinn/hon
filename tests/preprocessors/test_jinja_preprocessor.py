@@ -7,7 +7,7 @@ from hon.preprocessors.jinja import ChapterLoader
 @pytest.fixture
 def mock_isfile(mocker):
     _context = hon.preprocessors.jinja.__name__
-    _mock = mocker.patch(f'{_context}.os.path.isfile')
+    _mock = mocker.patch('{_context}.os.path.isfile'.format(_context=_context))
     return _mock
 
 

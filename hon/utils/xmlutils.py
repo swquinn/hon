@@ -4,22 +4,25 @@ logger = logging.getLogger('hon.utils')
 
 
 def find_first_element_by_tag(element, tag_name, skip=[]):
-    logger.debug(f'Looking for first element in: {element} that matches the tag: {tag_name}')
+    logger.debug(('Looking for first element in: {element} that matches the '
+        'tag: {tag_name}').format(element=element, tag_name=tag_name))
     if element.tag == str(tag_name).lower():
-        logger.debug(f'Successfully matched tag: {tag_name} to element: {element}')
+        logger.debug('Successfully matched tag: {tag_name} to element: {element}'.format(tag_name=tag_name, element=element))
         return element
 
     if len(element) > 0:
         for e in list(element):
             if skip and e.tag in skip:
-                logger.debug(f'The tag {e.tag} was found in the list of tags not to be traversed. Skipping {e}')
+                logger.debug(('The tag {tag} was found in the list of tags '
+                    'not to be traversed. Skipping {e}').format(tag=e.tag, e=e))
                 continue
             return find_first_element_by_tag(e, tag_name, skip=skip)
     return None
 
 
 def find_elements_by_tag(element, tag_names=None, max_depth=0, current_depth=0):
-    logger.debug(f'Looking for any elements matching: {tag_names} starting at: {element}')
+    logger.debug(('Looking for any elements matching: {tag_names} starting '
+        'at: {element}').format(tag_names=tag_names, element=element))
     found = []
 
     #: If the element is empty, we can't match anything and therefore we should

@@ -61,7 +61,8 @@ def serve_command(book, output, port, watch):
     #: process, but also when creating the file system observer.
     book_abspath = os.path.abspath(book)
     if not os.path.isdir(book_abspath):
-        raise FileNotFoundError(f'Unable to find directory: {book_abspath}, does the directory exist?')
+        raise FileNotFoundError(('Unable to find directory: {book_abspath}, '
+            'does the directory exist?').format(book_abspath=book_abspath))
 
     build_book(book_abspath)
 

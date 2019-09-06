@@ -100,7 +100,7 @@ class SummaryParser():
         return sections
 
     def parse_parts(self, parent, level=0):
-        self.app.logger.debug(f'(LEVEL {level}) Parsing parts for: {parent}')
+        self.app.logger.debug('(LEVEL {level}) Parsing parts for: {parent}'.format(level=level, parent=parent))
         parts = []
 
         for e in list(parent):
@@ -110,7 +110,8 @@ class SummaryParser():
             elif e.tag == 'li':
                 part = self.parse_part(e, level=level)
                 if part:
-                    self.app.logger.debug(f'(LEVEL {level}) Adding part link: {part}')
+                    self.app.logger.debug(('(LEVEL {level}) Adding part link: '
+                        '{part}').format(level=level, part=part))
                     parts.append(part)
             else:
                 if len(parts) < 1:
@@ -120,12 +121,14 @@ class SummaryParser():
         return parts
 
     def parse_part(self, list_item, level=0):
-        self.app.logger.debug(f'(LEVEL {level}) Parsing part from : {list_item}')
+        self.app.logger.debug('(LEVEL {level}) Parsing part from : {list_item}'.format(level=level, list_item=list_item))
 
         part = None
         link_element = xmlutils.find_first_element_by_tag(list_item, 'a', skip=['ul', 'ol'])
         if link_element is not None:
-            self.app.logger.debug(f'(LEVEL {level}) Found chapter link: {link_element} for: {link_element.text}')
+            self.app.logger.debug(('(LEVEL {level}) Found chapter link: '
+                '{link_element} for: {link_element_text}').format(level=level,
+                link_element=link_element, link_element_text=link_element.text))
             part = self.create_part(link_element, level=level)
 
         if part:

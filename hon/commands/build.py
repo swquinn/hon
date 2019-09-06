@@ -72,7 +72,8 @@ def build_command(book, output, **kwargs):
 
     book_abspath = os.path.abspath(book)
     if not os.path.isdir(book_abspath):
-        raise FileNotFoundError(f'Unable to find directory: {book_abspath}, does the directory exist?')
+        raise FileNotFoundError(('Unable to find directory: {book_abspath}, '
+            'does the directory exist?').format(book_abspath=book_abspath))
 
     build_only = []
     for renderer, enabled in state.build_renderers.items():
