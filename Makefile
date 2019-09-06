@@ -7,6 +7,12 @@ init:
 	python3 -m pip install --user --upgrade pip pipenv
 	python3 -m pipenv install --dev
 
+.PHONY: init.poetry
+init.poetry:
+	@echo "> Upgrading pip and poetry..."
+	python3 -m pip install --user --upgrade pip poetry
+	python3 -m poetry install
+
 
 .PHONY: clean.pyc
 clean.pyc:

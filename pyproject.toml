@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "hon"
+version = "0.1.0-dev"
+description = "A tool for creating books from markdown files."
+authors = ["Sean Quinn"]
+
+[tool.poetry.dependencies]
+blinker = "*"
+click = ">=7.0"
+epubcheck = ">=0.4.2"
+flask = "*"
+jinja2 = {editable = true,git = "https://github.com/pallets/jinja.git",ref = "master"}
+markdown = ">=3.1"
+mistune = ">=0.8.4"
+pydash = ">=4.7.5"
+pyyaml = ">=5.1"
+six = ">=1.12"
+watchdog = "*"
+weasyprint = "*"
+
+[tool.poetry.dev-dependencies]
+black = { version = "*", markers = "python_version>='3.6'", allows-prereleases = true }
+coverage = "*"
+pytest = ">=4.0"
+pytest-cov = "*"
+pytest-mock = "*"
+tox = "*"
