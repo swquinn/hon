@@ -1,10 +1,12 @@
+export PATH:=~/.local/bin:${PATH}
+
 ### <summary>
 ### Initializes the development/testing environment.
 ### </summary>
 .PHONY: init
 init:
 	python -m pip install --user --upgrade pip pipenv
-	python -m pipenv install --dev
+	pipenv install --dev
 
 
 .PHONY: clean.pyc
@@ -35,7 +37,7 @@ install.user:
 ### </summary>
 .PHONY: test
 test: clean.pyc
-	python -m pipenv run tox
+	pipenv run tox
 
 
 .PHONY:uninstall.dev
