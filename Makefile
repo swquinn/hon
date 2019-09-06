@@ -3,7 +3,7 @@
 ### </summary>
 .PHONY: init
 init:
-	python -m pip install --user --upgrade pipenv
+	python -m pip install --user --upgrade pip pipenv
 	pipenv install --dev
 
 
