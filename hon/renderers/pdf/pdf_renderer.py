@@ -19,6 +19,7 @@ from ..renderer import Renderer
 PAGE_BREAK = 'page break'
 PAGE_BREAK = 'page break'
 
+
 class PdfRenderer(Renderer):
     """Renders a book to a PDF file.
 
@@ -110,10 +111,10 @@ class PdfRenderer(Renderer):
         data.update(context.data)
 
         output = pdf_template.stream(data).dump(write_html_to)
-        
+
         document = HTML(filename=write_html_to).render()
         document.write_pdf(write_pdf_to)
-    
+
     def on_init(self, book, context):
         """
 

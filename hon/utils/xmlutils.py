@@ -2,6 +2,7 @@ import logging
 
 logger = logging.getLogger('hon.utils')
 
+
 def find_first_element_by_tag(element, tag_name, skip=[]):
     logger.debug(f'Looking for first element in: {element} that matches the tag: {tag_name}')
     if element.tag == str(tag_name).lower():
@@ -42,7 +43,7 @@ def find_elements_by_tag(element, tag_names=None, max_depth=0, current_depth=0):
                 if len(e) > 0:
                     found_subelements = find_elements_by_tag(e,
                         tag_names=tag_names, max_depth=max_depth,
-                        current_depth=current_depth+1)
+                        current_depth=current_depth + 1)
                     found.extend(found_subelements)
                 elif all_tags or e.tag in tag_names:
                     found.append(e)

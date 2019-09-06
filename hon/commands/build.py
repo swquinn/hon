@@ -25,6 +25,7 @@ from ..cli import with_context, ScriptInfo
 
 logging.disable()
 
+
 class BuildCommand(click.Command):
     """Custom Click Command for the build command.
 
@@ -55,7 +56,7 @@ The book is built using one or more of the configured renderers.
 @click.argument('book', default=None, required=False)
 @click.argument('output', default=None, required=False)
 @with_context
-def build_command(book, output, **kwargs): #, include_epub=True, include_html=True, include_pdf=True):
+def build_command(book, output, **kwargs):
     """
     """
     #: The enabled/disabled renderers for this run of the build command are
@@ -68,7 +69,7 @@ def build_command(book, output, **kwargs): #, include_epub=True, include_html=Tr
 
     if book is None:
         book = os.getcwd()
-    
+
     book_abspath = os.path.abspath(book)
     if not os.path.isdir(book_abspath):
         raise FileNotFoundError(f'Unable to find directory: {book_abspath}, does the directory exist?')
@@ -77,7 +78,7 @@ def build_command(book, output, **kwargs): #, include_epub=True, include_html=Tr
     for renderer, enabled in state.build_renderers.items():
         if enabled:
             build_only = build_only + [renderer]
-    
+
     current_app.load_books(source_path=book_abspath)
     current_app.build(
         build_only=tuple(build_only),

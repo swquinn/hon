@@ -18,12 +18,12 @@ def stringify_events(element):
 
 class SummaryParser():
     """A recursive descent (-ish) parser for a `SUMMARY.md`.
-   
-   
+
+
     # Grammar
-   
+
     The `SUMMARY.md` file has a grammar which looks something like this:
-   
+
     ```text
     summary           ::= title prefix_chapters numbered_chapters suffix_chapters
     title             ::= "# " TEXT
@@ -39,7 +39,7 @@ class SummaryParser():
     DOT_POINT         ::= "-"
                         | "*"
     ```
-   
+
     > **Note:** the `TEXT` terminal is "normal" text, and should (roughly)
     > match the following regex: "[^<>\n[]]+".
     """
@@ -98,7 +98,7 @@ class SummaryParser():
                 parts = self.parse_parts(e)
                 sections[-1].add_parts(parts)
         return sections
-    
+
     def parse_parts(self, parent, level=0):
         self.app.logger.debug(f'(LEVEL {level}) Parsing parts for: {parent}')
         parts = []
@@ -115,7 +115,7 @@ class SummaryParser():
             else:
                 if len(parts) < 1:
                     raise IndexError('Encountered nested list before any parts were parsed')
-                bunch_of_parts = self.parse_parts(e, level=level+1 if level else None)
+                bunch_of_parts = self.parse_parts(e, level=level + 1 if level else None)
                 parts[-1].extend(bunch_of_parts)
         return parts
 
@@ -133,7 +133,7 @@ class SummaryParser():
             subparts = xmlutils.find_elements_by_tag(list_item, tag_names=('ul', 'ol'), max_depth=1)
             for e in list(subparts):
                 if e.tag in ('ul', 'ol'):
-                    children = self.parse_parts(e, level=level+1)
+                    children = self.parse_parts(e, level=level + 1)
             part.children = children
         return part
 
@@ -165,7 +165,7 @@ class SectionNumber():
             for item in self.vector:
                 s += '{}.'.format(item)
             return s
-    
+
     # impl Deref for SectionNumber {
     #     type Target = Vec<u32>;
     #     fn deref(&self) -> &Self::Target {

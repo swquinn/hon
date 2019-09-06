@@ -26,7 +26,7 @@ def lookup_structure_file(book, structure_type):
 
     Structure types and their corresponding filenames, e.g. ``summary`` and
     ``SUMMARY.md``, have the following default values:
-    
+
     These structure files can be renamed by adding a ``structure:`` setting in
     the project's ``.honrc`` configuration file, e.g.
 

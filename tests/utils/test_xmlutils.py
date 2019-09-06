@@ -108,47 +108,47 @@ def test_find_first_element_by_tag_while_ignoring_some_element_traversals(list_e
 
 
 def test_find_elements_by_tag_should_match_any_element_when_tag_names_is_none(
-    list_element_with_embedded_list):
-  element = list_element_with_embedded_list
+        list_element_with_embedded_list):
+    element = list_element_with_embedded_list
 
-  actual = find_elements_by_tag(element, tag_names=None)
-  assert len(actual) == 1
-  assert actual == [element]
+    actual = find_elements_by_tag(element, tag_names=None)
+    assert len(actual) == 1
+    assert actual == [element]
 
 
 def test_find_elements_by_tag_should_match_any_element_when_tag_names_is_wildcard(
-    list_element_with_embedded_list):
-  element = list_element_with_embedded_list
+        list_element_with_embedded_list):
+    element = list_element_with_embedded_list
 
-  actual = find_elements_by_tag(element, tag_names='*')
-  assert len(actual) == 1
-  assert actual == [element]
+    actual = find_elements_by_tag(element, tag_names='*')
+    assert len(actual) == 1
+    assert actual == [element]
 
 
 def test_find_elements_by_tag_should_only_return_first_element_when_max_depth_is_0(
-    list_element_with_embedded_list):
-  element = list_element_with_embedded_list
+        list_element_with_embedded_list):
+    element = list_element_with_embedded_list
 
-  actual = find_elements_by_tag(element, tag_names=['ul'], max_depth=0)
-  assert len(actual) == 1
-  assert actual == [element]
+    actual = find_elements_by_tag(element, tag_names=['ul'], max_depth=0)
+    assert len(actual) == 1
+    assert actual == [element]
 
 
 def test_find_elements_by_tag_should_only_return_matching_elements_until_max_depth_is_reached(
-    list_element_with_embedded_list):
-  element = list_element_with_embedded_list
+        list_element_with_embedded_list):
+    element = list_element_with_embedded_list
 
-  actual = find_elements_by_tag(element, tag_names=['li'], max_depth=1)
-  expected = [element[0], element[1], element[2]]
-  assert len(actual) == len(expected)
-  assert set(actual) == set(expected)
+    actual = find_elements_by_tag(element, tag_names=['li'], max_depth=1)
+    expected = [element[0], element[1], element[2]]
+    assert len(actual) == len(expected)
+    assert set(actual) == set(expected)
 
 
 def test_find_elements_by_tag_should_only_return_matching_elements_until_all_children_are_exhausted(
-    list_element_with_embedded_list):
-  element = list_element_with_embedded_list
+        list_element_with_embedded_list):
+    element = list_element_with_embedded_list
 
-  actual = find_elements_by_tag(element, tag_names=['li'], max_depth=10)
-  expected = [element[0], element[1], element[2], element[0][0][0], element[2][1][0]]
-  assert len(actual) == len(expected)
-  assert set(actual) == set(expected)
+    actual = find_elements_by_tag(element, tag_names=['li'], max_depth=10)
+    expected = [element[0], element[1], element[2], element[0][0][0], element[2][1][0]]
+    assert len(actual) == len(expected)
+    assert set(actual) == set(expected)

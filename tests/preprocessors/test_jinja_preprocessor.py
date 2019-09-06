@@ -3,6 +3,7 @@ import pytest
 import hon.preprocessors.jinja
 from hon.preprocessors.jinja import ChapterLoader
 
+
 @pytest.fixture
 def mock_isfile(mocker):
     _context = hon.preprocessors.jinja.__name__

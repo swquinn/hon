@@ -55,7 +55,7 @@ def create_flask_app(serve_from=None):
 def serve_command(book, output, port, watch):
     if book is None:
         book = os.getcwd()
-    
+
     #: Resolve the book's absolute path, which will be used when actually
     #: building the book. The absolute path is passed into the initial build
     #: process, but also when creating the file system observer.

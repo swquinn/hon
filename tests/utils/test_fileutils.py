@@ -5,6 +5,7 @@ from hon.utils.fileutils import (
     copy_from
 )
 
+
 @pytest.mark.parametrize('subject, pattern, expected', [
     ('foo', 'foo', True),
     ('foo', ['foo'], True),

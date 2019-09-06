@@ -255,8 +255,6 @@ class ScriptInfo(object):
         Calling this multiple times will just result in the already loaded app
         to be returned.
         """
-        __traceback_hide__ = True
-
         if self._loaded_app is not None:
             return self._loaded_app
 

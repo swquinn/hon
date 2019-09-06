@@ -35,14 +35,14 @@ class HtmlRenderer(Renderer):
 
         #: Should mathjax be enabled?
         #'mathjax_support': bool,
-    
+
         #: An optional google analytics code.
         'google_analytics': None,
-        
+
         #: Additional CSS stylesheets to include in the rendered page's
         #: `<head>`.
         'additional_css': [],
-    
+
         #: Additional JS scripts to include at the bottom of the rendered page's
         #: `<body>`.
         'additional_js': [],
@@ -51,7 +51,7 @@ class HtmlRenderer(Renderer):
     @property
     def livereload_url(self):
         return None
-    
+
     def __init__(self, app, config=None):
         styles = config.get('styles', [])
         if styles:
@@ -70,7 +70,7 @@ class HtmlRenderer(Renderer):
 
     def on_generate_assets(self, book, context):
         import hon.renderers.html.assets
-        assets_dir = os.path.dirname(hon.renderers.html.assets.__file__) 
+        assets_dir = os.path.dirname(hon.renderers.html.assets.__file__)
         assets_js_dir = os.path.join(assets_dir, 'js')
         copy_from(assets_js_dir, context.path, exclude=('**/__init__.py',))
 
@@ -113,7 +113,7 @@ class HtmlRenderer(Renderer):
         """
         context.configure_environment('theme/light/website/templates')
         return context
-    
+
     def on_render_page(self, page, book, context):
         #: TODO more intelligible error handling, we don't even know for which item that we're rendering that the error occurred!
         raw_text = str(page.raw_text)

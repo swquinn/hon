@@ -44,7 +44,7 @@ def test_section_number_has_correct_dotted_representation(inputs, expected):
 ])
 def test_parse_initial_title(app, source, expected):
     parser = SummaryParser(app, source)
-    actual = parser.parse_title() #.unwrap()
+    actual = parser.parse_title()
 
     assert actual == expected
 

@@ -136,7 +136,7 @@ class EpubRenderer(EbookRenderer):
 
     def on_generate_assets(self, book, context):
         import hon.renderers.ebook.epub_assets
-        assets_path = os.path.dirname(hon.renderers.ebook.epub_assets.__file__) 
+        assets_path = os.path.dirname(hon.renderers.ebook.epub_assets.__file__)
         copy_from(assets_path, context.path, exclude=IGNORED_FILES)
 
         import hon.theme.light.epub
@@ -156,7 +156,7 @@ class EpubRenderer(EbookRenderer):
         self.generate_chapters(book, context)
         self.generate_toc(book, context)
         self.generate_manifest(book, context)
-    
+
     def on_init(self, book, context):
         """
 
@@ -164,7 +164,7 @@ class EpubRenderer(EbookRenderer):
         :type context: hon.renderers.RenderingContext
         """
         context.configure_environment('theme/light/epub/templates')
-        
+
         def foo(parts, context):
             structure = []
             for part in parts:
@@ -181,7 +181,7 @@ class EpubRenderer(EbookRenderer):
                 if len(part.children) > 0:
                     structure.extend(foo(part.children, context))
             return structure
-                
+
         # resolve all of the parts that we're working with,
         structure = foo(book.summary.all_parts, context)
         context.data['epub_chapters'] = structure

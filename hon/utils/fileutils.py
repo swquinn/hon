@@ -18,7 +18,7 @@ def filename_matches_pattern(filepath, pattern):
         if fnmatch(filepath, p):
             return True
     return False
-    
+
 
 def is_current_directory(path):
     """
@@ -43,8 +43,8 @@ def copy_from(source, destination, make_dirs=True, include='*', exclude=None):
 
     If both inclusion and exclusion patterns are supplied, the inclusion pattern
     is evaluated first. The exclusion pattern is then applied to the already
-    filtered list of 
-    
+    filtered list of
+
     """
 
     #: If the source is actually a file, rather than a directory, short-circuit

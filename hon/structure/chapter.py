@@ -134,7 +134,7 @@ class ChapterGraph(object):
         return self._tail
 
     def __init__(self, chapters=None):
-        #: Used for tracking iteration state. This is reset to the head 
+        #: Used for tracking iteration state. This is reset to the head
         self._current = None
         self._head = None
         self._tail = None

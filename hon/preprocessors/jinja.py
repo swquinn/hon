@@ -28,7 +28,7 @@ def resolve_template_filepath(paths, template_reference):
         if os.path.exists(filepath):
             return filepath
     return None
-        
+
 
 class ChapterLoader(BaseLoader):
     """Loads templates from the filesystem in relation to the location of a
@@ -59,7 +59,7 @@ class ChapterLoader(BaseLoader):
 
     >>> loader = FileSystemLoader('/path/to/templates', followlinks=True)
     """
-        
+
     def __init__(self, chapter_path, encoding='utf-8', followlinks=False):
         #: If we've been given only a single chapter path (as a string), and
         #: that path points to a file (rather than a directory) we want to

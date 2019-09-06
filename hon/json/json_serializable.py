@@ -3,6 +3,7 @@
     ~~~~~
 """
 
+
 class JsonSerializable():
     def to_json(self):
         raise NotImplementedError()

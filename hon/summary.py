@@ -86,10 +86,10 @@ def parse_summary(book):
         with open(summary_file) as f:
             summary_content = f.read()
             if not summary_content:
-              summary = Summary()
+                summary = Summary()
             else:
-              parser = SummaryParser(app, summary_content, book=book)
-              summary = parser.parse()
+                parser = SummaryParser(app, summary_content, book=book)
+                summary = parser.parse()
 
     # Insert README as first entry if not in SUMMARY.md
     # var readmeArticle = summary.getByPath(readmeFile.getPath());

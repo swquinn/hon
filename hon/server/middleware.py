@@ -2,7 +2,7 @@
     hon.server.middleware
     ~~~~~
 """
-from watchdog.events import FileSystemEventHandler 
+from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 
@@ -72,7 +72,7 @@ class FlaskHon(_FlaskHonStateMixin):
             raise ValueError('FlaskHon requires an instance of the Hon '
                 'application. Please ensure that the ``hon_app`` keyword '
                 'argument was specified and set to the Hon application.')
-        
+
         if not book_path:
             raise ValueError('FlaskHon requires a path to a book\'s source '
                 'files. Please ensure that the ``book_path`` keyword argument '
@@ -114,7 +114,7 @@ class FlaskHon(_FlaskHonStateMixin):
             self.init_watch(app)
 
         app.extensions['hon'] = _FlaskHonState(self)
-    
+
     def init_watch(self, app):
         """Initializes Flask-Hon's file system watch mode.
 
