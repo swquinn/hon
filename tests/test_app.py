@@ -3,7 +3,6 @@ import pytest
 from hon.app import (
     get_default_preprocessors, get_default_renderers, Hon
 )
-from hon.config import _read_yaml_config
 from hon.preprocessors import Preprocessor
 from hon.renderers import Renderer
 
@@ -13,6 +12,7 @@ from hon.renderers import Renderer
 #: Alternatively:
 #:   from hon.app import __name__ as module_prefix
 module_prefix = 'hon.app'
+
 
 @pytest.fixture
 def mock__read_yaml_config(mocker):
@@ -68,7 +68,7 @@ def test_get_default_preprocessors():
 
 def test_get_default_renderers():
     renderers = get_default_renderers()
-    
+
     actual = [r.get_name() for r in renderers]
     expected = ['html', 'pdf', 'epub']
     assert set(actual) == set(expected)
@@ -81,7 +81,7 @@ def test_configured_initialized_instance(mocker, mock__read_yaml_config):
     actual = app.config
     assert actual['title'] == 'Test'
     assert actual['output.html']['theme'] == './themes/monty_python.css'
-    assert actual['preprocessor.variables']['enabled'] == False
+    assert actual['preprocessor.variables']['enabled'] is False
     mock__read_yaml_config.assert_called_once_with(mocker.ANY)
 
 

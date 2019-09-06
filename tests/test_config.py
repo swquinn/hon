@@ -2,7 +2,7 @@ import os.path
 import yaml
 import pytest
 from hon.config import (
-    _read_yaml_config, _make_config_from_yaml, BookConfig,
+    _read_yaml_config, _make_config_from_yaml,
 )
 
 

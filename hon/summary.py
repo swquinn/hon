@@ -11,7 +11,7 @@ from hon.utils import xmlutils
 
 def parse_summary(book):
     """Parse the text to create a ``Summary`` object.
-    
+
     The ``text``, read from a ``SUMMARY.md`` file, is parsed into a ``Summary``
     object, which acts as a sort of "recipe" to be used when loading a book's
     contents from disk. It represents the structure of the book, in-so-far as
@@ -27,7 +27,7 @@ def parse_summary(book):
       if you feel like it.
     - **Prefix Chapters:** Before the main numbered chapters you can add one or
       more chapter elements that will not be numbered.
-      
+
       This is useful for forewords, introductions, etc. There are however some
       constraints: (1) You can not nest prefix chapters, they should all be on
       the root level, and (2) you can not add prefix chapters once you have
@@ -90,7 +90,7 @@ def parse_summary(book):
             else:
               parser = SummaryParser(app, summary_content, book=book)
               summary = parser.parse()
-    
+
     # Insert README as first entry if not in SUMMARY.md
     # var readmeArticle = summary.getByPath(readmeFile.getPath());
 

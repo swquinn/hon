@@ -193,7 +193,7 @@ class Hon():
 
         #: Instantiate the logger before anything else calls the logger property.
         create_logger(self)
-    
+
     def init_app(self):
         """Initializes the ``hon`` application.
 
@@ -219,7 +219,7 @@ class Hon():
             if config_filepath is None:
                 config_filepath = os.path.abspath(os.path.join(self.root, '.honrc'))
                 self.honrc_filepath = config_filepath
-            
+
             self.logger.debug('Reading configuration file: {}'.format(config_filepath))
             config_dict = _read_yaml_config(config_filepath)
             self.config.update(config_dict.get('config', {}))
@@ -230,7 +230,7 @@ class Hon():
         except:
             self.logger.warning('No .honrc file found, falling back to defaults.')
         return self.config
-    
+
     def _load_preprocessors(self):
         """Loads the available preprocessors.
         """
@@ -250,7 +250,7 @@ class Hon():
         for r in renderers:
             self.register_renderer(r)
         self._load_plugin_renderers()
-    
+
     def _load_plugins(self):
         """
         """
@@ -270,12 +270,12 @@ class Hon():
 
     def _load_plugin_preprocessors(self):
         pass
-    
+
     def _load_plugin_renderers(self):
         self.logger.debug('Loading plugin renderers...')
         if self._loaded_renderers:
             return
-        
+
         try:
             import pkg_resources
         except ImportError:
@@ -289,7 +289,7 @@ class Hon():
 
     def app_context(self):
         """Create an :class:`~hon.ctx.AppContext`.
-        
+
         Use as a ``with`` block to push the context, which will make
         :data:`current_app` point at this application.
 
@@ -332,7 +332,7 @@ class Hon():
                 if build_only and renderer.name in build_only:
                     renderer.render(book)
             after_build.send(book)
-        
+
         elapsed_time = datetime.now() - start_time
         self.logger.info('Finished rendering all books in {}s!'.format(elapsed_time))
 
@@ -355,7 +355,7 @@ class Hon():
 
     def find_books(self, directory):
         """Find one or more books at or under a given directory.
-        
+
         Books cannot be embedded within one another, so the first time a book is
         found at a certain path, any additional book configurations below that path
         will be ignored.
@@ -435,7 +435,7 @@ class Hon():
 
         if key in self.config:
             plugin_config.update(self.config[key])
-        
+
         self.config[key] = plugin_config
 
         obj = plugin(app=self, config=plugin_config)
@@ -453,7 +453,7 @@ class Hon():
         obj = preprocessor(app=self, config=preprocessor_config)
         self.preprocessors.append(obj)
         return obj
-    
+
     def register_renderer(self, renderer):
         key = renderer.get_name()
         renderer_config = dict(renderer.default_config)
@@ -472,7 +472,7 @@ class Hon():
     @setupmethod
     def teardown_appcontext(self, f):
         """Registers a function to be called when the application context ends.
-        
+
         These functions are typically also called when the request context is
         popped.
 

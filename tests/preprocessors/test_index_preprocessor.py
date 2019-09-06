@@ -3,20 +3,20 @@ from hon.preprocessors.index import is_readme
 
 
 def test_is_readme_succeeds_for_readme_file_name_variations():
-    assert is_readme('README.md') == True
-    assert is_readme('readme.md') == True
-    assert is_readme('ReadMe.md') == True
+    assert is_readme('README.md') is True
+    assert is_readme('readme.md') is True
+    assert is_readme('ReadMe.md') is True
 
     #: Test alternative extensions, these should all return true as well, since
     #: we're not checking the extension, only the file name.
-    assert is_readme('README.rst') == True
-    assert is_readme('README') == True
+    assert is_readme('README.rst') is True
+    assert is_readme('README') is True
 
 
 def test_is_readme_returns_false_for_non_readme_file_names():
-    assert is_readme('REDME.md') == False
-    assert is_readme('RADME.md') == False
-    assert is_readme('READEM.md') == False
+    assert is_readme('REDME.md') is False
+    assert is_readme('RADME.md') is False
+    assert is_readme('READEM.md') is False
 
 # #[cfg(test)]
 # mod tests {

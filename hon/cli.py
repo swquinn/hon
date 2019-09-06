@@ -109,7 +109,7 @@ def with_context(f):
 
 class AppGroup(click.Group):
     """Extension of the regular click :class:`~click.Group`.
-    
+
     The AppGroup changes the behavior of the :meth:`command` decorator so that
     it automatically wraps the functions in the :func:`with_context` decorator.
 
@@ -167,7 +167,7 @@ class HonGroup(AppGroup):
         params = list(extra.pop('params', None) or ())
         if add_version_option:
             params.append(version_option())
-        
+
         if add_debug_options:
             params.append(debug_option())
 
@@ -176,7 +176,6 @@ class HonGroup(AppGroup):
 
         #: Initialize the underlying app command group with the params and
         #: anything else in the **extra kwargs.
-        #super(HonGroup, self).__init__(params=params, **extra)
         AppGroup.__init__(self, params=params, **extra)
         self.load_dotenv = load_dotenv
         self.set_debug_flag = set_debug_flag
@@ -236,7 +235,7 @@ class HonGroup(AppGroup):
 #: TODO: This object is what maintains state, sooooo... let's us it!
 class ScriptInfo(object):
     """Helper object to deal with Hon applications.
-    
+
     Used internally for the dispatching commands to click. Typically it's
     created automatically by the :class:`HonGroup` but you can also manually
     create it and pass it onwards as click object.
@@ -252,7 +251,7 @@ class ScriptInfo(object):
 
     def load_app(self):
         """Loads the hon app (if not yet loaded) and returns it.
-        
+
         Calling this multiple times will just result in the already loaded app
         to be returned.
         """

@@ -55,7 +55,7 @@ class RenderContext():
         #: The path that the rendering context writes to.
         self._path = None
 
-        #: The mutable dictionary of data 
+        #: The mutable dictionary of data
         self.data = self._default_data
 
         self.render_path = render_path
@@ -110,7 +110,7 @@ class RenderContext():
             autoescape=select_autoescape(['html', 'xml'])
         )
         self.load_filters()
-    
+
     def load_filters(self):
         from hon.filters import relative_path
         self._environment.filters['relative_path'] = relative_path

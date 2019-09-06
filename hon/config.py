@@ -69,7 +69,7 @@ class BookConfig(dict):
     @property
     def title(self):
         return self.get('title')
-    
+
     @property
     def variables(self):
         return self.preprocessors.get('variables', {})

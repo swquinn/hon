@@ -54,30 +54,30 @@ def test_add_chapter(app, sample_chapter):
 
     assert len(renderer.chapters) == 1
     assert renderer.chapters[0] == sample_chapter
-    assert renderer.chapters[0].previous_chapter == None
-    assert renderer.chapters[0].next_chapter == None
+    assert renderer.chapters[0].previous_chapter is None
+    assert renderer.chapters[0].next_chapter is None
 
     new_chapter = Chapter(name='Chapter 2')
     renderer.add_chapter(new_chapter)
 
     assert len(renderer.chapters) == 2
     assert renderer.chapters[1] == new_chapter
-    assert renderer.chapters[0].previous_chapter == None
+    assert renderer.chapters[0].previous_chapter is None
     assert renderer.chapters[0].next_chapter == new_chapter
     assert renderer.chapters[1].previous_chapter == sample_chapter
-    assert renderer.chapters[1].next_chapter == None
+    assert renderer.chapters[1].next_chapter is None
 
     last_chapter = Chapter(name='Chapter 3')
     renderer.add_chapter(last_chapter)
 
     assert len(renderer.chapters) == 3
     assert renderer.chapters[2] == last_chapter
-    assert renderer.chapters[0].previous_chapter == None
+    assert renderer.chapters[0].previous_chapter is None
     assert renderer.chapters[0].next_chapter == new_chapter
     assert renderer.chapters[1].previous_chapter == sample_chapter
     assert renderer.chapters[1].next_chapter == last_chapter
     assert renderer.chapters[2].previous_chapter == new_chapter
-    assert renderer.chapters[2].next_chapter == None
+    assert renderer.chapters[2].next_chapter is None
 
 
 def test_add_chapters(app, sample_chapter):
@@ -87,12 +87,12 @@ def test_add_chapters(app, sample_chapter):
     renderer.add_chapters(chapters)
 
     assert len(renderer.chapters) == 3
-    assert renderer.chapters[0].previous_chapter == None
+    assert renderer.chapters[0].previous_chapter is None
     assert renderer.chapters[0].next_chapter == chapters[1]
     assert renderer.chapters[1].previous_chapter == chapters[0]
     assert renderer.chapters[1].next_chapter == chapters[2]
     assert renderer.chapters[2].previous_chapter == chapters[1]
-    assert renderer.chapters[2].next_chapter == None
+    assert renderer.chapters[2].next_chapter is None
 
 
 def test_items_property(app, sample_chapter):
@@ -115,6 +115,6 @@ def test_items_property_against_chapters_with_children(app, sample_chapter_with_
 
     actual = renderer.items
     assert len(actual) == 4
-    
+
     chapter_names = [item.name for item in actual if type(item) == Chapter]
     assert chapter_names == ['Chapter 1', 'Hello, World!', 'Goodbye, Cruel World!', 'Chapter 2']

@@ -36,11 +36,11 @@ class Renderer(object):
         self.config = config or dict(self.default_config)
         self.chapters = []
         self.chapter_graph = ChapterGraph()
-    
+
     def add_chapter(self, chapter):
         """Adds a chapter to the renderer."""
         self.chapters.append(chapter)
-    
+
     def add_chapters(self, chapters):
         """Adds all chapters to a book, updating the graph."""
         for chapter in chapters:
@@ -72,7 +72,7 @@ class Renderer(object):
                 'must have a name. E.g. "html", "pdf", etc.').format(
                 cls.__name__))
         return cls._name
-    
+
     def finish(self, book, context):
         self.app.logger.debug('Finishing render...')
         self.on_before_finish(book, context)
@@ -85,12 +85,12 @@ class Renderer(object):
         self.app.logger.debug('Generating assets...')
         self.on_generate_assets(book, context)
 
-        #: 
+        #:
         hon.generate_assets.send(self.app, book=book, renderer=self, context=context)
-    
+
     def generate_pages(self, book, context):
         self.app.logger.debug('Generating pages...')
-        
+
         # TODO: Write the README.md to file
         # TODO: Write the SUMMARY.md to file
         # TODO: Write the GLOSSARY.md to file
@@ -119,18 +119,18 @@ class Renderer(object):
                 self.add_chapter(chapter)
         self.chapter_graph.extend(self.chapters)
         return self.chapters
-    
+
     def load_chapter(self, book, item, parent=None):
         chapter = None
         chapter_path = os.path.abspath(os.path.join(book.path, item.source))
-        
+
         if not os.path.exists(chapter_path):
             raise FileNotFoundError('File: {} not found.'.format(chapter_path))
-                
+
         with open(chapter_path) as f:
             raw = f.read()
             chapter = Chapter(name=item.name, raw_text=raw, path=chapter_path, link=item.link, parent=parent)
-        
+
         if not chapter:
             raise TypeError('Chapter not created')
 
@@ -139,7 +139,7 @@ class Renderer(object):
             for sub_item in item.children:
                 sub_chapter = self.load_chapter(book, sub_item, parent=item)
                 sub_chapters.append(sub_chapter)
-        
+
         if sub_chapters:
             chapter.children = sub_chapters
         return chapter
@@ -149,10 +149,10 @@ class Renderer(object):
 
     def on_finish(self, book, context):
         pass
-    
+
     def on_generate_assets(self, book, context):
         pass
-    
+
     def on_generate_pages(self, book, context):
         pass
 

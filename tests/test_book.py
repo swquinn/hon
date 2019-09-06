@@ -1,7 +1,6 @@
 import pytest
 
 from hon.book import Book
-from hon.structure import Chapter, Separator
 
 
 @pytest.fixture

@@ -28,7 +28,7 @@ class Preprocessor(object):
     @property
     def name(self):
         return self.get_name()
-    
+
     @classmethod
     def get_name(cls):
         if not cls._name:

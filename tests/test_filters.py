@@ -28,4 +28,3 @@ def test_relative_path(philosophy_book, page_path, expected):
     }
     actual = relative_path(context, './path/to/other_page.html')
     assert actual == expected
-    

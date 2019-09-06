@@ -4,7 +4,6 @@ hon
 
 Hon (本) is a tool for creating a book from markdown files.
 """
-import ast
 import io
 import re
 from setuptools import setup

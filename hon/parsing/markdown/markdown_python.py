@@ -21,7 +21,7 @@ class _Markdown(MarkdownPython):
     @property
     def parse_tree(self):
         return self.elements
-    
+
     @property
     def reverse_elements(self):
         """A shallow reverse representation of the Markdown tree."""
@@ -36,7 +36,7 @@ class _Markdown(MarkdownPython):
 
     def convert(self, source):
         """Convert markdown to serialized XHTML or HTML.
-        
+
         This overrides the base Python Markdown ``convert`` function, to save
         off the element tree right before it is serialized to the XHTML or HTML
         output.
@@ -53,7 +53,7 @@ class _Markdown(MarkdownPython):
         4. Some post-processors are run against the text after the ElementTree
            has been serialized into text.
         5. The output is written to a string.
-        
+
         :param source: Source text as a Unicode string.
         """
 

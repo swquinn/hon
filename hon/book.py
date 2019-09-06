@@ -75,17 +75,17 @@ class Book(object):
 
     def parse_structure(self):
         """Parse a the structure files defining a book.
-        
+
         First parse the ``README``, which acts as the book's cover page.
-        
+
         Next, parse the summary.
-        
+
         Finally, parse the book's glossary.
         """
         # parse_readme(self)
         parse_summary(self)
         # parse_glossary(self)
-    
+
     def __repr__(self):
         return ('Book(name={name}, path={path}, author={author}, '
             'language={language}, config={config})').format(

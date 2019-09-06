@@ -8,7 +8,7 @@ from pydash.strings import slugify
 
 class Summary():
     """The parsed ``SUMMARY.md`` indicating the structure of the book.
-    
+
     The ``Summary`` represents the structure of the book, and how the book
     should be laid out. It is the table of contents and the book's navigation.
 
@@ -30,13 +30,13 @@ class Summary():
         self.title = title
         self.readme = readme
         self.sections = sections or []
-    
+
     def add_section(self, section):
         self.sections.append(section)
-    
+
     def add_sections(self, sections):
         self.sections.extend(sections)
-    
+
     def to_json(self):
         sections_json = []
 
@@ -72,10 +72,10 @@ class Section():
 
     def add_part(self, part):
         self.parts.append(part)
-    
+
     def add_parts(self, parts):
         self.parts.extend(parts)
-    
+
     def to_json(self):
         parts_json = []
         for part in self.parts:
@@ -89,7 +89,7 @@ class Part():
     def id(self):
         root, _ = os.path.splitext(self.source)
         return slugify(root)
-    
+
     @property
     def link(self):
         if self.is_readme:
@@ -133,10 +133,10 @@ class Part():
         return ('<Part(name={name}, source={source}, level={level})>'.format(
             name=repr(self.name), source=repr(self.source),
             level=repr(self.level)))
-    
+
     def add_child(self, child):
         self.children.append(child)
-    
+
     def add_children(self, children):
         self.children.extend(children)
 

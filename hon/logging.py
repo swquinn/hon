@@ -15,7 +15,7 @@ logging.basicConfig(handlers=(default_handler, ))
 
 def has_level_handler(logger):
     """Check if there is a handler in the logging.
-    
+
     Returns ``True`` if there is a handler in the logging chain that will handle
     the given logger's :meth:`effective level <~logging.Logger.getEffectiveLevel>`.
     """

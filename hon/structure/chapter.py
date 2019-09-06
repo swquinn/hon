@@ -25,7 +25,7 @@ class Chapter(object):
     def filename(self):
         filename, _ = os.path.splitext(os.path.basename(self.path))
         return filename
-    
+
     @property
     def has_children(self):
         return len(self.children) >= 1
@@ -37,7 +37,7 @@ class Chapter(object):
         if root.lower() == 'readme':
             return True
         return False
-    
+
     @property
     def keywords(self):
         return []
@@ -128,7 +128,7 @@ class ChapterGraph(object):
     @property
     def first(self):
         return self._head
-    
+
     @property
     def last(self):
         return self._tail
@@ -152,7 +152,7 @@ class ChapterGraph(object):
             raise StopIteration
         self._current = node
         return self._current
-    
+
     def append(self, chapter, include_children=True):
         """
         """
@@ -165,7 +165,7 @@ class ChapterGraph(object):
 
             self._tail.next = node
             self._tail = node
-        
+
         if chapter.has_children:
             for child in chapter.children:
                 self.append(child, include_children=include_children)

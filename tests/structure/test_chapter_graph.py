@@ -24,23 +24,23 @@ def chapters():
 def test_instantiate():
     graph = ChapterGraph()
 
-    assert graph.first == None
-    assert graph.last == None
+    assert graph.first is None
+    assert graph.last is None
 
 
 def test_append_chapter():
     graph = ChapterGraph()
-    
+
     chapter = Chapter(name='foo')
     graph.append(chapter)
 
-    assert graph.first.chapter == chapter 
+    assert graph.first.chapter == chapter
     assert graph.last.chapter == chapter
 
 
 def test_append_chapter_with_children():
     graph = ChapterGraph()
-    
+
     chapter = Chapter(name='foo', children=[
         Chapter(name='bar'),
         Chapter(name='baz')
