@@ -1,10 +1,11 @@
-export PATH:=~/.local/bin:${PATH}
+export PATH:=~/.local/bin:$(PATH)
 
 ### <summary>
 ### Initializes the development/testing environment.
 ### </summary>
 .PHONY: init
 init:
+	@echo "PATH is $(PATH)"
 	python -m pip install --user --upgrade pip pipenv
 	pipenv install --dev
 
