@@ -1,5 +1,3 @@
-export PATH:=~/.local/bin:$(PATH)
-
 ### <summary>
 ### Initializes the development/testing environment.
 ### </summary>

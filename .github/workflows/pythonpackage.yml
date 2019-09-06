@@ -19,6 +19,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        PATH=$PATH:~/.local/bin
         make init
     - name: Lint with flake8
       run: |
@@ -29,4 +30,5 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
+        PATH=$PATH:~/.local/bin
         make test
