@@ -4,7 +4,7 @@
 .PHONY: init
 init:
 	python -m pip install --user --upgrade pip pipenv
-	pipenv install --dev
+	python -m pipenv install --dev
 
 
 .PHONY: clean.pyc
@@ -35,7 +35,7 @@ install.user:
 ### </summary>
 .PHONY: test
 test: clean.pyc
-	pipenv run tox
+	python -m pipenv run tox
 
 
 .PHONY:uninstall.dev
