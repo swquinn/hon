@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ca3948553604d5c917e47ec79269e0bb1017786f6a5a1ff5837cc1af13fadf09"
+            "sha256": "6c9b7bd9ed7ac5a05829643378cccc16b2c6c3b1dee26364811837bf78552660"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -91,10 +91,10 @@
         },
         "cssselect2": {
             "hashes": [
-                "sha256:267eebc7378ade2e8be710cd0179606ad9c95ecc673138fccfcfba42c5ce153d",
-                "sha256:505d2ce3d3a1d390ddb52f7d0864b7efeb115a5b852a91861b498b92424503ab"
+                "sha256:07e9c3b1b52d81dd08b177532bbd6b9ced650d87abfd641f4e4ec7de34b98807",
+                "sha256:70485a680cd72b023f0ce5ae4dcd392e2b10f7280e20afdb1735334bd6af7e6a"
             ],
-            "version": "==0.2.1"
+            "version": "==0.2.2"
         },
         "defusedxml": {
             "hashes": [

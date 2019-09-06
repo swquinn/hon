@@ -20,7 +20,9 @@ jobs:
     - name: Install dependencies
       run: |
         PATH=$PATH:~/.local/bin
-        make init
+        python -m pip install --user --upgrade pip pipenv
+        pipenv lock -r > requirements.txt
+        pip install -r requirements.txt
     - name: Lint with flake8
       run: |
         pip install flake8
@@ -30,5 +32,5 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pip install pytest
+        python -m pip install --user --upgrade coverage pytest pytest-cov pytest-mock
         pytest

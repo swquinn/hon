@@ -4,6 +4,7 @@
 .PHONY: init
 init:
 	@echo "PATH is $(PATH)"
+	@echo "> Upgrading pip and pipenv..."
 	python -m pip install --user --upgrade pip pipenv
 	pipenv install --dev
 
