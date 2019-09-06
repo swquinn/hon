@@ -3,10 +3,9 @@
 ### </summary>
 .PHONY: init
 init:
-	@echo "PATH is $(PATH)"
 	@echo "> Upgrading pip and pipenv..."
-	python -m pip install --user --upgrade pip pipenv
-	pipenv install --dev
+	python3 -m pip install --user --upgrade pip pipenv
+	python3 -m pipenv install --dev
 
 
 .PHONY: clean.pyc
@@ -34,16 +33,27 @@ install.user:
 
 
 lint:
-	pip3 install --upgrade flake8
-	flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-	flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+	python3 -m pip install --upgrade flake8
+	# stop the build if there are Python syntax errors or undefined names
+	python3 -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+	# exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+	python3 -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
 
 ### <summary>
-### Run tests.
+### Run tests through pytest.
+### </summary>
+.PHONY: pytest
+pytest: clean.pyc
+	python3 -m pipenv run pytest
+
+
+### <summary>
+### Run tests through tox.
 ### </summary>
 .PHONY: test
-test: clean.pyc
-	pipenv run tox
+tox: clean.pyc
+	python3 -m pipenv run tox
 
 
 .PHONY:uninstall.dev
