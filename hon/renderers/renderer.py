@@ -56,11 +56,10 @@ class Renderer(object):
             state.build_renderers[_name] = value
             return value
 
-        name_flag = '--{_name}'.format(_name=_name)
-        no_name_flag = '--no-{_name}'.format(_name=_name)
+        renderer_flag = '--{_name}/--no-{_name}'.format(_name=_name)
         help_text = 'Enable/Disable rendering using the {_name} renderer'.format(_name=_name)
         return click.Option(
-            [name_flag, no_name_flag],
+            [renderer_flag],
             help=help_text,
             callback=callback,
             is_eager=True,
