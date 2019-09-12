@@ -1,7 +1,7 @@
 import os
 import pytest
 from hon.app import (
-    get_default_preprocessors, get_default_renderers, Hon
+    DEFAULT_OUTPUT_PATH, get_default_preprocessors, get_default_renderers, Hon
 )
 from hon.preprocessors import Preprocessor
 from hon.renderers import Renderer
@@ -12,6 +12,13 @@ from hon.renderers import Renderer
 #: Alternatively:
 #:   from hon.app import __name__ as module_prefix
 module_prefix = 'hon.app'
+
+
+@pytest.fixture
+def mock_getcwd(mocker):
+    _mock = mocker.patch('os.getcwd')
+    _mock.return_value = '/path/to/test'
+    return _mock
 
 
 @pytest.fixture
@@ -72,6 +79,23 @@ def test_get_default_renderers():
     actual = [r.get_name() for r in renderers]
     expected = ['html', 'pdf', 'epub']
     assert set(actual) == set(expected)
+
+
+@pytest.mark.parametrize('root_path, honrc_filepath, expected_honrc', [
+    (None, None, '/path/to/test/.honrc')
+])
+def test__configure(root_path, honrc_filepath, expected_honrc, mock_getcwd, mock__read_yaml_config):
+    app = Hon(root=root_path, honrc_filepath=honrc_filepath)
+    app._configure()
+
+    assert app.honrc_filepath == expected_honrc
+    if root_path is None:
+        assert app.root == '/path/to/test'
+    else:
+        assert app.root == root_path
+    assert app._output_path == DEFAULT_OUTPUT_PATH
+    
+    mock__read_yaml_config.assert_called_once_with(expected_honrc)
 
 
 def test_configured_initialized_instance(mocker, mock__read_yaml_config):
