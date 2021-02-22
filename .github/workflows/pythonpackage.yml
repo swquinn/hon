@@ -11,51 +11,68 @@ jobs:
       matrix:
         #python-version: [3.6, 3.7, 3.8]
         python-version: [3.8]
-        poetry-version: [1.0, 1.1.4]
+        poetry-version: [1.1.4]
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Install packages
-      run: |
-        sudo apt-get install -y build-essential libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
+      - name: Get full Python version
+        id: full-python-version
+        shell: bash
+        run: echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
 
-    - name: Install poetry
-      shell: bash
-      run: |
-        pip install poetry==${{ matrix.poetry-version }}
+      - name: Install packages
+        shell: bash
+        run: |
+          sudo apt-get install -y build-essential libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
 
-    - name: Cache Poetry virtualenv
-      uses: actions/cache@v2
-      id: cache
-      with:
-        path: ~/.virtualenvs
-        key: poetry-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: |
-          poetry-${{ hashFiles('**/poetry.lock') }}
+      - name: Bootstrap poetry
+        shell: bash
+        #run: |
+        #  python -m pip install .
+        run: |
+          python -m ensurepip
+          python -m pip install --upgrade pip
+          python -m pip install poetry==${{ matrix.poetry-version }}
 
-    - name: Set Poetry config
-      run: |
-        poetry config virtualenvs.in-project false
-        poetry config virtualenvs.path ~/.virtualenvs
+      - name: Configure poetry
+        shell: bash
+        #run: |
+        #  poetry config virtualenvs.in-project false
+        #  poetry config virtualenvs.path ~/.virtualenvs
+        run: |
+          python -m poetry config virtualenvs.in-project true
 
-    - name: Install Dependencies
-      shell: bash
-      run: |
-        poetry install
-      if: steps.cache.outputs.cache-hit != 'true'
+      - name: Set up cache
+        uses: actions/cache@v2
+        id: cache
+        with:
+          #path: ~/.virtualenvs  # used with config virtualenvs.in-project false
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
 
-    # - name: Lint with flake8
-    #   run: |
-    #     PATH=$PATH:~/.local/bin
-    #     make lint
+      - name: Ensure cache is healthy
+        if: steps.cache.outputs.cache-hit == 'true'
+        shell: bash
+        run: timeout 20s python -m poetry run pip --version || rm -rf .venv
 
-    # - name: Test with pytest
-    #   run: |
-    #     PATH=$PATH:~/.local/bin
-    #     make pytest
+      - name: Install dependencies
+        shell: bash
+        #if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          python -m poetry install
+
+      # - name: Lint with flake8
+      #   run: |
+      #     python -m poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+	    #     python -m poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      # - name: Test with pytest
+      #   shell: bash
+      #   run: |
+      #     python -m poetry run python -m pytest
