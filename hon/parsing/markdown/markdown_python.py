@@ -3,7 +3,6 @@
     ~~~~~
 """
 from markdown import Markdown as MarkdownPython
-from markdown import util
 from xml.etree.ElementTree import Element, ElementTree
 
 from ..parser import Parser
@@ -62,7 +61,7 @@ class _Markdown(MarkdownPython):
             return ''  # a blank unicode string
 
         try:
-            source = util.text_type(source)
+            source = str(source)
         except UnicodeDecodeError as e:  # pragma: no cover
             # Customise error message while maintaining original trackback
             e.reason += '. -- Note: Markdown only accepts unicode input!'
