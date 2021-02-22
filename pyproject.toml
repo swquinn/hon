@@ -3,25 +3,33 @@ name = "hon"
 version = "0.1.0-dev"
 description = "A tool for creating books from markdown files."
 authors = ["Sean Quinn"]
+packages = [
+    { include = "hon" },
+]
 
 [tool.poetry.dependencies]
-blinker = "*"
-click = ">=7.0"
-epubcheck = ">=0.4.2"
-flask = "*"
-jinja2 = {editable = true,git = "https://github.com/pallets/jinja.git",ref = "master"}
-markdown = ">=3.1"
-mistune = ">=0.8.4"
-pydash = ">=4.7.5"
-pyyaml = ">=5.1"
-six = ">=1.12"
-watchdog = "*"
-weasyprint = "*"
+python = "^3.6 || ^3.7 || ^3.8 "
+blinker = "^1.4"
+click = "^7.1.2"
+epubcheck = "^0.4.2"
+Flask = "^1.1.2"
+Jinja2 = "^2.11.3"
+Markdown = "^3.3.3"
+mistune = "^0.8.4"
+pydash = "^4.9.2"
+PyYAML = "^5.4.1"
+six = "^1.15.0"
+watchdog = "^2.0.1"
+WeasyPrint = "^52.2"
 
 [tool.poetry.dev-dependencies]
-black = { version = "*", markers = "python_version>='3.6'", allows-prereleases = true }
-coverage = "*"
-pytest = ">=4.0"
-pytest-cov = "*"
-pytest-mock = "*"
-tox = "*"
+coverage = "^5.4"
+flake8 = "^3.8.4"
+pytest = "^6.2.2"
+pytest-cov = "^2.11.1"
+pytest-mock = "^3.5.1"
+tox = "^3.22.0"
+
+[tool.poetry.dev-dependencies.black]
+version = "^20.8b1"
+allow-prereleases = true
