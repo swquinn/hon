@@ -1,33 +1,38 @@
 #!/usr/bin/env sh
 set -e
 
+echo "Using Python: $PYTHON_VERSION"
+pyenv global ${PYTHON_VERSION}
+pyenv exec python3 --version
+pyenv exec pip3 --version
 
-### <summary>
-### Run the dependency installation job.
-### <summary>
-echo
-echo
-echo "Install dependencies"
-echo "> Installing and upgrading pip, pipenv..."
-PATH=$PATH:/root/.local/bin
-make init
+# name: Install packages
+echo "Install packages"
+apt-get install -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
 
+# name: Install poetry
+echo "Install poetry ($POETRY_VERSION)"
+pyenv exec pip3 install poetry==$POETRY_VERSION
 
-### <summary>
-### Run the linting job.
-### <summary>
-echo
-echo
+# name: Cache Poetry virtualenv
+echo "Cache Poetry virtualenv"
+
+# name: Set Poetry config
+echo "Set Poetry config"
+pyenv exec poetry config virtualenvs.in-project false
+pyenv exec poetry config virtualenvs.path ~/.virtualenvs
+
+# name: Install Dependencies
+echo "Install Dependencies"
+pyenv exec poetry install
+
+# name: Lint with flake8
 echo "Lint with flake8"
-PATH=$PATH:/root/.local/bin
-make lint
+PATH=$PATH:~/.local/bin
+pyenv exec poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+pyenv exec poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-
-### <summary>
-### Run the test job.
-### <summary>
-echo
-echo
+# name: Test with pytest
 echo "Test with pytest"
-PATH=$PATH:/root/.local/bin
-make pytest
+PATH=$PATH:~/.local/bin
+pyenv exec poetry run pytest

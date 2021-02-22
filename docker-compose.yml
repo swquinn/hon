@@ -6,8 +6,10 @@ services:
     image: hon:python35
     build:
       context: .
-      dockerfile: ./infrastructure/python3.5/Dockerfile
-    entrypoint: /github-build.sh
+      args:
+        - PYTHON_VERSION=3.5.10
+    environment:
+      - PYTHON_VERSION=3.5.10
     volumes:
       - .:/usr/src/hon
 
@@ -16,8 +18,10 @@ services:
     image: hon:python36
     build:
       context: .
-      dockerfile: ./infrastructure/python3.6/Dockerfile
-    entrypoint: /github-build.sh
+      args:
+        - PYTHON_VERSION=3.6.13
+    environment:
+      - PYTHON_VERSION=3.6.13
     volumes:
       - .:/usr/src/hon
 
@@ -26,7 +30,21 @@ services:
     image: hon:python37
     build:
       context: .
-      dockerfile: ./infrastructure/python3.7/Dockerfile
-    entrypoint: /github-build.sh
+      args:
+        - PYTHON_VERSION=3.7.10
+    environment:
+      - PYTHON_VERSION=3.7.10
+    volumes:
+      - .:/usr/src/hon
+
+  #:
+  build-python38:
+    image: hon:python38
+    build:
+      context: .
+      args:
+        - PYTHON_VERSION=3.8.8
+    environment:
+      - PYTHON_VERSION=3.8.8
     volumes:
       - .:/usr/src/hon
