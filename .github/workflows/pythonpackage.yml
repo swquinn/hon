@@ -21,10 +21,14 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Install packages
+      run: |
+        sudo apt-get install -y build-essential libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
+
     - name: Install poetry
+      shell: bash
       run: |
         pip install poetry==${{ matrix.poetry-version }}
-      shell: bash
 
     - name: Cache Poetry virtualenv
       uses: actions/cache@v2
@@ -41,15 +45,17 @@ jobs:
         poetry config virtualenvs.path ~/.virtualenvs
 
     - name: Install Dependencies
-      run: poetry install
+      shell: bash
+      run: |
+        poetry install
       if: steps.cache.outputs.cache-hit != 'true'
 
-    - name: Lint with flake8
-      run: |
-        PATH=$PATH:~/.local/bin
-        make lint
+    # - name: Lint with flake8
+    #   run: |
+    #     PATH=$PATH:~/.local/bin
+    #     make lint
 
-    - name: Test with pytest
-      run: |
-        PATH=$PATH:~/.local/bin
-        make pytest
+    # - name: Test with pytest
+    #   run: |
+    #     PATH=$PATH:~/.local/bin
+    #     make pytest
