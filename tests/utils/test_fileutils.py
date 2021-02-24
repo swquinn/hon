@@ -28,7 +28,3 @@ def test__match(subject, pattern, expected):
 def test_is_current_directory(path, expected):
     actual = is_current_directory(path)
     assert actual == expected
-
-
-def test_copy_from():
-    pytest.fail()
