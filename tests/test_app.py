@@ -134,6 +134,21 @@ def test_default_initialized_instance():
     assert 'epub' in output_conifg
 
 
+@pytest.mark.parametrize('preprocessor_name, expected', [
+    ("unknown_preprocessor", None),
+    ("index", Preprocessor)
+])
+def test_get_preprocessor(preprocessor_name, expected):
+    app = Hon()
+    app.init_app()
+
+    actual = app.get_preprocessor(preprocessor_name)
+    if expected is None:
+        assert actual is expected
+    else:
+        assert isinstance(actual, expected)
+
+
 @pytest.mark.parametrize('preprocessor_config, expected', [
     (
         {},

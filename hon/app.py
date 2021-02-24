@@ -443,6 +443,13 @@ class Hon():
         return obj
 
     def register_preprocessor(self, preprocessor):
+        """Registers a preprocessor.
+
+        Stores the raw preprocessor configuration (as a ``dict``) in the
+        ``preprocessor_config`` under the preprocessors name.
+
+        Stores the instance of the preprocessor in a list.
+        """
         key = preprocessor.get_name()
         preprocessor_config = dict(preprocessor.default_config)
 
