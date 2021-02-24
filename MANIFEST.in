@@ -1,6 +1,5 @@
 include README.md
 include LICENSE
-include hon/renderers/ebook/epub_assets/META-INF/*
-include hon/renderers/ebook/epub_assets/mimetype
-include hon/renderers/html/assets/js/*
-include hon/theme/*
+recursive-include hon/renderers/ebook mimetype *.xml
+recursive-include hon/renderers/html *.js
+recursive-include hon/theme *.jinja *.js *.css
