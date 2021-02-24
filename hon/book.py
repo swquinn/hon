@@ -6,8 +6,8 @@ import os
 import markdown
 
 from collections.abc import Iterable, Iterator
-from hon.structure import Chapter, Part
-from hon.summary import parse_summary
+from .structure import Chapter, Part
+from .summary import parse_summary
 
 
 #: TODO: Add iterable into this, mdBook's iterator was immutable
