@@ -43,12 +43,34 @@ class Chapter(object):
         return []
 
     @property
+    def next(self):
+        if self.node and self.node.next:
+            return self.node.next.chapter
+        return None
+
+    @property
+    def previous(self):
+        if self.node and self.node.previous:
+            return self.node.previous.chapter
+        return None
+
+    @property
     def search(self):
         return True
 
     @property
     def summary(self):
         return ''
+
+    @property
+    def text(self):
+        if self._text is None:
+            return ''
+        return self._text
+
+    @text.setter
+    def text(self, value):
+        self._text = value
 
     @property
     def title(self):
@@ -68,9 +90,11 @@ class Chapter(object):
         self.raw_text = raw_text or ''
 
         #: The processed text.
-        self.text = ''
+        self._text = ''
 
         self.parent = parent
+
+        self.node = None
 
         #: The children of this page.
         self.children = children or []
@@ -110,6 +134,7 @@ class ChapterNode(object):
     def __init__(self, chapter, next_node=None, previous_node=None):
         #: The chapter represented by this node in the graph.
         self.chapter = chapter
+        self.chapter.node = self
 
         #: What is the previous node in the graph? If ``None`` there is no
         #: previous node, and this node is assumed to be the first entry in the
@@ -143,11 +168,12 @@ class ChapterGraph(object):
             self.extend(chapters)
 
     def __iter__(self):
-        self._current = ChapterNode(None, next_node=self._head)
+        """Return an iterator starting at the head of the graph."""
+        self._current = None
         return self
 
     def __next__(self):
-        node = self._current.next
+        node = self._current.next if self._current else self._head
         if node is None:
             raise StopIteration
         self._current = node

@@ -16,6 +16,7 @@ class Renderer(object):
 
     @property
     def items(self):
+        """A tuple containing all of the chapters."""
         chapters = []
         for node in iter(self.chapter_graph):
             chapters.append(node.chapter)
@@ -119,8 +120,12 @@ class Renderer(object):
             if type(item) == Part:
                 chapter = self.load_chapter(book, item)
                 self.add_chapter(chapter)
-        self.chapter_graph.extend(self.chapters)
+        self.build_chapter_graph()
         return self.chapters
+    
+    def build_chapter_graph(self):
+        self.chapter_graph = ChapterGraph()
+        self.chapter_graph.extend(self.chapters)
 
     def load_chapter(self, book, item, parent=None):
         chapter = None
@@ -176,6 +181,13 @@ class Renderer(object):
         self.app.logger.debug('Successfully loaded {} chapters.'.format(len(chapters)))
 
         context = self.init(book)
+        print()
+        print()
+        print('***')
+        print('renderer ({}): context.data => {}'.format(self.name, context.data))
+        print('***')
+        print()
+        print()
 
         #: We now preprocess for each renderer, this gives our preprocessors
         #: access to the not only the book, but also the context. [SWQ]
