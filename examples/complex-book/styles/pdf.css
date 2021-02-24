@@ -1,0 +1,11 @@
+article {
+    column-count: 2;
+}
+
+h1 {
+  column-span: all;
+}
+
+p {
+  color: #ff0000;
+}
