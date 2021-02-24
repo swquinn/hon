@@ -1,5 +1,5 @@
 import pytest
-from hon.preprocessors.index import is_readme
+from hon.preprocessors.index import IndexPreprocessor, is_readme
 
 
 def test_is_readme_succeeds_for_readme_file_name_variations():
@@ -17,6 +17,16 @@ def test_is_readme_returns_false_for_non_readme_file_names():
     assert is_readme('REDME.md') is False
     assert is_readme('RADME.md') is False
     assert is_readme('READEM.md') is False
+
+
+def test_name(app):
+    actual = IndexPreprocessor(app)
+
+    expected = "index"
+    assert actual.name == expected
+    assert actual._name == expected
+    assert actual.get_name() == expected
+
 
 # #[cfg(test)]
 # mod tests {
