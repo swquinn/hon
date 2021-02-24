@@ -6,7 +6,7 @@ Hon (本) is a tool for creating a book from markdown files.
 """
 import io
 import re
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 _version_re = re.compile(r'__version__\s+=\s+(.*)')
@@ -26,7 +26,7 @@ setup(
     author='Sean Quinn',
     description='A tool for creating books from markdown files.',
     long_description=readme,
-    packages=['hon'],
+    packages=find_packages(include=['hon', 'hon.*']),
     include_package_data=True,
     zip_safe=False,
     platforms='any',
